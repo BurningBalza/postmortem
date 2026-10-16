@@ -1,0 +1,71 @@
+package dev.burning.postmortem.entity;
+
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.util.StringRepresentable;
+
+/** A cosmetic statue's custom pose: a transform per part, with untouched parts left out. */
+public record StatuePose(Map<StatuePart, LimbTransform> parts) {
+   private static final StatuePart[] PARTS = StatuePart.values();
+
+   public static final StatuePose DEFAULT = new StatuePose(Map.of());
+
+   // Saved as one field per part, so poses written before the map existed still load.
+   public static final Codec<StatuePose> CODEC = Codec.simpleMap(
+         StatuePart.CODEC, LimbTransform.CODEC, StringRepresentable.keys(PARTS))
+      .codec()
+      .xmap(StatuePose::new, StatuePose::parts);
+
+   public static final StreamCodec<ByteBuf, StatuePose> PACKET_CODEC = StreamCodec.of(
+      (buf, pose) -> {
+         for (StatuePart part : PARTS) {
+            LimbTransform.PACKET_CODEC.encode(buf, pose.get(part));
+         }
+      },
+      buf -> {
+         Map<StatuePart, LimbTransform> parts = new EnumMap<>(StatuePart.class);
+         for (StatuePart part : PARTS) {
+            parts.put(part, LimbTransform.PACKET_CODEC.decode(buf));
+         }
+         return new StatuePose(parts);
+      });
+
+   public static final EntityDataSerializer<StatuePose> TRACKED_HANDLER = EntityDataSerializer.forValueType(PACKET_CODEC);
+
+   public StatuePose {
+      // Dropping untouched parts keeps equals() honest, which entity data sync relies on.
+      Map<StatuePart, LimbTransform> kept = new EnumMap<>(StatuePart.class);
+      parts.forEach((part, transform) -> {
+         if (!transform.isNone()) {
+            kept.put(part, transform);
+         }
+      });
+      parts = Collections.unmodifiableMap(kept);
+   }
+
+   public boolean isDefault() {
+      return this.parts.isEmpty();
+   }
+
+   public LimbTransform get(StatuePart part) {
+      return this.parts.getOrDefault(part, LimbTransform.NONE);
+   }
+
+   public StatuePose with(StatuePart part, LimbTransform transform) {
+      Map<StatuePart, LimbTransform> parts = new EnumMap<>(StatuePart.class);
+      parts.putAll(this.parts);
+      parts.put(part, transform);
+      return new StatuePose(parts);
+   }
+
+   public StatuePose clamped() {
+      Map<StatuePart, LimbTransform> parts = new EnumMap<>(StatuePart.class);
+      this.parts.forEach((part, transform) -> parts.put(part, transform.clamped()));
+      return new StatuePose(parts);
+   }
+}

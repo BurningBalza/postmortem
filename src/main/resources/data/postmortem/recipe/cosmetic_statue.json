@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"pattern": [
+		"SSS",
+		"SIS",
+		" S "
+	],
+	"key": {
+		"S": "minecraft:stone",
+		"I": "minecraft:iron_ingot"
+	},
+	"result": {
+		"id": "postmortem:cosmetic_statue",
+		"count": 1
+	}
+}

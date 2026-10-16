@@ -1,0 +1,59 @@
+{
+	"item.postmortem.cosmetic_statue": "Statue",
+	"item.postmortem.statue_collector": "Statue Collector",
+
+	"item.postmortem.cosmetic_statue.tooltip": "Right-click it to dress it in armour and held items.",
+	"item.postmortem.cosmetic_statue.tooltip.back": "Right-click from behind to hang something on its back.",
+	"item.postmortem.cosmetic_statue.tooltip.belt": "Sneak and right-click from behind for its belt.",
+	"item.postmortem.cosmetic_statue.tooltip.name": "Right-click with a name tag to name it.",
+	"item.postmortem.cosmetic_statue.tooltip.pose": "Sneak and right-click to pose it.",
+	"item.postmortem.cosmetic_statue.tooltip.wax": "Right-click with honeycomb to seal it.",
+	"item.postmortem.statue_collector.tooltip": "Recalls your remains from %s blocks away.",
+
+	"screen.postmortem.pose": "Pose Statue",
+	"screen.postmortem.pose.editing": "Editing: %s",
+	"screen.postmortem.pose.reset_part": "Reset Part",
+	"screen.postmortem.pose.reset_all": "Reset All",
+
+	"part.postmortem.head": "Head",
+	"part.postmortem.body": "Body",
+	"part.postmortem.right_arm": "Right Arm",
+	"part.postmortem.left_arm": "Left Arm",
+	"part.postmortem.right_leg": "Right Leg",
+	"part.postmortem.left_leg": "Left Leg",
+	"part.postmortem.right_hand_item": "Right Item",
+	"part.postmortem.left_hand_item": "Left Item",
+	"part.postmortem.back_item": "Back Item",
+	"part.postmortem.belt_item": "Belt Item",
+
+	"axis.postmortem.pitch": "Pitch",
+	"axis.postmortem.yaw": "Yaw",
+	"axis.postmortem.roll": "Roll",
+	"axis.postmortem.offset_x": "Shift X",
+	"axis.postmortem.offset_y": "Shift Y",
+	"axis.postmortem.offset_z": "Shift Z",
+
+	"entity.postmortem.memorial_statue": "Statue",
+	"entity.postmortem.cosmetic_statue": "Statue",
+	"entity.postmortem.memorial_statue.named": "%s's Remains",
+
+	"command.postmortem.none": "No remains found.",
+	"command.postmortem.found": "%s - %s at %s %s %s, holding %s stack(s) [click to target]",
+	"command.postmortem.found_unloaded": "%s - %s at %s %s %s, holding %s stack(s), not loaded or lost [click to retrieve]",
+	"command.postmortem.retrieved": "Recovered %s stack(s) from %s statue(s).",
+	"command.postmortem.retrieved_to": "Gave %s stack(s) from %s statue(s) to %s.",
+	"command.postmortem.deleted": "Deleted %s statue(s), destroying the %s stack(s) they held.",
+
+	"message.postmortem.not_your_statue": "These remains are not yours.",
+	"variant.postmortem.default": "Plain",
+	"variant.postmortem.angry": "Angry",
+	"variant.postmortem.confused": "Confused",
+	"variant.postmortem.distress": "Distressed",
+	"variant.postmortem.shocked": "Shocked",
+	"variant.postmortem.screaming": "Screaming",
+
+	"message.postmortem.variant": "Carved a %s face.",
+	"message.postmortem.statue_waxed": "This statue is sealed with wax.",
+	"message.postmortem.no_statue_in_range": "No remains of yours are nearby.",
+	"message.postmortem.collected": "Recovered %s stack(s) from your remains."
+}
