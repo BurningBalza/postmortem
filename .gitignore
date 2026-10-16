@@ -7,3 +7,6 @@ run/
 # Captured output from runClient/runServer, which lands in the project root.
 *.log
 *.log.err
+
+# Per-node run directories for every version other than 26.2-fabric.
+runs/
