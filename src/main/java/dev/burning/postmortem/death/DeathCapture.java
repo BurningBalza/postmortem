@@ -12,7 +12,6 @@ import dev.burning.postmortem.entity.MemorialStatueEntity;
 import dev.burning.postmortem.entity.PoseSnapshot;
 import java.util.ArrayList;
 import java.util.List;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,16 +29,13 @@ public final class DeathCapture {
    private DeathCapture() {
    }
 
-   public static void init() {
-      ServerPlayerEvents.COPY_FROM.register(DeathCapture::carryKeptItems);
-   }
-
    /** Items tagged {@code postmortem:kept_on_death} stay with the player instead of going into the statue. */
    public static boolean isKept(ItemStack stack) {
       return !stack.isEmpty() && stack.is(PostmortemRegistry.KEPT_ON_DEATH);
    }
 
-   private static void carryKeptItems(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
+   /** Called by the loader when a player respawns, with {@code alive} false when the respawn follows a death. */
+   public static void carryKeptItems(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
       if (alive
          || oldPlayer.isSpectator()
          || newPlayer.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
@@ -72,7 +68,7 @@ public final class DeathCapture {
    }
 
    public static boolean capture(Player player, ServerLevel world) {
-      MemorialStatueEntity statue = PostmortemRegistry.MEMORIAL_STATUE.create(world, EntitySpawnReason.TRIGGERED);
+      MemorialStatueEntity statue = PostmortemRegistry.MEMORIAL_STATUE.get().create(world, EntitySpawnReason.TRIGGERED);
       if (statue == null) {
          Postmortem.LOGGER.error("[postmortem] could not create a memorial statue; falling back to vanilla drops");
          return false;

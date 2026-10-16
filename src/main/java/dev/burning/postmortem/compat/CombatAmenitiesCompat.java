@@ -1,7 +1,7 @@
 package dev.burning.postmortem.compat;
 
 import dev.burning.postmortem.Postmortem;
-import net.fabricmc.loader.api.FabricLoader;
+import dev.burning.postmortem.platform.Platform;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -78,7 +78,7 @@ public final class CombatAmenitiesCompat {
       }
       resolved = true;
 
-      if (!FabricLoader.getInstance().isModLoaded(MOD_ID)) {
+      if (!Platform.INSTANCE.isModLoaded(MOD_ID)) {
          return false;
       }
 

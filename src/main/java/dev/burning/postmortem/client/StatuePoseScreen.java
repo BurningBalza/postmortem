@@ -6,7 +6,7 @@ import dev.burning.postmortem.entity.CosmeticStatueEntity;
 import dev.burning.postmortem.entity.LimbTransform;
 import dev.burning.postmortem.entity.StatuePart;
 import dev.burning.postmortem.entity.StatuePose;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import dev.burning.postmortem.platform.ClientPlatform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -249,7 +249,7 @@ public class StatuePoseScreen extends Screen {
    }
 
    private void send() {
-      ClientPlayNetworking.send(new PostmortemRegistry.SetPose(this.statue.getId(), this.working));
+      ClientPlatform.INSTANCE.sendToServer(new PostmortemRegistry.SetPose(this.statue.getId(), this.working));
       this.dirty = false;
       this.ticksSinceSend = 0;
    }

@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import net.fabricmc.loader.api.FabricLoader;
+import dev.burning.postmortem.platform.Platform;
 import net.minecraft.util.Mth;
 
 public record PostmortemConfig(
@@ -78,7 +78,7 @@ public record PostmortemConfig(
    }
 
    public static void load() {
-      Path path = FabricLoader.getInstance().getConfigDir().resolve("postmortem.json");
+      Path path = Platform.INSTANCE.configDir().resolve("postmortem.json");
 
       if (!Files.exists(path)) {
          loaded = DEFAULT;

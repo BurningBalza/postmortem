@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import net.fabricmc.loader.api.FabricLoader;
+import dev.burning.postmortem.platform.Platform;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -121,7 +121,7 @@ public final class TrinketsCompat {
       }
       resolved = true;
 
-      if (!FabricLoader.getInstance().isModLoaded(MOD_ID)) {
+      if (!Platform.INSTANCE.isModLoaded(MOD_ID)) {
          return false;
       }
 

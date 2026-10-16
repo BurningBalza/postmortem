@@ -1,30 +1,34 @@
 package dev.burning.postmortem.client;
 
-import dev.burning.postmortem.PostmortemRegistry;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import dev.burning.postmortem.entity.MemorialStatueEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Entity;
 
-public class PostmortemClient implements ClientModInitializer {
+/** Loader-independent client pieces; each loader's client entrypoint registers these. */
+public final class PostmortemClient {
+   private PostmortemClient() {
+   }
 
-   @Override
-   @SuppressWarnings("deprecation")
-   public void onInitializeClient() {
-      EntityRendererRegistry.register(
-         PostmortemRegistry.MEMORIAL_STATUE,
-         context -> new StatueEntityRenderer<>(
-            context, StatueEntityRenderer.MEMORIAL_TEXTURE, StatueEntityRenderer.MEMORIAL_EYES_TEXTURE));
-      EntityRendererRegistry.register(
-         PostmortemRegistry.COSMETIC_STATUE,
-         context -> new StatueEntityRenderer<>(context, StatueEntityRenderer.COSMETIC_TEXTURE));
+   public static StatueEntityRenderer<MemorialStatueEntity> memorialRenderer(EntityRendererProvider.Context context) {
+      return new StatueEntityRenderer<>(
+         context, StatueEntityRenderer.MEMORIAL_TEXTURE, StatueEntityRenderer.MEMORIAL_EYES_TEXTURE);
+   }
 
-      ClientPlayNetworking.registerGlobalReceiver(PostmortemRegistry.OpenPoseScreen.ID, (payload, context) -> {
-         Entity entity = context.player().level().getEntity(payload.entityId());
-         if (entity instanceof CosmeticStatueEntity statue) {
-            context.client().setScreenAndShow(new StatuePoseScreen(statue));
-         }
-      });
+   public static StatueEntityRenderer<CosmeticStatueEntity> cosmeticRenderer(EntityRendererProvider.Context context) {
+      return new StatueEntityRenderer<>(context, StatueEntityRenderer.COSMETIC_TEXTURE);
+   }
+
+   /** Client handler for {@code OpenPoseScreen}. */
+   public static void openPoseScreen(Minecraft client, int entityId) {
+      if (client.player == null) {
+         return;
+      }
+
+      Entity entity = client.player.level().getEntity(entityId);
+      if (entity instanceof CosmeticStatueEntity statue) {
+         client.setScreenAndShow(new StatuePoseScreen(statue));
+      }
    }
 }

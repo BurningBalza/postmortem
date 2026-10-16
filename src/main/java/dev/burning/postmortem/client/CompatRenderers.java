@@ -11,7 +11,7 @@ import dev.burning.postmortem.entity.StatuePart;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.UUID;
-import net.fabricmc.loader.api.FabricLoader;
+import dev.burning.postmortem.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.player.PlayerModel;
@@ -179,7 +179,7 @@ public abstract class CompatRenderers {
          }
          resolved = true;
 
-         if (!FabricLoader.getInstance().isModLoaded(MOD_ID)) {
+         if (!Platform.INSTANCE.isModLoaded(MOD_ID)) {
             return false;
          }
 
@@ -301,7 +301,7 @@ public abstract class CompatRenderers {
          }
          resolved = true;
 
-         if (!FabricLoader.getInstance().isModLoaded(MOD_ID)) {
+         if (!Platform.INSTANCE.isModLoaded(MOD_ID)) {
             return false;
          }
 

@@ -3,7 +3,7 @@ package dev.burning.postmortem.compat;
 import dev.burning.postmortem.Postmortem;
 import java.lang.reflect.Method;
 import java.util.Map;
-import net.fabricmc.loader.api.FabricLoader;
+import dev.burning.postmortem.platform.Platform;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -54,7 +54,7 @@ public final class PehkuiCompat {
       }
       resolved = true;
 
-      if (!FabricLoader.getInstance().isModLoaded(MOD_ID)) {
+      if (!Platform.INSTANCE.isModLoaded(MOD_ID)) {
          return false;
       }
 

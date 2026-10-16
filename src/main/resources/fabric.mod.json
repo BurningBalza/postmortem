@@ -11,10 +11,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"dev.burning.postmortem.Postmortem"
+			"dev.burning.postmortem.fabric.PostmortemFabric"
 		],
 		"client": [
-			"dev.burning.postmortem.client.PostmortemClient"
+			"dev.burning.postmortem.fabric.PostmortemFabricClient"
 		]
 	},
 	"mixins": [

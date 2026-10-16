@@ -74,12 +74,12 @@ public class CosmeticStatueItem extends Item {
          return InteractionResult.FAIL;
       }
 
-      if (!world.getWorldBorder().isWithinBounds(PostmortemRegistry.COSMETIC_STATUE.getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5))) {
+      if (!world.getWorldBorder().isWithinBounds(PostmortemRegistry.COSMETIC_STATUE.get().getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5))) {
          return InteractionResult.FAIL;
       }
 
       if (world instanceof ServerLevel serverWorld) {
-         CosmeticStatueEntity statue = PostmortemRegistry.COSMETIC_STATUE.create(serverWorld, EntitySpawnReason.SPAWN_ITEM_USE);
+         CosmeticStatueEntity statue = PostmortemRegistry.COSMETIC_STATUE.get().create(serverWorld, EntitySpawnReason.SPAWN_ITEM_USE);
          if (statue == null) {
             return InteractionResult.FAIL;
          }

@@ -3,7 +3,7 @@ package dev.burning.postmortem.entity;
 import dev.burning.postmortem.PostmortemRegistry;
 import dev.burning.postmortem.compat.CombatAmenitiesCompat;
 import java.util.function.Consumer;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import dev.burning.postmortem.platform.Platform;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -223,13 +223,13 @@ public class CosmeticStatueEntity extends StatueEntity {
          return;
       }
 
-      ServerPlayNetworking.send(serverPlayer, new PostmortemRegistry.OpenPoseScreen(this.getId()));
+      Platform.INSTANCE.sendToPlayer(serverPlayer, new PostmortemRegistry.OpenPoseScreen(this.getId()));
       this.level()
          .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.STONE_HIT, SoundSource.NEUTRAL, 0.9F, 1.5F);
    }
 
    private void breakApart(ServerLevel world) {
-      Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM));
+      Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));
 
       for (EquipmentSlot slot : EquipmentSlot.VALUES) {
          if (this.canUseSlot(slot)) {

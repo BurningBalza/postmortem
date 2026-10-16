@@ -1,5 +1,6 @@
 package dev.burning.postmortem;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.burning.postmortem.death.MemorialRegistry;
@@ -8,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -36,31 +36,30 @@ public final class PostmortemCommand {
       }
    }
 
-   public static void init() {
-      CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-         dispatcher.register(Commands.literal("postmortem")
-            .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-            .then(Commands.literal("locate")
-               .then(Commands.argument("player", GameProfileArgument.gameProfile())
-                  .executes(context -> locate(context.getSource(), byOwner(context)))))
-            .then(Commands.literal("retrieve")
-               .then(Commands.argument("player", GameProfileArgument.gameProfile())
-                  .executes(context -> retrieve(context.getSource(), byOwner(context), null))
+   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+      dispatcher.register(Commands.literal("postmortem")
+         .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+         .then(Commands.literal("locate")
+            .then(Commands.argument("player", GameProfileArgument.gameProfile())
+               .executes(context -> locate(context.getSource(), byOwner(context)))))
+         .then(Commands.literal("retrieve")
+            .then(Commands.argument("player", GameProfileArgument.gameProfile())
+               .executes(context -> retrieve(context.getSource(), byOwner(context), null))
+               .then(Commands.literal("to")
+                  .then(Commands.argument("receiver", EntityArgument.player())
+                     .executes(context -> retrieve(context.getSource(), byOwner(context), EntityArgument.getPlayer(context, "receiver"))))))
+            .then(Commands.literal("entity")
+               .then(Commands.argument("targets", EntityArgument.entities())
+                  .executes(context -> retrieve(context.getSource(), bySelector(context), null))
                   .then(Commands.literal("to")
                      .then(Commands.argument("receiver", EntityArgument.player())
-                        .executes(context -> retrieve(context.getSource(), byOwner(context), EntityArgument.getPlayer(context, "receiver"))))))
-               .then(Commands.literal("entity")
-                  .then(Commands.argument("targets", EntityArgument.entities())
-                     .executes(context -> retrieve(context.getSource(), bySelector(context), null))
-                     .then(Commands.literal("to")
-                        .then(Commands.argument("receiver", EntityArgument.player())
-                           .executes(context -> retrieve(context.getSource(), bySelector(context), EntityArgument.getPlayer(context, "receiver"))))))))
-            .then(Commands.literal("delete")
-               .then(Commands.argument("player", GameProfileArgument.gameProfile())
-                  .executes(context -> delete(context.getSource(), byOwner(context))))
-               .then(Commands.literal("entity")
-                  .then(Commands.argument("targets", EntityArgument.entities())
-                     .executes(context -> delete(context.getSource(), bySelector(context))))))));
+                        .executes(context -> retrieve(context.getSource(), bySelector(context), EntityArgument.getPlayer(context, "receiver"))))))))
+         .then(Commands.literal("delete")
+            .then(Commands.argument("player", GameProfileArgument.gameProfile())
+               .executes(context -> delete(context.getSource(), byOwner(context))))
+            .then(Commands.literal("entity")
+               .then(Commands.argument("targets", EntityArgument.entities())
+                  .executes(context -> delete(context.getSource(), bySelector(context)))))));
    }
 
    private static int locate(CommandSourceStack source, List<Memorial> found) {

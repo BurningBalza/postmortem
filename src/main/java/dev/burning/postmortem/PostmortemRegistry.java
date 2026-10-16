@@ -6,13 +6,9 @@ import dev.burning.postmortem.entity.MemorialStatueEntity;
 import dev.burning.postmortem.entity.StatueCollectorItem;
 import dev.burning.postmortem.entity.StatueEntity;
 import dev.burning.postmortem.entity.StatuePose;
+import dev.burning.postmortem.platform.Platform;
 import java.util.function.Function;
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
-import net.minecraft.core.Registry;
+import java.util.function.Supplier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -24,27 +20,29 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 
-/** Everything Postmortem registers: entities, items, the kept-on-death tag, and the pose screen's packets. */
+/**
+ * Everything Postmortem registers: entities, items, the kept-on-death tag, and the pose screen's packets. The
+ * registered values are suppliers because NeoForge only fills them in during its registry event; the loader packages
+ * register the attributes, creative tab entries and payloads themselves.
+ */
 public final class PostmortemRegistry {
    private static final float STATUE_WIDTH = 0.6F;
    private static final float STATUE_HEIGHT = 1.8F;
 
    public static final TagKey<Item> KEPT_ON_DEATH = TagKey.create(Registries.ITEM, Postmortem.id("kept_on_death"));
 
-   public static final EntityType<MemorialStatueEntity> MEMORIAL_STATUE =
+   public static final Supplier<EntityType<MemorialStatueEntity>> MEMORIAL_STATUE =
       registerEntity("memorial_statue", MemorialStatueEntity::new);
-   public static final EntityType<CosmeticStatueEntity> COSMETIC_STATUE =
+   public static final Supplier<EntityType<CosmeticStatueEntity>> COSMETIC_STATUE =
       registerEntity("cosmetic_statue", CosmeticStatueEntity::new);
 
-   public static final Item COSMETIC_STATUE_ITEM =
-      registerItem("cosmetic_statue", CosmeticStatueItem::new, new Properties().stacksTo(16));
-   public static final Item STATUE_COLLECTOR =
-      registerItem("statue_collector", StatueCollectorItem::new, new Properties().stacksTo(1));
+   public static final Supplier<Item> COSMETIC_STATUE_ITEM =
+      registerItem("cosmetic_statue", CosmeticStatueItem::new, () -> new Properties().stacksTo(16));
+   public static final Supplier<Item> STATUE_COLLECTOR =
+      registerItem("statue_collector", StatueCollectorItem::new, () -> new Properties().stacksTo(1));
 
    private PostmortemRegistry() {
    }
@@ -78,23 +76,13 @@ public final class PostmortemRegistry {
       }
    }
 
+   /** Loading this class registers its entries; the entity data serializer has no field, so it goes here. */
    public static void init() {
-      FabricEntityDataRegistry.register(Postmortem.id("statue_pose"), StatuePose.TRACKED_HANDLER);
-
-      FabricDefaultAttributeRegistry.register(MEMORIAL_STATUE, StatueEntity.createStatueAttributes());
-      FabricDefaultAttributeRegistry.register(COSMETIC_STATUE, StatueEntity.createStatueAttributes());
-
-      CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
-         .register(entries -> entries.insertAfter(Items.ARMOR_STAND, COSMETIC_STATUE_ITEM));
-      CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
-         .register(entries -> entries.insertAfter(Items.RECOVERY_COMPASS, STATUE_COLLECTOR));
-
-      PayloadTypeRegistry.clientboundPlay().register(OpenPoseScreen.ID, OpenPoseScreen.CODEC);
-      PayloadTypeRegistry.serverboundPlay().register(SetPose.ID, SetPose.CODEC);
-      ServerPlayNetworking.registerGlobalReceiver(SetPose.ID, (payload, context) -> applyPose(context.player(), payload));
+      Platform.INSTANCE.registerDataSerializer("statue_pose", StatuePose.TRACKED_HANDLER);
    }
 
-   private static void applyPose(ServerPlayer player, SetPose payload) {
+   /** Server handler for {@link SetPose}, called by each loader's payload receiver. */
+   public static void applyPose(ServerPlayer player, SetPose payload) {
       if (!(player.level().getEntity(payload.entityId()) instanceof CosmeticStatueEntity statue)
          || player.distanceToSqr(statue) > CosmeticStatueEntity.EDIT_RANGE_SQUARED
          || statue.isWaxed()) {
@@ -108,19 +96,18 @@ public final class PostmortemRegistry {
       }
    }
 
-   private static <T extends StatueEntity> EntityType<T> registerEntity(String name, EntityType.EntityFactory<T> factory) {
+   private static <T extends StatueEntity> Supplier<EntityType<T>> registerEntity(String name, EntityType.EntityFactory<T> factory) {
       ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Postmortem.id(name));
-      EntityType<T> type = EntityType.Builder.of(factory, MobCategory.MISC)
+      return Platform.INSTANCE.register(BuiltInRegistries.ENTITY_TYPE, name, () -> EntityType.Builder.of(factory, MobCategory.MISC)
          .sized(STATUE_WIDTH, STATUE_HEIGHT)
          .eyeHeight(STATUE_HEIGHT * 0.85F)
          .fireImmune()
          .clientTrackingRange(10)
-         .build(key);
-      return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type);
+         .build(key));
    }
 
-   private static Item registerItem(String name, Function<Properties, Item> factory, Properties settings) {
+   private static Supplier<Item> registerItem(String name, Function<Properties, Item> factory, Supplier<Properties> settings) {
       ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Postmortem.id(name));
-      return Registry.register(BuiltInRegistries.ITEM, key, factory.apply(settings.setId(key)));
+      return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get().setId(key)));
    }
 }
