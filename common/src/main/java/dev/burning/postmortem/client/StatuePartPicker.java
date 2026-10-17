@@ -8,6 +8,7 @@ import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
+import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3fc;
 
@@ -83,7 +84,7 @@ public final class StatuePartPicker {
       matrices.translate(centerX, centerY, 0.0F);
       matrices.scale(scale, scale, -scale);
       matrices.translate(translation.x(), translation.y(), translation.z());
-      matrices.mulPose(rotation);
+      matrices.mulPose(new Quaternionf(rotation));
       matrices.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
       matrices.scale(STATUE_SCALE, STATUE_SCALE, STATUE_SCALE);
       matrices.scale(-1.0F, -1.0F, 1.0F);
@@ -102,7 +103,19 @@ public final class StatuePartPicker {
 
    private void put(StatuePart part, ModelPart modelPart, PoseStack matrices) {
       Bounds bounds = new Bounds();
+      //? if >=1.21.9 {
       modelPart.getExtentsForGui(matrices, bounds);
+      //?} else {
+      /*// What getExtentsForGui does from 1.21.9; vertex positions are still in pixels here.
+      modelPart.visit(matrices, (pose, path, index, cube) -> {
+         for (ModelPart.Polygon polygon : cube.polygons) {
+            for (ModelPart.Vertex vertex : polygon.vertices()) {
+               bounds.accept(pose.pose().transformPosition(
+                  vertex.pos().x() / 16.0F, vertex.pos().y() / 16.0F, vertex.pos().z() / 16.0F, new org.joml.Vector3f()));
+            }
+         }
+      });
+      *///?}
       bounds.storeInto(part, this.boxes);
    }
 
