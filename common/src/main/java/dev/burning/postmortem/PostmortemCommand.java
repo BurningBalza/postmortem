@@ -42,9 +42,9 @@ public final class PostmortemCommand {
    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
       dispatcher.register(Commands.literal("postmortem")
          //? if >=1.21.11 {
-         .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-         //?} else
-         //.requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
+         /*.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+         *///?} else
+         .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
          .then(Commands.literal("locate")
             .then(Commands.argument("player", GameProfileArgument.gameProfile())
                .executes(context -> locate(context.getSource(), byOwner(context)))))
@@ -76,7 +76,7 @@ public final class PostmortemCommand {
 
       for (Memorial memorial : found) {
          BlockPos pos = memorial.statue() != null ? memorial.statue().blockPosition() : memorial.entry().pos();
-         String dimension = memorial.entry().dimension().identifier().toString();
+         String dimension = memorial.entry().dimension().location().toString();
          int stored = memorial.storedCount();
 
          if (memorial.statue() != null) {

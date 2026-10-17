@@ -3,7 +3,7 @@ package dev.burning.postmortem.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -29,9 +29,9 @@ public final class RenderSink {
 
    public void part(ModelPart part, PoseStack matrices, RenderType type, int light, int colour) {
       //? if >=26.3 {
-      this.queue.submitModelPart(part, matrices, type, light, OverlayTexture.NO_OVERLAY, null, colour);
-      //?} else
-      //this.queue.submitModelPart(part, matrices, type, light, OverlayTexture.NO_OVERLAY, null, colour, null);
+      /*this.queue.submitModelPart(part, matrices, type, light, OverlayTexture.NO_OVERLAY, null, colour);
+      *///?} else
+      this.queue.submitModelPart(part, matrices, type, light, OverlayTexture.NO_OVERLAY, null, colour, null);
    }
 
    public void item(ItemStackRenderState item, PoseStack matrices, int light) {

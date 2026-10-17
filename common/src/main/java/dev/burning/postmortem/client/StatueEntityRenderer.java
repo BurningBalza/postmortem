@@ -19,10 +19,10 @@ import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.RenderType;
 //? if >=1.21.11
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
+//import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
@@ -34,18 +34,18 @@ import net.minecraft.world.item.Items;
 public class StatueEntityRenderer<T extends StatueEntity>
    extends LivingEntityRenderer<T, StatueEntityRenderer.State, StatueEntityModel> {
 
-   public static final Identifier MEMORIAL_TEXTURE =
-      Identifier.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue.png");
-   public static final Identifier COSMETIC_TEXTURE =
-      Identifier.fromNamespaceAndPath("postmortem", "textures/entity/statue.png");
-   public static final Identifier MEMORIAL_EYES_TEXTURE =
-      Identifier.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue_eyes.png");
+   public static final ResourceLocation MEMORIAL_TEXTURE =
+      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue.png");
+   public static final ResourceLocation COSMETIC_TEXTURE =
+      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/statue.png");
+   public static final ResourceLocation MEMORIAL_EYES_TEXTURE =
+      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue_eyes.png");
 
    private static final float PLAYER_SCALE = 0.9375F;
 
    private final ItemModelResolver itemModelManager;
 
-   private final Identifier texture;
+   private final ResourceLocation texture;
 
    public static class State extends HumanoidRenderState {
       public StatueEntity statue;
@@ -59,7 +59,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       public StatueVariant variant = StatueVariant.DEFAULT;
    }
 
-   public StatueEntityRenderer(EntityRendererProvider.Context context, Identifier texture) {
+   public StatueEntityRenderer(EntityRendererProvider.Context context, ResourceLocation texture) {
       super(context, new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM)), 0.0F);
       this.itemModelManager = context.getItemModelResolver();
       this.texture = texture;
@@ -86,9 +86,9 @@ public class StatueEntityRenderer<T extends StatueEntity>
 
    /** A renderer whose statue also has glowing eyes. */
    public StatueEntityRenderer(
-      EntityRendererProvider.Context context, Identifier texture, Identifier eyesTexture) {
+      EntityRendererProvider.Context context, ResourceLocation texture, ResourceLocation eyesTexture) {
       this(context, texture);
-      RenderType eyes = RenderTypes.eyes(eyesTexture);
+      RenderType eyes = RenderType.eyes(eyesTexture);
       this.addLayer(new EyesLayer<>(this) {
          @Override
          public RenderType renderType() {
@@ -116,13 +116,13 @@ public class StatueEntityRenderer<T extends StatueEntity>
       state.walkAnimationPos = entity.getLimbAngle();
       state.walkAnimationSpeed = entity.getLimbAmplitude();
       //? if >=26.3 {
-      state.swingAnimation = entity.getHandSwing();
+      /*state.swingAnimation = entity.getHandSwing();
       state.currentSwing = entity.getHandSwing() > 0.0F
          ? new net.minecraft.world.entity.LivingEntity.SwingDescription(
             net.minecraft.world.InteractionHand.MAIN_HAND, entity.getMainHandItem().getAttackAnimation(), 6)
          : null;
-      //?} else
-      //state.attackTime = entity.getHandSwing();
+      *///?} else
+      state.attackTime = entity.getHandSwing();
       state.swimAmount = entity.getLeaning();
       state.isCrouching = pose == Pose.CROUCHING;
       state.isDiscrete = state.isCrouching;
@@ -177,10 +177,10 @@ public class StatueEntityRenderer<T extends StatueEntity>
       }
 
       //? if >=1.21.11 {
-      if (stack.is(ItemTags.SPEARS)) {
+      /*if (stack.is(ItemTags.SPEARS)) {
          return HumanoidModel.ArmPose.SPEAR;
       }
-      //?}
+      *///?}
 
       return HumanoidModel.ArmPose.ITEM;
    }
@@ -197,8 +197,8 @@ public class StatueEntityRenderer<T extends StatueEntity>
    }
 
    @Override
-   public Identifier getTextureLocation(State state) {
-      Identifier carved = state.variant.texture();
+   public ResourceLocation getTextureLocation(State state) {
+      ResourceLocation carved = state.variant.texture();
       return carved != null ? carved : this.texture;
    }
 }

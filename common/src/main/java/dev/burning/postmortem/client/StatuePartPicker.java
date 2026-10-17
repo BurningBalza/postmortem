@@ -84,8 +84,8 @@ public final class StatuePartPicker {
       matrices.translate(centerX, centerY, 0.0F);
       matrices.scale(scale, scale, -scale);
       matrices.translate(translation.x(), translation.y(), translation.z());
-      matrices.rotate(new Quaternionf(rotation));
-      matrices.rotate(Axis.YP.rotationDegrees(180.0F - bodyRot));
+      matrices.mulPose(new Quaternionf(rotation));
+      matrices.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
       matrices.scale(STATUE_SCALE, STATUE_SCALE, STATUE_SCALE);
       matrices.scale(-1.0F, -1.0F, 1.0F);
       matrices.translate(0.0F, MODEL_LIFT, 0.0F);
@@ -104,12 +104,12 @@ public final class StatuePartPicker {
    private void put(StatuePart part, ModelPart modelPart, PoseStack matrices) {
       Bounds bounds = new Bounds();
       //? if >=1.21.11 {
-      modelPart.getExtentsForGui(matrices, bounds);
-      //?} elif >=1.21.9 {
-      /*java.util.Set<org.joml.Vector3f> corners = new java.util.HashSet<>();
+      /*modelPart.getExtentsForGui(matrices, bounds);
+      *///?} elif >=1.21.9 {
+      java.util.Set<org.joml.Vector3f> corners = new java.util.HashSet<>();
       modelPart.getExtentsForGui(matrices, corners);
       corners.forEach(bounds);
-      *///?} else {
+      //?} else {
       /*// What getExtentsForGui does from 1.21.9; vertex positions are still in pixels here.
       modelPart.visit(matrices, (pose, path, index, cube) -> {
          for (ModelPart.Polygon polygon : cube.polygons) {

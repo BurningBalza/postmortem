@@ -14,7 +14,7 @@ import java.util.UUID;
 import dev.burning.postmortem.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
 //? if >=1.21.9 {
@@ -249,9 +249,9 @@ public abstract class CompatRenderers {
             PlayerModel model = bakeModel(factory);
             RenderLayerParent<AvatarRenderState, PlayerModel> parent = parentOf(model);
             //? if >=26.3 {
-            Object heldItemRenderer = null;
-            //?} else
-            //Object heldItemRenderer = Minecraft.getInstance().gameRenderer.itemInHandRenderer;
+            /*Object heldItemRenderer = null;
+            *///?} else
+            Object heldItemRenderer = Minecraft.getInstance().gameRenderer.itemInHandRenderer;
 
             return new Amenities(
                backConstructor.newInstance(parent, heldItemRenderer),

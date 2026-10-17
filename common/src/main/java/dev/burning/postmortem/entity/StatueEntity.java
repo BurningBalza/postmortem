@@ -145,9 +145,9 @@ public abstract class StatueEntity extends LivingEntity {
          //?} else
          //held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
          //? if >=26.3 {
-         this.playWaxEffect(SoundEvents.AXE_WAX_OFF.value(), ParticleTypes.WAX_OFF);
-         //?} else
-         //this.playWaxEffect(SoundEvents.AXE_WAX_OFF, ParticleTypes.WAX_OFF);
+         /*this.playWaxEffect(SoundEvents.AXE_WAX_OFF.value(), ParticleTypes.WAX_OFF);
+         *///?} else
+         this.playWaxEffect(SoundEvents.AXE_WAX_OFF, ParticleTypes.WAX_OFF);
          return InteractionResult.SUCCESS;
       }
 
@@ -288,9 +288,9 @@ public abstract class StatueEntity extends LivingEntity {
       ValueOutput view = ValueOutput.of(tag, this.registryAccess());
    *///?}
       //? if >=1.21.11 {
-      view.store("StatuePose", Pose.CODEC, this.getPose());
-      //?} else
-      //view.putString("StatuePose", this.getPose().name().toLowerCase(java.util.Locale.ROOT));
+      /*view.store("StatuePose", Pose.CODEC, this.getPose());
+      *///?} else
+      view.putString("StatuePose", this.getPose().name().toLowerCase(java.util.Locale.ROOT));
       view.putFloat("LimbAngle", this.getLimbAngle());
       view.putFloat("LimbAmplitude", this.getLimbAmplitude());
       view.putFloat("HandSwing", this.getHandSwing());
@@ -326,9 +326,9 @@ public abstract class StatueEntity extends LivingEntity {
       ValueInput view = ValueInput.of(tag, this.registryAccess());
    *///?}
       //? if >=1.21.11 {
-      view.read("StatuePose", Pose.CODEC).ifPresent(this::setPose);
-      //?} else
-      //poseByName(view.getStringOr("StatuePose", "")).ifPresent(this::setPose);
+      /*view.read("StatuePose", Pose.CODEC).ifPresent(this::setPose);
+      *///?} else
+      poseByName(view.getStringOr("StatuePose", "")).ifPresent(this::setPose);
       this.setLimbAngle(view.getFloatOr("LimbAngle", 0.0F));
       this.setLimbAmplitude(view.getFloatOr("LimbAmplitude", 0.0F));
       this.setHandSwing(view.getFloatOr("HandSwing", 0.0F));
@@ -393,11 +393,11 @@ public abstract class StatueEntity extends LivingEntity {
 
    // Also granted by the minecraft:can_breathe_under_water tag, which is all that works where this is final.
    //? if >=1.21.11 {
-   @Override
+   /*@Override
    public boolean canBreatheUnderwater() {
       return true;
    }
-   //?}
+   *///?}
 
    @Override
    public boolean isAffectedByPotions() {
@@ -410,7 +410,7 @@ public abstract class StatueEntity extends LivingEntity {
    }
 
    //? if <1.21.11 {
-   /*private static java.util.Optional<Pose> poseByName(String name) {
+   private static java.util.Optional<Pose> poseByName(String name) {
       for (Pose pose : Pose.values()) {
          if (pose.name().toLowerCase(java.util.Locale.ROOT).equals(name)) {
             return java.util.Optional.of(pose);
@@ -418,5 +418,5 @@ public abstract class StatueEntity extends LivingEntity {
       }
       return java.util.Optional.empty();
    }
-   *///?}
+   //?}
 }

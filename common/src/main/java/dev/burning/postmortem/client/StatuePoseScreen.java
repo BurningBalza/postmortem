@@ -9,7 +9,7 @@ import dev.burning.postmortem.entity.StatuePose;
 import dev.burning.postmortem.platform.ClientPlatform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -295,7 +295,7 @@ public class StatuePoseScreen extends Screen {
       return part == StatuePart.BACK_ITEM ? BACK_YAW : FRONT_YAW;
    }
 
-   private void drawPreview(GuiGraphicsExtractor context, float centreX) {
+   private void drawPreview(GuiGraphics context, float centreX) {
       EntityRenderState raw = Minecraft.getInstance()
          .getEntityRenderDispatcher()
          .getRenderer(this.statue)
@@ -305,7 +305,7 @@ public class StatuePoseScreen extends Screen {
       }
 
       //? if >=1.21.9 {
-      state.lightCoords = LightCoordsUtil.FULL_BRIGHT;
+      state.lightCoords = LightTexture.FULL_BRIGHT;
       state.shadowPieces.clear();
       state.outlineColor = 0;
       //?} else
@@ -325,10 +325,10 @@ public class StatuePoseScreen extends Screen {
       this.picker.update(state, centreX, centreY, PREVIEW_SIZE, translate, rotation, state.bodyRot);
 
       //? if >=26.1 {
-      context.entity(
-      //?} elif >=1.21.6 {
-      /*context.submitEntityRenderState(
-      *///?} else
+      /*context.entity(
+      *///?} elif >=1.21.6 {
+      context.submitEntityRenderState(
+      //?} else
       //drawEntity(context,
          state, PREVIEW_SIZE, translate, rotation, cameraAngle,
          this.contentLeft, this.contentTop, this.contentLeft + CONTENT_WIDTH, this.previewBottom);
@@ -338,7 +338,7 @@ public class StatuePoseScreen extends Screen {
    /*// Before 1.21.6 the GUI could only draw a live entity, not a render state, so this does what
    // InventoryScreen.renderEntityInInventory does with the state the preview has already posed.
    private void drawEntity(
-      GuiGraphicsExtractor context, StatueEntityRenderer.State state, float size, Vector3f translate,
+      GuiGraphics context, StatueEntityRenderer.State state, float size, Vector3f translate,
       Quaternionf rotation, Quaternionf cameraAngle, int left, int top, int right, int bottom) {
 
       context.enableScissor(left, top, right, bottom);
@@ -346,7 +346,7 @@ public class StatuePoseScreen extends Screen {
       context.pose().translate((left + right) / 2.0F, (top + bottom) / 2.0F, 50.0F);
       context.pose().scale(size, size, -size);
       context.pose().translate(translate.x, translate.y, translate.z);
-      context.pose().rotate(rotation);
+      context.pose().mulPose(rotation);
       context.flush();
       com.mojang.blaze3d.platform.Lighting.setupForEntityInInventory();
 
@@ -354,7 +354,7 @@ public class StatuePoseScreen extends Screen {
       dispatcher.overrideCameraOrientation(cameraAngle.conjugate(new Quaternionf()).rotateY((float) Math.PI));
       dispatcher.setRenderShadow(false);
       var renderer = (StatueEntityRenderer<?>) dispatcher.getRenderer(this.statue);
-      context.drawSpecial(buffers -> renderer.render(state, context.pose(), buffers, LightCoordsUtil.FULL_BRIGHT));
+      context.drawSpecial(buffers -> renderer.render(state, context.pose(), buffers, LightTexture.FULL_BRIGHT));
       context.flush();
       dispatcher.setRenderShadow(true);
 
@@ -366,16 +366,16 @@ public class StatuePoseScreen extends Screen {
 
    @Override
    //? if >=26.1 {
-   public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
+   /*public void extractRenderState(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
       super.extractRenderState(context, mouseX, mouseY, deltaTicks);
-   //?} else {
-   /*public void render(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
+   *///?} else {
+   public void render(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
       super.render(context, mouseX, mouseY, deltaTicks);
-   *///?}
+   //?}
 
       this.previewYaw = Mth.rotLerp(Math.min(1.0F, deltaTicks * TURN_SPEED), this.previewYaw, this.targetYaw);
 
-      context.centeredText(this.font, this.title, this.contentLeft + CONTENT_WIDTH / 2, this.contentTop - 16, 0xFFFFFF);
+      context.drawCenteredString(this.font, this.title, this.contentLeft + CONTENT_WIDTH / 2, this.contentTop - 16, 0xFFFFFF);
       context.fill(this.contentLeft, this.contentTop, this.contentLeft + CONTENT_WIDTH, this.previewBottom, PANEL_COLOUR);
 
       this.hovered = this.inPreview(mouseX, mouseY) ? this.picker.pick(mouseX, mouseY) : null;
@@ -385,7 +385,7 @@ public class StatuePoseScreen extends Screen {
 
       boolean previewing = this.hovered != null && this.hovered != this.selected;
       StatuePart named = previewing ? this.hovered : this.selected;
-      context.centeredText(
+      context.drawCenteredString(
          this.font,
          Component.translatable("screen.postmortem.pose.editing", Component.translatable(named.translationKey()))
             .withStyle(previewing ? ChatFormatting.YELLOW : ChatFormatting.GRAY),
