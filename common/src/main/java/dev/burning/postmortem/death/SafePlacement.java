@@ -18,8 +18,12 @@ public final class SafePlacement {
 
    public static BlockPos findFor(Level world, Entity statue, BlockPos deathPos) {
       PostmortemConfig config = PostmortemConfig.get();
-      int minY = world.getMinY() + 1;
-      int maxY = world.getMinY() + world.getHeight() - 2;
+      //? if >=1.21.2 {
+      int bottom = world.getMinY();
+      //?} else
+      //int bottom = world.getMinBuildHeight();
+      int minY = bottom + 1;
+      int maxY = bottom + world.getHeight() - 2;
       BlockPos start = new BlockPos(deathPos.getX(), Math.clamp(deathPos.getY(), minY, maxY), deathPos.getZ());
 
       WorldBorder border = world.getWorldBorder();

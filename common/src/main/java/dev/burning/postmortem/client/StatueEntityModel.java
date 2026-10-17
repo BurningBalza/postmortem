@@ -8,24 +8,51 @@ import dev.burning.postmortem.entity.StatuePose;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
+//? if >=1.21.2 {
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+//?} else
+//import dev.burning.postmortem.entity.StatueEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import org.joml.Vector3fc;
 
+//? if >=1.21.2 {
 public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State> {
+//?} else
+//public class StatueEntityModel extends HumanoidModel<StatueEntity> {
    //? if <1.21.9 {
-   // translateToHand gets no render state here, so keep the one setupAnim last posed.
-   private StatueEntityRenderer.State current;
+   // translateToHand gets no render state here, so keep the one setupAnim last posed. Before 1.21.2 the renderer
+   // sets it before each draw, and the layers read it too.
+   StatueEntityRenderer.State current;
    //?}
 
    public StatueEntityModel(ModelPart root) {
       super(root);
    }
 
+   //? if >=1.21.2 {
    @Override
    public void setupAnim(StatueEntityRenderer.State state) {
       super.setupAnim(state);
+   //?} else {
+   /*@Override
+   public void setupAnim(
+      StatueEntity entity, float limbAngle, float limbDistance, float age, float headYaw, float headPitch) {
+      this.setupAnim(this.current);
+   }
+
+   /^* 1.21.2's setupAnim(state): poses the model from the state rather than the live entity. ^/
+   public void setupAnim(StatueEntityRenderer.State state) {
+      this.attackTime = state.attackTime;
+      this.riding = state.isPassenger;
+      this.young = false;
+      this.crouching = state.isCrouching;
+      this.swimAmount = state.swimAmount;
+      this.rightArmPose = state.rightArmPose;
+      this.leftArmPose = state.leftArmPose;
+      super.setupAnim(
+         state.statue, state.walkAnimationPos, state.walkAnimationSpeed, state.ageInTicks, state.yRot, state.xRot);
+   *///?}
       //? if <1.21.9
       this.current = state;
 
@@ -59,7 +86,7 @@ public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State>
       }
    }
 
-   //? if <1.21.4 {
+   //? if >=1.21.2 && <1.21.4 {
    /*@Override
    protected HumanoidModel.ArmPose getArmPose(StatueEntityRenderer.State state, HumanoidArm arm) {
       return arm == HumanoidArm.RIGHT ? state.rightArmPose : state.leftArmPose;
@@ -89,6 +116,9 @@ public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State>
 
       Vector3fc offset = transform.offset();
       PartPose origin = part.getInitialPose();
+      //? if >=1.21.2 {
       part.setPos(origin.x() + offset.x(), origin.y() + offset.y(), origin.z() + offset.z());
+      //?} else
+      //part.setPos(origin.x + offset.x(), origin.y + offset.y(), origin.z + offset.z());
    }
 }
