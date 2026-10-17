@@ -1,9 +1,10 @@
 package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.PostmortemRegistry;
-import dev.burning.postmortem.compat.CombatAmenitiesCompat;
+import dev.burning.postmortem.compat.BackSlots;
 import java.util.function.Consumer;
 import dev.burning.postmortem.platform.Platform;
+//? if >=1.20.5
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -45,8 +46,14 @@ public class CosmeticStatueEntity extends StatueEntity {
    }
 
    @Override
+   //? if >=1.20.5 {
    protected void defineSynchedData(SynchedEntityData.Builder builder) {
       super.defineSynchedData(builder);
+   //?} else {
+   /*protected void defineSynchedData() {
+      super.defineSynchedData();
+      SynchedEntityData builder = this.entityData;
+   *///?}
       builder.define(LIMB_POSE, StatuePose.DEFAULT);
    }
 
@@ -92,7 +99,7 @@ public class CosmeticStatueEntity extends StatueEntity {
             return this.refuseWaxed(player);
          }
 
-         if (CombatAmenitiesCompat.isPresent() && this.isBehind(player)) {
+         if (BackSlots.belt() && this.isBehind(player)) {
             return this.swap(player, hand, this.getBeltslotStack(), this::setBeltslotStack, 1.0F);
          }
 
@@ -109,7 +116,7 @@ public class CosmeticStatueEntity extends StatueEntity {
          return this.refuseWaxed(player);
       }
 
-      if (this.isBehind(player)) {
+      if (BackSlots.back() && this.isBehind(player)) {
          return this.swap(player, hand, this.getBackslotStack(), this::setBackslotStack, 1.2F);
       }
 
@@ -128,13 +135,22 @@ public class CosmeticStatueEntity extends StatueEntity {
          return null;
       }
 
+      //? if >=1.20.5 {
       Component name = held.get(DataComponents.CUSTOM_NAME);
+      //?} else
+      //Component name = held.hasCustomHoverName() ? held.getHoverName() : null;
       if (name == null) {
          return InteractionResult.PASS;
       }
 
       this.setCustomName(name);
+      //? if >=1.20.5 {
       held.consume(1, player);
+      //?} else {
+      /*if (!player.getAbilities().instabuild) {
+         held.shrink(1);
+      }
+      *///?}
       this.level()
          .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.STONE_PLACE, SoundSource.NEUTRAL, 0.7F, 1.6F);
       return InteractionResult.SUCCESS;
@@ -223,7 +239,10 @@ public class CosmeticStatueEntity extends StatueEntity {
          return false;
       }
 
+      //? if >=1.20.5 {
       if (source.is(DamageTypeTags.IS_PLAYER_ATTACK)
+      //?} else
+      //if (source.is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)
          || source.is(DamageTypeTags.IS_EXPLOSION)
          || source.is(DamageTypeTags.IS_PROJECTILE)
          || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
@@ -286,7 +305,7 @@ public class CosmeticStatueEntity extends StatueEntity {
    //?} else {
    /*public void addAdditionalSaveData(CompoundTag tag) {
       super.addAdditionalSaveData(tag);
-      ValueOutput view = ValueOutput.of(tag, this.registryAccess());
+      ValueOutput view = ValueOutput.of(tag, this);
    *///?}
 
       StatuePose pose = this.getLimbPose();
@@ -302,13 +321,16 @@ public class CosmeticStatueEntity extends StatueEntity {
    //?} else {
    /*public void readAdditionalSaveData(CompoundTag tag) {
       super.readAdditionalSaveData(tag);
-      ValueInput view = ValueInput.of(tag, this.registryAccess());
+      ValueInput view = ValueInput.of(tag, this);
    *///?}
       this.setLimbPose(view.read("LimbPose", StatuePose.CODEC).orElse(StatuePose.DEFAULT));
    }
 
    @Override
+   //? if >=1.20.3 {
    public boolean ignoreExplosion(Explosion explosion) {
+   //?} else
+   //public boolean ignoreExplosion() {
       return false;
    }
 }
