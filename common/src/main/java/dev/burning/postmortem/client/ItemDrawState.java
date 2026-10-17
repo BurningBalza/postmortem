@@ -1,0 +1,56 @@
+package dev.burning.postmortem.client;
+
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+//? if >=1.21.4 {
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+//?} else {
+/*import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.resources.model.BakedModel;
+*///?}
+
+/**
+ * An item a statue layer draws itself, resolved while the render state is extracted: 1.21.4's ItemStackRenderState,
+ * or before it the stack and its baked model. {@link RenderSink#item} draws it.
+ */
+public final class ItemDrawState {
+   //? if >=1.21.4 {
+   final ItemStackRenderState state = new ItemStackRenderState();
+
+   public void update(ItemModelResolver resolver, ItemStack stack, ItemDisplayContext context, LivingEntity entity) {
+      //? if >=1.21.5 {
+      /*resolver.updateForLiving(this.state, stack, context, entity);
+      *///?} else
+      resolver.updateForLiving(this.state, stack, context, false, entity);
+   }
+
+   public boolean isEmpty() {
+      return this.state.isEmpty();
+   }
+
+   public void clear() {
+      this.state.clear();
+   }
+   //?} else {
+   /*ItemStack stack = ItemStack.EMPTY;
+   ItemDisplayContext context = ItemDisplayContext.NONE;
+   BakedModel model;
+
+   public void update(ItemRenderer resolver, ItemStack stack, ItemDisplayContext context, LivingEntity entity) {
+      this.stack = stack.copy();
+      this.context = context;
+      this.model = resolver.resolveItemModel(stack, entity, context);
+   }
+
+   public boolean isEmpty() {
+      return this.stack.isEmpty() || this.model == null;
+   }
+
+   public void clear() {
+      this.stack = ItemStack.EMPTY;
+      this.model = null;
+   }
+   *///?}
+}
