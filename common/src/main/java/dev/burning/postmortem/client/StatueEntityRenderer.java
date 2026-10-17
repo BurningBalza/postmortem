@@ -17,8 +17,10 @@ import net.minecraft.client.renderer.entity.layers.EyesLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+//? if >=1.21.4 {
 import net.minecraft.client.renderer.item.ItemModelResolver;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
+//?} else
+//import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 //? if >=1.21.11
 //import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -43,25 +45,37 @@ public class StatueEntityRenderer<T extends StatueEntity>
 
    private static final float PLAYER_SCALE = 0.9375F;
 
+   //? if >=1.21.4 {
    private final ItemModelResolver itemModelManager;
+   //?} else
+   //private final ItemRenderer itemModelManager;
 
    private final ResourceLocation texture;
 
    public static class State extends HumanoidRenderState {
       public StatueEntity statue;
 
-      public final ItemStackRenderState backslotItemState = new ItemStackRenderState();
+      public final ItemDrawState backslotItemState = new ItemDrawState();
 
       public StatueBackItemLayer.Fit backslotFit = StatueBackItemLayer.Fit.GENERIC;
 
       public StatuePose limbPose = StatuePose.DEFAULT;
 
       public StatueVariant variant = StatueVariant.DEFAULT;
+
+      //? if <1.21.4 {
+      /*// Render states only carry arm poses from 1.21.4; StatueEntityModel hands these to HumanoidModel before that.
+      public HumanoidModel.ArmPose rightArmPose = HumanoidModel.ArmPose.EMPTY;
+      public HumanoidModel.ArmPose leftArmPose = HumanoidModel.ArmPose.EMPTY;
+      *///?}
    }
 
    public StatueEntityRenderer(EntityRendererProvider.Context context, ResourceLocation texture) {
       super(context, new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM)), 0.0F);
+      //? if >=1.21.4 {
       this.itemModelManager = context.getItemModelResolver();
+      //?} else
+      //this.itemModelManager = context.getItemRenderer();
       this.texture = texture;
       //? if >=1.21.9 {
       this.addLayer(new HumanoidArmorLayer<>(
@@ -77,9 +91,15 @@ public class StatueEntityRenderer<T extends StatueEntity>
          new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_INNER_ARMOR)),
          new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_OUTER_ARMOR)),
          context.getEquipmentRenderer()));
+      //? if >=1.21.4
       this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
       *///?}
+      //? if >=1.21.4 {
       this.addLayer(new ItemInHandLayer<>(this));
+      //?} else {
+      /*this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemRenderer()));
+      this.addLayer(new ItemInHandLayer<>(this, context.getItemRenderer()));
+      *///?}
       this.addLayer(new StatueBackItemLayer(this, context));
       this.addLayer(new StatueHighlightLayer(this));
    }
@@ -107,7 +127,10 @@ public class StatueEntityRenderer<T extends StatueEntity>
       super.extractRenderState(entity, state, tickDelta);
 
       state.statue = entity;
+      //? if >=1.21.4 {
       HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta, this.itemModelManager);
+      //?} else
+      //HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta);
       Pose pose = entity.getPose();
       state.pose = pose;
       state.bodyRot = entity.getVisualRotationYInDegrees();
@@ -143,13 +166,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
          state.backslotFit = StatueBackItemLayer.Fit.GENERIC;
       } else {
          state.backslotFit = StatueBackItemLayer.Fit.forItem(backslot);
-         //? if >=1.21.5 {
-         this.itemModelManager.updateForLiving(
-            state.backslotItemState, backslot, state.backslotFit.displayContext(), entity);
-         //?} else {
-         /*this.itemModelManager.updateForLiving(
-            state.backslotItemState, backslot, state.backslotFit.displayContext(), false, entity);
-         *///?}
+         state.backslotItemState.update(this.itemModelManager, backslot, state.backslotFit.displayContext(), entity);
       }
    }
 

@@ -35,6 +35,12 @@ stonecutter parameters {
             replace("RenderTypes.", "RenderType.")
             replace("net.minecraft.client.model.player.PlayerModel", "net.minecraft.client.model.PlayerModel")
         }
+        string(current.parsed < "1.21.4") {
+            replace("headEquipment", "headItem")
+            replace("chestEquipment", "chestItem")
+            replace("legsEquipment", "legsItem")
+            replace("feetEquipment", "feetItem")
+        }
         string(current.parsed < "1.21.9") {
             replace("AvatarRenderState", "PlayerRenderState")
         }
