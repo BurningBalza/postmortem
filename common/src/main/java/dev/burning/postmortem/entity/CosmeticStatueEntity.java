@@ -63,7 +63,10 @@ public class CosmeticStatueEntity extends StatueEntity {
    public static final double EDIT_RANGE_SQUARED = 12.0 * 12.0;
 
    @Override
+   //? if >=26.1 {
    public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
+   //?} else
+   //public InteractionResult interactAt(Player player, Vec3 hitPos, InteractionHand hand) {
       if (this.level().isClientSide()) {
          return InteractionResult.SUCCESS;
       }

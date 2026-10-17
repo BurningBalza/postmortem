@@ -1,5 +1,6 @@
 package dev.burning.postmortem.entity;
 
+import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemConfig;
 import java.util.List;
 import java.util.function.Consumer;
@@ -42,7 +43,7 @@ public class StatueCollectorItem extends Item {
          statue -> statue.isOwner(player) && !statue.isEmpty() && !statue.isWaxed());
 
       if (statues.isEmpty()) {
-         player.sendOverlayMessage(Component.translatable("message.postmortem.no_statue_in_range"));
+         Postmortem.overlay(player, Component.translatable("message.postmortem.no_statue_in_range"));
          return InteractionResult.FAIL;
       }
 
@@ -53,7 +54,7 @@ public class StatueCollectorItem extends Item {
 
       world.playSound(
          null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.6F, 1.6F);
-      player.sendOverlayMessage(Component.translatable("message.postmortem.collected", returned));
+      Postmortem.overlay(player, Component.translatable("message.postmortem.collected", returned));
       player.getCooldowns().addCooldown(stack, 20);
       return InteractionResult.SUCCESS;
    }

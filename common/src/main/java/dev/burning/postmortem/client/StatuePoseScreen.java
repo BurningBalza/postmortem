@@ -299,14 +299,22 @@ public class StatuePoseScreen extends Screen {
       float centreY = this.contentTop + PREVIEW_HEIGHT / 2.0F;
       this.picker.update(state, centreX, centreY, PREVIEW_SIZE, translate, rotation, state.bodyRot);
 
+      //? if >=26.1 {
       context.entity(
+      //?} else
+      //context.submitEntityRenderState(
          state, PREVIEW_SIZE, translate, rotation, cameraAngle,
          this.contentLeft, this.contentTop, this.contentLeft + CONTENT_WIDTH, this.previewBottom);
    }
 
    @Override
+   //? if >=26.1 {
    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
       super.extractRenderState(context, mouseX, mouseY, deltaTicks);
+   //?} else {
+   /*public void render(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
+      super.render(context, mouseX, mouseY, deltaTicks);
+   *///?}
 
       this.previewYaw = Mth.rotLerp(Math.min(1.0F, deltaTicks * TURN_SPEED), this.previewYaw, this.targetYaw);
 

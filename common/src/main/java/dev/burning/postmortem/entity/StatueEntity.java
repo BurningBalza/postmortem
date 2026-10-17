@@ -1,5 +1,6 @@
 package dev.burning.postmortem.entity;
 
+import dev.burning.postmortem.Postmortem;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.chat.Component;
@@ -103,7 +104,7 @@ public abstract class StatueEntity extends LivingEntity {
    }
 
    protected InteractionResult refuseWaxed(Player player) {
-      player.sendOverlayMessage(Component.translatable("message.postmortem.statue_waxed"));
+      Postmortem.overlay(player, Component.translatable("message.postmortem.statue_waxed"));
       this.level().playSound(
          null,
          this.getX(),
@@ -200,7 +201,7 @@ public abstract class StatueEntity extends LivingEntity {
       StatueVariant next = this.getVariant().next();
       this.setVariant(next);
       held.hurtAndBreak(1, player, hand);
-      player.sendOverlayMessage(
+      Postmortem.overlay(player, 
          Component.translatable("message.postmortem.variant", Component.translatable(next.translationKey())));
       this.level().playSound(
          null, this.getX(), this.getY(), this.getZ(), SoundEvents.GRINDSTONE_USE, SoundSource.NEUTRAL, 0.7F, 1.4F);
