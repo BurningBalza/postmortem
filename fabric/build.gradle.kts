@@ -59,7 +59,7 @@ tasks {
         val props = mapOf(
             "version" to project.version.toString(),
             "minecraft" to project.property("mod.mc_compat") as String,
-            "loader" to project.property("deps.fabric_loader") as String,
+            "loader" to project.property("mod.fabric_loader_min") as String,
             "java" to requiredJava.majorVersion,
         )
         inputs.properties(props)
