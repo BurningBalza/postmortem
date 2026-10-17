@@ -2,6 +2,7 @@ package dev.burning.postmortem.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.burning.postmortem.compat.BackSlots;
 import dev.burning.postmortem.entity.StatuePart;
 import java.util.EnumMap;
 import java.util.Map;
@@ -92,6 +93,10 @@ public final class StatuePartPicker {
       return matrices;
    }
    private void putItem(StatuePart part, StatueEntityRenderer.State state, PoseStack matrices) {
+      if (!BackSlots.has(part)) {
+         return;
+      }
+
       matrices.pushPose();
       Bounds bounds = new Bounds();
       if (StatueHighlightLayer.applyItemAnchor(matrices, this.model, state, part)) {

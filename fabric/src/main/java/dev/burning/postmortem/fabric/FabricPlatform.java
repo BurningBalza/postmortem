@@ -13,7 +13,10 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
+//? if >=1.20.2 {
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//?} else
+//import dev.burning.postmortem.legacy.CustomPacketPayload;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -46,6 +49,13 @@ public final class FabricPlatform implements Platform {
 
    @Override
    public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
+      //? if >=1.20.5 {
       ServerPlayNetworking.send(player, payload);
+      //?} else {
+      /*// Before 1.20.5 Fabric sends raw buffers on a channel; the payload writes itself into one.
+      net.minecraft.network.FriendlyByteBuf buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
+      payload.write(buf);
+      ServerPlayNetworking.send(player, payload.id(), buf);
+      *///?}
    }
 }
