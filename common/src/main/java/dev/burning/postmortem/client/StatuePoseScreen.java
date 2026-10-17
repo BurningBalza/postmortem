@@ -13,6 +13,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+//? if >=1.21.9
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -176,8 +177,18 @@ public class StatuePoseScreen extends Screen {
       }
    }
 
+   //? if <1.21.9 {
+   /*// What 1.21.9's MouseButtonEvent carries, so the handlers below read the same on every version.
+   private record MouseButtonEvent(double x, double y, int button) {
+   }
+
+   @Override
+   public boolean mouseClicked(double mouseX, double mouseY, int button) {
+      MouseButtonEvent event = new MouseButtonEvent(mouseX, mouseY, button);
+   *///?} else {
    @Override
    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+   //?}
       if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && this.inPreview(event.x(), event.y())) {
          StatuePart part = this.picker.pick(event.x(), event.y());
          if (part != null) {
@@ -189,11 +200,19 @@ public class StatuePoseScreen extends Screen {
          }
       }
 
+      //? if >=1.21.9 {
       return super.mouseClicked(event, doubleClick);
+      //?} else
+      //return super.mouseClicked(mouseX, mouseY, button);
    }
 
    @Override
+   //? if >=1.21.9 {
    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+   //?} else {
+   /*public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+      MouseButtonEvent event = new MouseButtonEvent(mouseX, mouseY, button);
+   *///?}
       if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT && this.inPreview(event.x(), event.y())) {
          this.turnedByHand = true;
          this.previewYaw = Mth.wrapDegrees(this.previewYaw - (float) dragX * DRAG_DEGREES_PER_PIXEL);
@@ -203,7 +222,10 @@ public class StatuePoseScreen extends Screen {
          return true;
       }
 
+      //? if >=1.21.9 {
       return super.mouseDragged(event, dragX, dragY);
+      //?} else
+      //return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
    }
 
    private boolean inPreview(double mouseX, double mouseY) {
@@ -282,9 +304,12 @@ public class StatuePoseScreen extends Screen {
          return;
       }
 
+      //? if >=1.21.9 {
       state.lightCoords = LightCoordsUtil.FULL_BRIGHT;
       state.shadowPieces.clear();
       state.outlineColor = 0;
+      //?} else
+      //state.nameTag = null;
       state.bodyRot = this.previewYaw;
       state.yRot = 0.0F;
       state.xRot = 0.0F;
@@ -301,11 +326,43 @@ public class StatuePoseScreen extends Screen {
 
       //? if >=26.1 {
       context.entity(
-      //?} else
-      //context.submitEntityRenderState(
+      //?} elif >=1.21.9 {
+      /*context.submitEntityRenderState(
+      *///?} else
+      //drawEntity(context,
          state, PREVIEW_SIZE, translate, rotation, cameraAngle,
          this.contentLeft, this.contentTop, this.contentLeft + CONTENT_WIDTH, this.previewBottom);
    }
+
+   //? if <1.21.9 {
+   /*// Before 1.21.9 the GUI could only draw a live entity, not a render state, so this does what
+   // InventoryScreen.renderEntityInInventory does with the state the preview has already posed.
+   private void drawEntity(
+      GuiGraphicsExtractor context, StatueEntityRenderer.State state, float size, Vector3f translate,
+      Quaternionf rotation, Quaternionf cameraAngle, int left, int top, int right, int bottom) {
+
+      context.enableScissor(left, top, right, bottom);
+      context.pose().pushPose();
+      context.pose().translate((left + right) / 2.0F, (top + bottom) / 2.0F, 50.0F);
+      context.pose().scale(size, size, -size);
+      context.pose().translate(translate.x, translate.y, translate.z);
+      context.pose().mulPose(rotation);
+      context.flush();
+      com.mojang.blaze3d.platform.Lighting.setupForEntityInInventory();
+
+      var dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+      dispatcher.overrideCameraOrientation(cameraAngle.conjugate(new Quaternionf()).rotateY((float) Math.PI));
+      dispatcher.setRenderShadow(false);
+      var renderer = (StatueEntityRenderer<?>) dispatcher.getRenderer(this.statue);
+      context.drawSpecial(buffers -> renderer.render(state, context.pose(), buffers, LightCoordsUtil.FULL_BRIGHT));
+      context.flush();
+      dispatcher.setRenderShadow(true);
+
+      context.pose().popPose();
+      com.mojang.blaze3d.platform.Lighting.setupFor3DItems();
+      context.disableScissor();
+   }
+   *///?}
 
    @Override
    //? if >=26.1 {

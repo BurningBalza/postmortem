@@ -3,11 +3,13 @@ package dev.burning.postmortem.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.burning.postmortem.entity.StatuePart;
+//? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
+//?} else
+//import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -73,6 +75,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
    }
 
    @Override
+   //? if >=1.21.9 {
    public void submit(
       PoseStack matrices,
       SubmitNodeCollector queue,
@@ -80,10 +83,21 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       StatueEntityRenderer.State state,
       float limbAngle,
       float limbDistance) {
+      RenderSink sink = new RenderSink(queue);
+   //?} else {
+   /*public void render(
+      PoseStack matrices,
+      MultiBufferSource buffers,
+      int light,
+      StatueEntityRenderer.State state,
+      float limbAngle,
+      float limbDistance) {
+      RenderSink sink = new RenderSink(buffers);
+   *///?}
 
       if (this.amenities != null && state.statue != null) {
          matrices.pushPose();
-         boolean drawn = this.amenities.render(matrices, queue, light, state, this.getParentModel(), state.statue);
+         boolean drawn = this.amenities.render(matrices, sink, light, state, this.getParentModel(), state.statue);
          matrices.popPose();
 
          if (drawn) {
@@ -98,7 +112,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       if (this.backslot != null && state.statue != null) {
          matrices.pushPose();
          StatueEntityModel.applyToMatrix(matrices, state.limbPose.get(StatuePart.BACK_ITEM));
-         boolean drawn = this.backslot.render(matrices, queue, light, state, this.getParentModel(), state.statue);
+         boolean drawn = this.backslot.render(matrices, sink, light, state, this.getParentModel(), state.statue);
          matrices.popPose();
 
          if (drawn) {
@@ -128,7 +142,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
          }
       }
 
-      state.backslotItemState.submit(matrices, queue, light, OverlayTexture.NO_OVERLAY, 0);
+      sink.item(state.backslotItemState, matrices, light);
       matrices.popPose();
    }
 }

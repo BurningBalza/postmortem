@@ -9,11 +9,14 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
+//? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
+//?} else
+//import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
+//? if >=1.21.11
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.HumanoidArm;
@@ -69,6 +72,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
    }
 
    @Override
+   //? if >=1.21.9 {
    public void submit(
       PoseStack matrices,
       SubmitNodeCollector queue,
@@ -76,18 +80,29 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       StatueEntityRenderer.State state,
       float limbAngle,
       float limbDistance) {
+      RenderSink sink = new RenderSink(queue);
+   //?} else {
+   /*public void render(
+      PoseStack matrices,
+      MultiBufferSource buffers,
+      int light,
+      StatueEntityRenderer.State state,
+      float limbAngle,
+      float limbDistance) {
+      RenderSink sink = new RenderSink(buffers);
+   *///?}
 
       if (state.statue == null || state.statue.getId() != highlightedId) {
          return;
       }
 
       if (hovered != null && hovered != selected) {
-         this.submitPart(matrices, queue, state, hovered, HOVERED_TINT, false);
+         this.submitPart(matrices, sink, state, hovered, HOVERED_TINT, false);
       }
       if (selected != null) {
-         this.submitPart(matrices, queue, state, selected, SELECTED_TINT, false);
+         this.submitPart(matrices, sink, state, selected, SELECTED_TINT, false);
          for (int pass = 0; pass < GLOW_PASSES; pass++) {
-            this.submitPart(matrices, queue, state, selected, SELECTED_GLOW, true);
+            this.submitPart(matrices, sink, state, selected, SELECTED_GLOW, true);
          }
       }
    }
@@ -124,7 +139,10 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
    }
 
    private static void hand(PoseStack matrices, StatueEntityModel model, StatueEntityRenderer.State state, HumanoidArm arm) {
+      //? if >=1.21.9 {
       model.translateToHand(state, arm, matrices);
+      //?} else
+      //model.translateToHand(arm, matrices);
       matrices.mulPose(Axis.XP.rotationDegrees(-90.0F));
       matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
       matrices.translate(arm == HumanoidArm.LEFT ? -HAND_SIDE : HAND_SIDE, HAND_UP, HAND_FORWARD);
@@ -132,7 +150,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
 
    private void submitPart(
       PoseStack matrices,
-      SubmitNodeCollector queue,
+      RenderSink sink,
       StatueEntityRenderer.State state,
       StatuePart part,
       int colour,
@@ -143,20 +161,19 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
 
       ModelPart limb = this.limbFor(part);
       if (limb != null) {
-         submit(limb, matrices, queue, type, colour);
+         submit(limb, matrices, sink, type, colour);
          return;
       }
 
       matrices.pushPose();
       if (applyItemAnchor(matrices, this.getParentModel(), state, part)) {
-         submit(ITEM_MARKER, matrices, queue, type, colour);
+         submit(ITEM_MARKER, matrices, sink, type, colour);
       }
       matrices.popPose();
    }
 
-   private static void submit(ModelPart part, PoseStack matrices, SubmitNodeCollector queue, RenderType type, int colour) {
-      queue.submitModelPart(
-         part, matrices, type, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, null, colour, null);
+   private static void submit(ModelPart part, PoseStack matrices, RenderSink sink, RenderType type, int colour) {
+      sink.part(part, matrices, type, LightCoordsUtil.FULL_BRIGHT, colour);
    }
 
    private static ModelPart bakeItemMarker() {
