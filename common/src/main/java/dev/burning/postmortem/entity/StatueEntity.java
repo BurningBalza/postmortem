@@ -83,7 +83,10 @@ public abstract class StatueEntity extends LivingEntity {
    public ItemStack getItemBySlot(EquipmentSlot slot) {
       return switch (slot.getType()) {
          case HAND -> this.handItems.get(slot.getIndex());
+         //? if >=1.21 {
          case HUMANOID_ARMOR -> this.armorItems.get(slot.getIndex());
+         //?} else
+         //case ARMOR -> this.armorItems.get(slot.getIndex());
          default -> ItemStack.EMPTY;
       };
    }
@@ -93,7 +96,10 @@ public abstract class StatueEntity extends LivingEntity {
       this.verifyEquippedItem(stack);
       switch (slot.getType()) {
          case HAND -> this.onEquipItem(slot, this.handItems.set(slot.getIndex(), stack), stack);
+         //? if >=1.21 {
          case HUMANOID_ARMOR -> this.onEquipItem(slot, this.armorItems.set(slot.getIndex(), stack), stack);
+         //?} else
+         //case ARMOR -> this.onEquipItem(slot, this.armorItems.set(slot.getIndex(), stack), stack);
          default -> {
          }
       }
