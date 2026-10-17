@@ -143,7 +143,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
          state.backslotFit = StatueBackItemLayer.Fit.GENERIC;
       } else {
          state.backslotFit = StatueBackItemLayer.Fit.forItem(backslot);
-         //? if >=1.21.9 {
+         //? if >=1.21.5 {
          this.itemModelManager.updateForLiving(
             state.backslotItemState, backslot, state.backslotFit.displayContext(), entity);
          //?} else {

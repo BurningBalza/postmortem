@@ -29,6 +29,23 @@ public final class ValueInput {
       return value == null ? Optional.empty() : codec.parse(this.ops, value).result();
    }
 
+   //? if >=1.21.5 {
+   public float getFloatOr(String key, float fallback) {
+      return this.tag.getFloatOr(key, fallback);
+   }
+
+   public long getLongOr(String key, long fallback) {
+      return this.tag.getLongOr(key, fallback);
+   }
+
+   public String getStringOr(String key, String fallback) {
+      return this.tag.getStringOr(key, fallback);
+   }
+
+   public boolean getBooleanOr(String key, boolean fallback) {
+      return this.tag.getBooleanOr(key, fallback);
+   }
+   //?} else {
    public float getFloatOr(String key, float fallback) {
       return this.tag.contains(key) ? this.tag.getFloat(key) : fallback;
    }
@@ -44,5 +61,6 @@ public final class ValueInput {
    public boolean getBooleanOr(String key, boolean fallback) {
       return this.tag.contains(key) ? this.tag.getBoolean(key) : fallback;
    }
+   //?}
 }
 *///?}

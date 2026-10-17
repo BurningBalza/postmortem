@@ -103,9 +103,13 @@ public final class StatuePartPicker {
 
    private void put(StatuePart part, ModelPart modelPart, PoseStack matrices) {
       Bounds bounds = new Bounds();
-      //? if >=1.21.9 {
+      //? if >=1.21.11 {
       modelPart.getExtentsForGui(matrices, bounds);
-      //?} else {
+      //?} elif >=1.21.9 {
+      /*java.util.Set<org.joml.Vector3f> corners = new java.util.HashSet<>();
+      modelPart.getExtentsForGui(matrices, corners);
+      corners.forEach(bounds);
+      *///?} else {
       /*// What getExtentsForGui does from 1.21.9; vertex positions are still in pixels here.
       modelPart.visit(matrices, (pose, path, index, cube) -> {
          for (ModelPart.Polygon polygon : cube.polygons) {
