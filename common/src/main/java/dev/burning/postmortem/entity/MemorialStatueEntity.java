@@ -62,6 +62,9 @@ public class MemorialStatueEntity extends StatueEntity {
 
    public MemorialStatueEntity(EntityType<? extends MemorialStatueEntity> type, Level world) {
       super(type, world);
+      //? if >=26.3 {
+      /*this.setPermanentlyInvulnerable(true);
+      *///?} else
       this.setInvulnerable(true);
    }
 
@@ -258,6 +261,9 @@ public class MemorialStatueEntity extends StatueEntity {
       }
 
       for (ItemStack stack : displaced) {
+         //? if >=26.3 {
+         /*inventory.placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
+         *///?} else
          inventory.placeItemBackInInventory(stack);
       }
 
