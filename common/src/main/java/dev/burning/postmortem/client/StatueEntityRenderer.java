@@ -16,7 +16,10 @@ import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.EyesLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+//? if >=1.21.2 {
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+//?} else
+//import net.minecraft.client.renderer.MultiBufferSource;
 //? if >=1.21.4 {
 import net.minecraft.client.renderer.item.ItemModelResolver;
 //?} else
@@ -34,7 +37,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class StatueEntityRenderer<T extends StatueEntity>
+   //? if >=1.21.2 {
    extends LivingEntityRenderer<T, StatueEntityRenderer.State, StatueEntityModel> {
+   //?} else
+   //extends LivingEntityRenderer<StatueEntity, StatueEntityModel> {
 
    public static final Identifier MEMORIAL_TEXTURE =
       Identifier.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue.png");
@@ -52,7 +58,23 @@ public class StatueEntityRenderer<T extends StatueEntity>
 
    private final Identifier texture;
 
+   //? if >=1.21.2 {
    public static class State extends HumanoidRenderState {
+   //?} else {
+   /*// Before 1.21.2 renderers drew straight from the entity. These are the HumanoidRenderState fields the statue code
+   // uses, filled from the entity each frame, so the model and layers read a state on every version.
+   public static class State {
+      public Pose pose = Pose.STANDING;
+      public float bodyRot, yRot, xRot, walkAnimationPos, walkAnimationSpeed, attackTime, swimAmount, deathTime, ageInTicks;
+      public boolean isCrouching, isDiscrete, isFallFlying, isVisuallySwimming, hasRedOverlay, isUsingItem, isPassenger;
+      public boolean isFullyFrozen;
+      public float boundingBoxWidth, boundingBoxHeight, scale = 1.0F;
+      public HumanoidArm mainArm = HumanoidArm.RIGHT;
+      public ItemStack headEquipment = ItemStack.EMPTY;
+      public ItemStack chestEquipment = ItemStack.EMPTY;
+      public ItemStack legsEquipment = ItemStack.EMPTY;
+      public ItemStack feetEquipment = ItemStack.EMPTY;
+   *///?}
       public StatueEntity statue;
 
       public final ItemDrawState backslotItemState = new ItemDrawState();
@@ -90,15 +112,21 @@ public class StatueEntityRenderer<T extends StatueEntity>
          this,
          new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_INNER_ARMOR)),
          new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_OUTER_ARMOR)),
+         //? if >=1.21.2 {
          context.getEquipmentRenderer()));
+         //?} else
+         //context.getModelManager()));
       //? if >=1.21.4
       this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
       *///?}
       //? if >=1.21.4 {
       this.addLayer(new ItemInHandLayer<>(this));
-      //?} else {
+      //?} elif >=1.21.2 {
       /*this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemRenderer()));
       this.addLayer(new ItemInHandLayer<>(this, context.getItemRenderer()));
+      *///?} else {
+      /*this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
+      this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
       *///?}
       this.addLayer(new StatueBackItemLayer(this, context));
       this.addLayer(new StatueHighlightLayer(this));
@@ -117,6 +145,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       });
    }
 
+   //? if >=1.21.2 {
    @Override
    public State createRenderState() {
       return new State();
@@ -125,12 +154,86 @@ public class StatueEntityRenderer<T extends StatueEntity>
    @Override
    public void extractRenderState(T entity, State state, float tickDelta) {
       super.extractRenderState(entity, state, tickDelta);
+   //?} else {
+   /*// The state this frame is drawn from; the model holds it while vanilla's render runs, and the layers read it there.
+   private final State frame = new State();
+   private State preview;
+
+   /^* What 1.21.2's createRenderState(entity, partialTick) does. ^/
+   public State createRenderState(StatueEntity entity, float tickDelta) {
+      State state = new State();
+      this.extractRenderState(entity, state, tickDelta);
+      return state;
+   }
+
+   /^* Draws the statue from a state the caller has posed, rather than from the entity; the pose screen's preview. ^/
+   public void renderPreview(State state, PoseStack matrices, MultiBufferSource buffers, int light) {
+      this.preview = state;
+      try {
+         this.render(state.statue, 0.0F, 1.0F, matrices, buffers, light);
+      } finally {
+         this.preview = null;
+      }
+   }
+
+   @Override
+   public void render(
+      StatueEntity entity, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource buffers, int light) {
+      State state = this.preview;
+      if (state == null) {
+         state = this.frame;
+         this.extractRenderState(entity, state, tickDelta);
+      }
+      this.model.current = state;
+
+      // Vanilla scales by the entity's own scale; the preview's state asks for its own.
+      float rescale = state.scale / entity.getScale();
+      matrices.pushPose();
+      matrices.scale(rescale, rescale, rescale);
+      super.render(entity, yaw, tickDelta, matrices, buffers, light);
+      matrices.popPose();
+   }
+
+   @Override
+   protected void setupRotations(
+      StatueEntity entity, PoseStack matrices, float bob, float bodyRot, float tickDelta, float scale) {
+      super.setupRotations(entity, matrices, bob, this.model.current.bodyRot, tickDelta, scale);
+   }
+
+   @Override
+   protected float getAttackAnim(StatueEntity entity, float tickDelta) {
+      return this.model.current.attackTime;
+   }
+
+   @Override
+   protected float getBob(StatueEntity entity, float tickDelta) {
+      return this.model.current.ageInTicks;
+   }
+
+   @Override
+   protected boolean isShaking(StatueEntity entity) {
+      return this.model.current.isFullyFrozen;
+   }
+
+   public void extractRenderState(StatueEntity entity, State state, float tickDelta) {
+      // What LivingEntityRenderer's own extraction fills in from 1.21.2.
+      state.boundingBoxWidth = entity.getBbWidth();
+      state.boundingBoxHeight = entity.getBbHeight();
+      state.scale = entity.getScale();
+   *///?}
 
       state.statue = entity;
       //? if >=1.21.4 {
       HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta, this.itemModelManager);
-      //?} else
-      //HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta);
+      //?} elif >=1.21.2 {
+      /*HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta);
+      *///?} else {
+      /*state.headEquipment = entity.getItemBySlot(EquipmentSlot.HEAD);
+      state.chestEquipment = entity.getItemBySlot(EquipmentSlot.CHEST);
+      state.legsEquipment = entity.getItemBySlot(EquipmentSlot.LEGS);
+      state.feetEquipment = entity.getItemBySlot(EquipmentSlot.FEET);
+      state.mainArm = entity.getMainArm();
+      *///?}
       Pose pose = entity.getPose();
       state.pose = pose;
       state.bodyRot = entity.getVisualRotationYInDegrees();
@@ -203,19 +306,32 @@ public class StatueEntityRenderer<T extends StatueEntity>
    }
 
    @Override
+   //? if >=1.21.2 {
    protected void scale(State state, PoseStack matrices) {
+   //?} else
+   //protected void scale(StatueEntity entity, PoseStack matrices, float tickDelta) {
       matrices.scale(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
    }
 
    @Override
+   //? if >=1.21.2 {
    protected boolean shouldShowName(T entity, double squaredDistance) {
       return super.shouldShowName(entity, squaredDistance)
+   //?} else {
+   /*protected boolean shouldShowName(StatueEntity entity) {
+      return this.preview == null && super.shouldShowName(entity)
+   *///?}
          && (entity.shouldShowName() || entity.hasCustomName() && entity == this.entityRenderDispatcher.crosshairPickEntity);
    }
 
    @Override
+   //? if >=1.21.2 {
    public Identifier getTextureLocation(State state) {
       Identifier carved = state.variant.texture();
+   //?} else {
+   /*public Identifier getTextureLocation(StatueEntity entity) {
+      Identifier carved = entity.getVariant().texture();
+   *///?}
       return carved != null ? carved : this.texture;
    }
 }
