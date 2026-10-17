@@ -106,7 +106,7 @@ public class CosmeticStatueItem extends Item {
          //? if >=1.21.5 {
          /*statue.snapTo(Vec3.atBottomCenterOf(pos), yaw, 0.0F);
          *///?} else
-         statue.moveTo(Vec3.atBottomCenterOf(pos), yaw, 0.0F);
+         statue.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, yaw, 0.0F);
          statue.setYHeadRot(yaw);
          statue.setYBodyRot(yaw);
 
