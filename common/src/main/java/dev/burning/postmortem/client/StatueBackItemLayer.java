@@ -4,14 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.burning.postmortem.entity.StatuePart;
 //? if >=1.21.9 {
-import net.minecraft.client.renderer.SubmitNodeCollector;
-//?} else
-//import net.minecraft.client.renderer.MultiBufferSource;
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+*///?} else
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 //? if <1.21.2
-//import dev.burning.postmortem.entity.StatueEntity;
+import dev.burning.postmortem.entity.StatueEntity;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -22,9 +22,9 @@ import net.minecraft.world.item.TridentItem;
  * statue matches how players look; otherwise the item is placed by hand.
  */
 //? if >=1.21.2 {
-public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
-//?} else
-//public class StatueBackItemLayer extends RenderLayer<StatueEntity, StatueEntityModel> {
+/*public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
+*///?} else
+public class StatueBackItemLayer extends RenderLayer<StatueEntity, StatueEntityModel> {
    private static final float DOWN_THE_BACK = 0.30F;
    private static final float OUT_FROM_BACK = 0.15F;
    private static final float SCALE = 0.9F;
@@ -74,9 +74,9 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
 
    public StatueBackItemLayer(
       //? if >=1.21.2 {
-      RenderLayerParent<StatueEntityRenderer.State, StatueEntityModel> context,
-      //?} else
-      //RenderLayerParent<StatueEntity, StatueEntityModel> context,
+      /*RenderLayerParent<StatueEntityRenderer.State, StatueEntityModel> context,
+      *///?} else
+      RenderLayerParent<StatueEntity, StatueEntityModel> context,
       EntityRendererProvider.Context factory) {
       super(context);
       this.backslot = CompatRenderers.Backslot.create(factory);
@@ -85,7 +85,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
 
    @Override
    //? if >=1.21.9 {
-   public void submit(
+   /*public void submit(
       PoseStack matrices,
       SubmitNodeCollector queue,
       int light,
@@ -93,7 +93,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       float limbAngle,
       float limbDistance) {
       RenderSink sink = new RenderSink(queue);
-   //?} elif >=1.21.2 {
+   *///?} elif >=1.21.2 {
    /*public void render(
       PoseStack matrices,
       MultiBufferSource buffers,
@@ -103,7 +103,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       float limbDistance) {
       RenderSink sink = new RenderSink(buffers);
    *///?} else {
-   /*public void render(
+   public void render(
       PoseStack matrices,
       MultiBufferSource buffers,
       int light,
@@ -116,7 +116,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       float headPitch) {
       RenderSink sink = new RenderSink(buffers);
       StatueEntityRenderer.State state = this.getParentModel().current;
-   *///?}
+   //?}
 
       if (this.amenities != null && state.statue != null) {
          matrices.pushPose();
@@ -150,12 +150,12 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       switch (state.backslotFit) {
          case TRIDENT -> {
             matrices.translate(TRIDENT_X, TRIDENT_Y, TRIDENT_Z);
-            matrices.rotate(Axis.ZN.rotationDegrees(TRIDENT_ANGLE));
+            matrices.mulPose(Axis.ZN.rotationDegrees(TRIDENT_ANGLE));
          }
          case BANNER -> {
-            matrices.rotate(Axis.XN.rotationDegrees(BANNER_TURN));
+            matrices.mulPose(Axis.XN.rotationDegrees(BANNER_TURN));
             matrices.translate(0.0F, BANNER_LIFT, 0.0F);
-            matrices.rotate(Axis.XP.rotationDegrees(BANNER_TILT));
+            matrices.mulPose(Axis.XP.rotationDegrees(BANNER_TILT));
             matrices.translate(0.0F, BANNER_DROP, BANNER_OUT);
             matrices.scale(BANNER_SCALE, BANNER_SCALE, BANNER_SCALE);
          }
