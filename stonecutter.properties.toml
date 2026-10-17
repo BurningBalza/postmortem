@@ -1,12 +1,61 @@
 mod.id = "postmortem"
 mod.name = "Postmortem"
 mod.group = "dev.burning.postmortem"
-mod.version = "1.0.0"
+mod.version = "1.0.1"
 
 deps.fabric_loader = "0.19.5"
 loomx.loom_version = "1.17.20"
 
 # Sections are keyed by node name from settings.gradle.kts ("26.1"), not the exact release it compiles against.
+
+["1.20.1"]
+mod.mc_releases = ["1.20.1"]
+
+[fabric."1.20.1"]
+mod.fabric_loader_min = "0.16.10"
+mod.mc_compat = "1.20.1"
+deps.fabric_api = "0.92.12+1.20.1"
+
+[forge."1.20.1"]
+mod.mc_compat = "[1.20.1]"
+deps.forge = "1.20.1-47.4.28"
+
+["1.20.2"]
+mod.mc_releases = ["1.20.2"]
+
+[fabric."1.20.2"]
+mod.fabric_loader_min = "0.14.22"
+mod.mc_compat = "1.20.2"
+deps.fabric_api = "0.91.6+1.20.2"
+
+["1.20.3"]
+mod.mc_releases = ["1.20.3"]
+
+[fabric."1.20.3"]
+mod.fabric_loader_min = "0.14.23"
+mod.mc_compat = "1.20.3"
+deps.fabric_api = "0.91.1+1.20.3"
+
+["1.20.4"]
+mod.mc_releases = ["1.20.4"]
+
+[fabric."1.20.4"]
+mod.fabric_loader_min = "0.15.1"
+mod.mc_compat = "1.20.4"
+deps.fabric_api = "0.97.3+1.20.4"
+
+# NeoForge 1.20.3 only ever had betas; this jar covers it.
+[neoforge."1.20.4"]
+mod.mc_compat = "[1.20.3, 1.20.4]"
+deps.neoforge = "20.4.253"
+
+["1.20.5"]
+mod.mc_releases = ["1.20.5"]
+
+[fabric."1.20.5"]
+mod.fabric_loader_min = "0.15.6"
+mod.mc_compat = "1.20.5"
+deps.fabric_api = "0.97.8+1.20.5"
 
 ["1.20.6"]
 mod.mc_releases = ["1.20.6"]
@@ -16,8 +65,9 @@ mod.fabric_loader_min = "0.15.6"
 mod.mc_compat = "1.20.6"
 deps.fabric_api = "0.100.8+1.20.6"
 
+# NeoForge 1.20.5 only ever had betas; this jar covers it.
 [neoforge."1.20.6"]
-mod.mc_compat = "[1.20.6]"
+mod.mc_compat = "[1.20.5, 1.20.6]"
 deps.neoforge = "20.6.144"
 
 ["1.21"]

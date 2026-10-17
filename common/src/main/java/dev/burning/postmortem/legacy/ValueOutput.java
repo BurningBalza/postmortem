@@ -20,8 +20,11 @@ public final class ValueOutput {
       this.ops = ops;
    }
 
-   public static ValueOutput of(CompoundTag tag, HolderLookup.Provider registries) {
-      return new ValueOutput(tag, RegistryOps.create(NbtOps.INSTANCE, registries));
+   public static ValueOutput of(CompoundTag tag, net.minecraft.world.entity.Entity entity) {
+      //? if >=1.20.5 {
+      return new ValueOutput(tag, RegistryOps.create(NbtOps.INSTANCE, entity.registryAccess()));
+      //?} else
+      //return new ValueOutput(tag, NbtOps.INSTANCE);
    }
 
    public <T> void store(String key, Codec<T> codec, T value) {
