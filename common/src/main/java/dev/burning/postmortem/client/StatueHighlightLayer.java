@@ -14,6 +14,8 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 //?} else
 //import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+//? if <1.21.2
+//import dev.burning.postmortem.entity.StatueEntity;
 import net.minecraft.client.renderer.RenderType;
 //? if >=1.21.11
 //import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -25,7 +27,10 @@ import net.minecraft.world.entity.HumanoidArm;
  * Glows the part being edited in the pose screen. Also owns the selection state the screen writes to, and the anchor
  * points for item parts, which the screen's part picker shares.
  */
+//? if >=1.21.2 {
 public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
+//?} else
+//public class StatueHighlightLayer extends RenderLayer<StatueEntity, StatueEntityModel> {
    private static final int SELECTED_TINT = 0xCCFFA526;
    private static final int SELECTED_GLOW = 0xFFFFBE45;
    private static final int HOVERED_TINT = 0x40FFA526;
@@ -81,7 +86,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       float limbAngle,
       float limbDistance) {
       RenderSink sink = new RenderSink(queue);
-   //?} else {
+   //?} elif >=1.21.2 {
    /*public void render(
       PoseStack matrices,
       MultiBufferSource buffers,
@@ -90,6 +95,20 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       float limbAngle,
       float limbDistance) {
       RenderSink sink = new RenderSink(buffers);
+   *///?} else {
+   /*public void render(
+      PoseStack matrices,
+      MultiBufferSource buffers,
+      int light,
+      StatueEntity entity,
+      float limbAngle,
+      float limbDistance,
+      float tickDelta,
+      float age,
+      float headYaw,
+      float headPitch) {
+      RenderSink sink = new RenderSink(buffers);
+      StatueEntityRenderer.State state = this.getParentModel().current;
    *///?}
 
       if (state.statue == null || state.statue.getId() != highlightedId) {
@@ -156,7 +175,10 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       int colour,
       boolean additive) {
 
+      //? if >=1.21.2 {
       ResourceLocation texture = this.renderer.getTextureLocation(state);
+      //?} else
+      //ResourceLocation texture = this.renderer.getTextureLocation(state.statue);
       RenderType type = additive ? RenderType.eyes(texture) : RenderType.entityTranslucentEmissive(texture);
 
       ModelPart limb = this.limbFor(part);
