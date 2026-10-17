@@ -48,7 +48,10 @@ public final class NeoForgePlatform implements Platform {
 
    @Override
    public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
+      //? if >=1.20.5 {
       PacketDistributor.sendToPlayer(player, payload);
+      //?} else
+      //PacketDistributor.PLAYER.with(player).send(payload);
    }
 
    void attach(IEventBus modBus) {
