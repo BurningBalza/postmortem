@@ -10,6 +10,8 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+//? if <1.21.2
+//import dev.burning.postmortem.entity.StatueEntity;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +21,10 @@ import net.minecraft.world.item.TridentItem;
  * Draws a statue's back (and belt) items. Combat Amenities' or Backslot's own renderers are used when present, so the
  * statue matches how players look; otherwise the item is placed by hand.
  */
+//? if >=1.21.2 {
 public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
+//?} else
+//public class StatueBackItemLayer extends RenderLayer<StatueEntity, StatueEntityModel> {
    private static final float DOWN_THE_BACK = 0.30F;
    private static final float OUT_FROM_BACK = 0.15F;
    private static final float SCALE = 0.9F;
@@ -68,7 +73,11 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
    private final CompatRenderers.Amenities amenities;
 
    public StatueBackItemLayer(
-      RenderLayerParent<StatueEntityRenderer.State, StatueEntityModel> context, EntityRendererProvider.Context factory) {
+      //? if >=1.21.2 {
+      RenderLayerParent<StatueEntityRenderer.State, StatueEntityModel> context,
+      //?} else
+      //RenderLayerParent<StatueEntity, StatueEntityModel> context,
+      EntityRendererProvider.Context factory) {
       super(context);
       this.backslot = CompatRenderers.Backslot.create(factory);
       this.amenities = CompatRenderers.Amenities.create(factory);
@@ -84,7 +93,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       float limbAngle,
       float limbDistance) {
       RenderSink sink = new RenderSink(queue);
-   //?} else {
+   //?} elif >=1.21.2 {
    /*public void render(
       PoseStack matrices,
       MultiBufferSource buffers,
@@ -93,6 +102,20 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       float limbAngle,
       float limbDistance) {
       RenderSink sink = new RenderSink(buffers);
+   *///?} else {
+   /*public void render(
+      PoseStack matrices,
+      MultiBufferSource buffers,
+      int light,
+      StatueEntity entity,
+      float limbAngle,
+      float limbDistance,
+      float tickDelta,
+      float age,
+      float headYaw,
+      float headPitch) {
+      RenderSink sink = new RenderSink(buffers);
+      StatueEntityRenderer.State state = this.getParentModel().current;
    *///?}
 
       if (this.amenities != null && state.statue != null) {
