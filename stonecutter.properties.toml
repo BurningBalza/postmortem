@@ -8,6 +8,17 @@ loomx.loom_version = "1.17.20"
 
 # Sections are keyed by node name from settings.gradle.kts ("26.1"), not the exact release it compiles against.
 
+["1.21.11"]
+mod.mc_releases = ["1.21.11"]
+
+[fabric."1.21.11"]
+mod.mc_compat = "1.21.11"
+deps.fabric_api = "0.141.6+1.21.11"
+
+[neoforge."1.21.11"]
+mod.mc_compat = "[1.21.11]"
+deps.neoforge = "21.11.48"
+
 ["26.1"]
 mod.mc_releases = ["26.1.2"]
 

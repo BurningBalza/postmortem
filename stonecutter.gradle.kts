@@ -11,4 +11,15 @@ stonecutter parameters {
     properties {
         tags(current.project, loader)
     }
+
+    // Plain class renames. Sources are stored in their 26.2 form, so each replacement maps the 26.x name
+    // back to the older one.
+    replacements {
+        string(current.parsed < "26.1") {
+            replace("net.minecraft.util.LightCoordsUtil", "net.minecraft.client.renderer.LightTexture")
+            replace("LightCoordsUtil", "LightTexture")
+            replace("GuiGraphicsExtractor", "GuiGraphics")
+            replace(".centeredText(", ".drawCenteredString(")
+        }
+    }
 }

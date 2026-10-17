@@ -5,7 +5,10 @@ import dev.burning.postmortem.platform.Platform;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+//? if >=26.1 {
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
+//?} else
+//import net.fabricmc.fabric.api.object.builder.v1.entity.FabricTrackedDataRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -31,7 +34,10 @@ public final class FabricPlatform implements Platform {
 
    @Override
    public void registerDataSerializer(String name, EntityDataSerializer<?> serializer) {
+      //? if >=26.1 {
       FabricEntityDataRegistry.register(Postmortem.id(name), serializer);
+      //?} else
+      //FabricTrackedDataRegistry.register(Postmortem.id(name), serializer);
    }
 
    @Override
