@@ -4,7 +4,8 @@
   "package": "dev.burning.postmortem.mixin",
   "compatibilityLevel": "JAVA_${java}",
   "mixins": [
-    "PlayerEntityMixin"
+    "PlayerEntityMixin",
+    "ServerGamePacketListenerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -64,6 +64,10 @@ tasks {
             "java" to requiredJava.majorVersion,
         )
         inputs.properties(props)
+        inputs.file(graveModList)
+
+        // The statue collector is only craftable while no grave mod handles deaths.
+        collectorRecipeConditions(this, "forge")
 
         filesMatching("META-INF/mods.toml") { expand(props) }
         legacyRecipeIngredients()

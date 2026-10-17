@@ -4,6 +4,7 @@ import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemConfig;
 import dev.burning.postmortem.PostmortemRegistry;
 import dev.burning.postmortem.compat.BackslotCompat;
+import dev.burning.postmortem.compat.GraveMods;
 import dev.burning.postmortem.compat.CarrySlot;
 import dev.burning.postmortem.compat.CombatAmenitiesCompat;
 import dev.burning.postmortem.compat.PehkuiCompat;
@@ -38,6 +39,7 @@ public final class DeathCapture {
    /** Called by the loader when a player respawns, with {@code alive} false when the respawn follows a death. */
    public static void carryKeptItems(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
       if (alive
+         || GraveMods.present()
          || oldPlayer.isSpectator()
          //? if >=1.21.6 {
          || newPlayer.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {

@@ -28,7 +28,9 @@ stonecutter parameters {
         string(current.parsed < "1.21.11") {
             replace("net.minecraft.resources.Identifier", "net.minecraft.resources.ResourceLocation")
             replace("Identifier", "ResourceLocation")
-            replace(".identifier()", ".location()")
+            // Only ResourceKey's accessor; a bare ".location()" also names the interact packet's hit position.
+            replace(").identifier()", ").location()")
+            replace("key.identifier()", "key.location()")
             replace("net.minecraft.world.level.gamerules.GameRules", "net.minecraft.world.level.GameRules")
             replace(".get(GameRules.KEEP_INVENTORY)", ".getBoolean(GameRules.RULE_KEEPINVENTORY)")
             replace("net.minecraft.client.renderer.rendertype.RenderType;", "net.minecraft.client.renderer.RenderType;")

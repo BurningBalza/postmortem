@@ -1,5 +1,6 @@
 package dev.burning.postmortem;
 
+import dev.burning.postmortem.compat.GraveMods;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
@@ -32,5 +33,7 @@ public final class Postmortem {
    public static void init() {
       PostmortemConfig.load();
       PostmortemRegistry.init();
+      // Checked now so the log says up front whether another mod is handling deaths.
+      GraveMods.present();
    }
 }
