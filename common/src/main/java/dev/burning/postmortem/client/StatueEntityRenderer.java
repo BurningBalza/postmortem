@@ -1,6 +1,7 @@
 package dev.burning.postmortem.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
 import dev.burning.postmortem.entity.StatueEntity;
 import dev.burning.postmortem.entity.StatuePose;
@@ -43,11 +44,11 @@ public class StatueEntityRenderer<T extends StatueEntity>
    extends LivingEntityRenderer<StatueEntity, StatueEntityModel> {
 
    public static final ResourceLocation MEMORIAL_TEXTURE =
-      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue.png");
+      Postmortem.id("textures/entity/memorial_statue.png");
    public static final ResourceLocation COSMETIC_TEXTURE =
-      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/statue.png");
+      Postmortem.id("textures/entity/statue.png");
    public static final ResourceLocation MEMORIAL_EYES_TEXTURE =
-      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue_eyes.png");
+      Postmortem.id("textures/entity/memorial_statue_eyes.png");
 
    private static final float PLAYER_SCALE = 0.9375F;
 
