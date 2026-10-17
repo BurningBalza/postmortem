@@ -14,11 +14,11 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 //?} else
 //import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.RenderType;
 //? if >=1.21.11
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.LightCoordsUtil;
+//import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.entity.HumanoidArm;
 
 /**
@@ -143,8 +143,8 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       model.translateToHand(state, arm, matrices);
       //?} else
       //model.translateToHand(arm, matrices);
-      matrices.rotate(Axis.XP.rotationDegrees(-90.0F));
-      matrices.rotate(Axis.YP.rotationDegrees(180.0F));
+      matrices.mulPose(Axis.XP.rotationDegrees(-90.0F));
+      matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
       matrices.translate(arm == HumanoidArm.LEFT ? -HAND_SIDE : HAND_SIDE, HAND_UP, HAND_FORWARD);
    }
 
@@ -156,8 +156,8 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       int colour,
       boolean additive) {
 
-      Identifier texture = this.renderer.getTextureLocation(state);
-      RenderType type = additive ? RenderTypes.eyes(texture) : RenderTypes.entityTranslucentEmissive(texture);
+      ResourceLocation texture = this.renderer.getTextureLocation(state);
+      RenderType type = additive ? RenderType.eyes(texture) : RenderType.entityTranslucentEmissive(texture);
 
       ModelPart limb = this.limbFor(part);
       if (limb != null) {
@@ -173,7 +173,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
    }
 
    private static void submit(ModelPart part, PoseStack matrices, RenderSink sink, RenderType type, int colour) {
-      sink.part(part, matrices, type, LightCoordsUtil.FULL_BRIGHT, colour);
+      sink.part(part, matrices, type, LightTexture.FULL_BRIGHT, colour);
    }
 
    private static ModelPart bakeItemMarker() {

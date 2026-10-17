@@ -70,9 +70,9 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    @Override
    //? if >=26.1 {
-   public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
-   //?} else
-   //public InteractionResult interactAt(Player player, Vec3 hitPos, InteractionHand hand) {
+   /*public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
+   *///?} else
+   public InteractionResult interactAt(Player player, Vec3 hitPos, InteractionHand hand) {
       if (this.level().isClientSide()) {
          return InteractionResult.SUCCESS;
       }
