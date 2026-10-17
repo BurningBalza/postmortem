@@ -33,9 +33,9 @@ stonecutter parameters {
             replace(".get(GameRules.KEEP_INVENTORY)", ".getBoolean(GameRules.RULE_KEEPINVENTORY)")
             replace("net.minecraft.client.renderer.rendertype.RenderType;", "net.minecraft.client.renderer.RenderType;")
             replace("RenderTypes.", "RenderType.")
+            replace("net.minecraft.client.model.player.PlayerModel", "net.minecraft.client.model.PlayerModel")
         }
         string(current.parsed < "1.21.9") {
-            replace("net.minecraft.client.model.player.PlayerModel", "net.minecraft.client.model.PlayerModel")
             replace("AvatarRenderState", "PlayerRenderState")
         }
 
