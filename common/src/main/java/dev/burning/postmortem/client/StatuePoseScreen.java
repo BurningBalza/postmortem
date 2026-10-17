@@ -326,7 +326,7 @@ public class StatuePoseScreen extends Screen {
 
       //? if >=26.1 {
       context.entity(
-      //?} elif >=1.21.9 {
+      //?} elif >=1.21.6 {
       /*context.submitEntityRenderState(
       *///?} else
       //drawEntity(context,
@@ -334,8 +334,8 @@ public class StatuePoseScreen extends Screen {
          this.contentLeft, this.contentTop, this.contentLeft + CONTENT_WIDTH, this.previewBottom);
    }
 
-   //? if <1.21.9 {
-   /*// Before 1.21.9 the GUI could only draw a live entity, not a render state, so this does what
+   //? if <1.21.6 {
+   /*// Before 1.21.6 the GUI could only draw a live entity, not a render state, so this does what
    // InventoryScreen.renderEntityInInventory does with the state the preview has already posed.
    private void drawEntity(
       GuiGraphicsExtractor context, StatueEntityRenderer.State state, float size, Vector3f translate,
