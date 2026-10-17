@@ -28,6 +28,9 @@ public final class RenderSink {
    }
 
    public void part(ModelPart part, PoseStack matrices, RenderType type, int light, int colour) {
+      //? if >=26.3 {
+      /^this.queue.submitModelPart(part, matrices, type, light, OverlayTexture.NO_OVERLAY, null, colour);
+      ^///?} else
       this.queue.submitModelPart(part, matrices, type, light, OverlayTexture.NO_OVERLAY, null, colour, null);
    }
 
