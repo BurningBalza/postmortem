@@ -22,6 +22,10 @@ public final class BackslotCompat {
    private BackslotCompat() {
    }
 
+   public static boolean isPresent() {
+      return resolve();
+   }
+
    public static ItemStack get(Player player) {
       if (!resolve()) {
          return ItemStack.EMPTY;
