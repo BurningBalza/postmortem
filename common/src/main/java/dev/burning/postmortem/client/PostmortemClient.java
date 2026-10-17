@@ -29,9 +29,9 @@ public final class PostmortemClient {
       Entity entity = client.player.level().getEntity(entityId);
       if (entity instanceof CosmeticStatueEntity statue) {
          //? if >=1.21.9 {
-         client.setScreenAndShow(new StatuePoseScreen(statue));
-         //?} else
-         //client.setScreen(new StatuePoseScreen(statue));
+         /*client.setScreenAndShow(new StatuePoseScreen(statue));
+         *///?} else
+         client.setScreen(new StatuePoseScreen(statue));
       }
    }
 }

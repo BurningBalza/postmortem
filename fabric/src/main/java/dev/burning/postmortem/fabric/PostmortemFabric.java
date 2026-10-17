@@ -9,9 +9,9 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 //? if >=26.1 {
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
-//?} else
-//import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+/*import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+*///?} else
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 //? if >=1.20.5
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -28,15 +28,15 @@ public final class PostmortemFabric implements ModInitializer {
       FabricDefaultAttributeRegistry.register(PostmortemRegistry.COSMETIC_STATUE.get(), StatueEntity.createStatueAttributes());
 
       //? if >=26.1 {
-      CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+      /*CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
          .register(entries -> entries.insertAfter(Items.ARMOR_STAND, PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));
       CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
          .register(entries -> entries.insertAfter(Items.RECOVERY_COMPASS, PostmortemRegistry.STATUE_COLLECTOR.get()));
 
       PayloadTypeRegistry.clientboundPlay().register(PostmortemRegistry.OpenPoseScreen.ID, PostmortemRegistry.OpenPoseScreen.CODEC);
       PayloadTypeRegistry.serverboundPlay().register(PostmortemRegistry.SetPose.ID, PostmortemRegistry.SetPose.CODEC);
-      //?} else {
-      /*ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+      *///?} else {
+      ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
          .register(entries -> entries.addAfter(Items.ARMOR_STAND, PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));
       ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
          .register(entries -> entries.addAfter(Items.RECOVERY_COMPASS, PostmortemRegistry.STATUE_COLLECTOR.get()));
@@ -45,7 +45,7 @@ public final class PostmortemFabric implements ModInitializer {
       PayloadTypeRegistry.playS2C().register(PostmortemRegistry.OpenPoseScreen.ID, PostmortemRegistry.OpenPoseScreen.CODEC);
       PayloadTypeRegistry.playC2S().register(PostmortemRegistry.SetPose.ID, PostmortemRegistry.SetPose.CODEC);
       //?}
-      *///?}
+      //?}
       //? if >=1.20.5 {
       ServerPlayNetworking.registerGlobalReceiver(
          PostmortemRegistry.SetPose.ID, (payload, context) -> PostmortemRegistry.applyPose(context.player(), payload));

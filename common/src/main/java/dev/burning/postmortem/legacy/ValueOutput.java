@@ -1,7 +1,7 @@
 package dev.burning.postmortem.legacy;
 
 //? if <1.21.6 {
-/*import com.mojang.serialization.Codec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -47,4 +47,4 @@ public final class ValueOutput {
       this.tag.putBoolean(key, value);
    }
 }
-*///?}
+//?}

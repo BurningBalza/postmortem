@@ -9,7 +9,7 @@ import dev.burning.postmortem.entity.StatueVariant;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 //? if >=1.21.9
-import net.minecraft.client.renderer.entity.ArmorModelSet;
+//import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -18,17 +18,17 @@ import net.minecraft.client.renderer.entity.layers.EyesLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 //? if >=1.21.2 {
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-//?} else
-//import net.minecraft.client.renderer.MultiBufferSource;
+/*import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+*///?} else
+import net.minecraft.client.renderer.MultiBufferSource;
 //? if >=1.21.4 {
-import net.minecraft.client.renderer.item.ItemModelResolver;
-//?} else
-//import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.rendertype.RenderType;
+/*import net.minecraft.client.renderer.item.ItemModelResolver;
+*///?} else
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.RenderType;
 //? if >=1.21.11
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
+//import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
@@ -39,30 +39,30 @@ import net.minecraft.world.item.Items;
 
 public class StatueEntityRenderer<T extends StatueEntity>
    //? if >=1.21.2 {
-   extends LivingEntityRenderer<T, StatueEntityRenderer.State, StatueEntityModel> {
-   //?} else
-   //extends LivingEntityRenderer<StatueEntity, StatueEntityModel> {
+   /*extends LivingEntityRenderer<T, StatueEntityRenderer.State, StatueEntityModel> {
+   *///?} else
+   extends LivingEntityRenderer<StatueEntity, StatueEntityModel> {
 
-   public static final Identifier MEMORIAL_TEXTURE =
+   public static final ResourceLocation MEMORIAL_TEXTURE =
       Postmortem.id("textures/entity/memorial_statue.png");
-   public static final Identifier COSMETIC_TEXTURE =
+   public static final ResourceLocation COSMETIC_TEXTURE =
       Postmortem.id("textures/entity/statue.png");
-   public static final Identifier MEMORIAL_EYES_TEXTURE =
+   public static final ResourceLocation MEMORIAL_EYES_TEXTURE =
       Postmortem.id("textures/entity/memorial_statue_eyes.png");
 
    private static final float PLAYER_SCALE = 0.9375F;
 
    //? if >=1.21.4 {
-   private final ItemModelResolver itemModelManager;
-   //?} else
-   //private final ItemRenderer itemModelManager;
+   /*private final ItemModelResolver itemModelManager;
+   *///?} else
+   private final ItemRenderer itemModelManager;
 
-   private final Identifier texture;
+   private final ResourceLocation texture;
 
    //? if >=1.21.2 {
-   public static class State extends HumanoidRenderState {
-   //?} else {
-   /*// Before 1.21.2 renderers drew straight from the entity. These are the HumanoidRenderState fields the statue code
+   /*public static class State extends HumanoidRenderState {
+   *///?} else {
+   // Before 1.21.2 renderers drew straight from the entity. These are the HumanoidRenderState fields the statue code
    // uses, filled from the entity each frame, so the model and layers read a state on every version.
    public static class State {
       public Pose pose = Pose.STANDING;
@@ -71,11 +71,11 @@ public class StatueEntityRenderer<T extends StatueEntity>
       public boolean isFullyFrozen;
       public float boundingBoxWidth, boundingBoxHeight, scale = 1.0F;
       public HumanoidArm mainArm = HumanoidArm.RIGHT;
-      public ItemStack headEquipment = ItemStack.EMPTY;
-      public ItemStack chestEquipment = ItemStack.EMPTY;
-      public ItemStack legsEquipment = ItemStack.EMPTY;
-      public ItemStack feetEquipment = ItemStack.EMPTY;
-   *///?}
+      public ItemStack headItem = ItemStack.EMPTY;
+      public ItemStack chestItem = ItemStack.EMPTY;
+      public ItemStack legsItem = ItemStack.EMPTY;
+      public ItemStack feetItem = ItemStack.EMPTY;
+   //?}
       public StatueEntity statue;
 
       public final ItemDrawState backslotItemState = new ItemDrawState();
@@ -87,57 +87,57 @@ public class StatueEntityRenderer<T extends StatueEntity>
       public StatueVariant variant = StatueVariant.DEFAULT;
 
       //? if <1.21.4 {
-      /*// Render states only carry arm poses from 1.21.4; StatueEntityModel hands these to HumanoidModel before that.
+      // Render states only carry arm poses from 1.21.4; StatueEntityModel hands these to HumanoidModel before that.
       public HumanoidModel.ArmPose rightArmPose = HumanoidModel.ArmPose.EMPTY;
       public HumanoidModel.ArmPose leftArmPose = HumanoidModel.ArmPose.EMPTY;
-      *///?}
+      //?}
    }
 
-   public StatueEntityRenderer(EntityRendererProvider.Context context, Identifier texture) {
+   public StatueEntityRenderer(EntityRendererProvider.Context context, ResourceLocation texture) {
       super(context, new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM)), 0.0F);
       //? if >=1.21.4 {
-      this.itemModelManager = context.getItemModelResolver();
-      //?} else
-      //this.itemModelManager = context.getItemRenderer();
+      /*this.itemModelManager = context.getItemModelResolver();
+      *///?} else
+      this.itemModelManager = context.getItemRenderer();
       this.texture = texture;
       //? if >=1.21.9 {
-      this.addLayer(new HumanoidArmorLayer<>(
+      /*this.addLayer(new HumanoidArmorLayer<>(
          this,
          ArmorModelSet.bake(
             ModelLayers.PLAYER_SLIM_ARMOR, context.getModelSet(), StatueEntityModel::new),
          context.getEquipmentRenderer()));
       this.addLayer(new CustomHeadLayer<>(
          this, context.getModelSet(), context.getPlayerSkinRenderCache()));
-      //?} else {
-      /*this.addLayer(new HumanoidArmorLayer<>(
+      *///?} else {
+      this.addLayer(new HumanoidArmorLayer<>(
          this,
          new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_INNER_ARMOR)),
          new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_OUTER_ARMOR)),
          //? if >=1.21.2 {
-         context.getEquipmentRenderer()));
-         //?} else
-         //context.getModelManager()));
+         /*context.getEquipmentRenderer()));
+         *///?} else
+         context.getModelManager()));
       //? if >=1.21.4
-      this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
-      *///?}
+      //this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
+      //?}
       //? if >=1.21.4 {
-      this.addLayer(new ItemInHandLayer<>(this));
-      //?} elif >=1.21.2 {
+      /*this.addLayer(new ItemInHandLayer<>(this));
+      *///?} elif >=1.21.2 {
       /*this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemRenderer()));
       this.addLayer(new ItemInHandLayer<>(this, context.getItemRenderer()));
       *///?} else {
-      /*this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
+      this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
       this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
-      *///?}
+      //?}
       this.addLayer(new StatueBackItemLayer(this, context));
       this.addLayer(new StatueHighlightLayer(this));
    }
 
    /** A renderer whose statue also has glowing eyes. */
    public StatueEntityRenderer(
-      EntityRendererProvider.Context context, Identifier texture, Identifier eyesTexture) {
+      EntityRendererProvider.Context context, ResourceLocation texture, ResourceLocation eyesTexture) {
       this(context, texture);
-      RenderType eyes = RenderTypes.eyes(eyesTexture);
+      RenderType eyes = RenderType.eyes(eyesTexture);
       this.addLayer(new EyesLayer<>(this) {
          @Override
          public RenderType renderType() {
@@ -147,7 +147,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
    }
 
    //? if >=1.21.2 {
-   @Override
+   /*@Override
    public State createRenderState() {
       return new State();
    }
@@ -155,19 +155,19 @@ public class StatueEntityRenderer<T extends StatueEntity>
    @Override
    public void extractRenderState(T entity, State state, float tickDelta) {
       super.extractRenderState(entity, state, tickDelta);
-   //?} else {
-   /*// The state this frame is drawn from; the model holds it while vanilla's render runs, and the layers read it there.
+   *///?} else {
+   // The state this frame is drawn from; the model holds it while vanilla's render runs, and the layers read it there.
    private final State frame = new State();
    private State preview;
 
-   /^* What 1.21.2's createRenderState(entity, partialTick) does. ^/
+   /** What 1.21.2's createRenderState(entity, partialTick) does. */
    public State createRenderState(StatueEntity entity, float tickDelta) {
       State state = new State();
       this.extractRenderState(entity, state, tickDelta);
       return state;
    }
 
-   /^* Draws the statue from a state the caller has posed, rather than from the entity; the pose screen's preview. ^/
+   /** Draws the statue from a state the caller has posed, rather than from the entity; the pose screen's preview. */
    public void renderPreview(State state, PoseStack matrices, MultiBufferSource buffers, int light) {
       this.preview = state;
       try {
@@ -201,9 +201,9 @@ public class StatueEntityRenderer<T extends StatueEntity>
       StatueEntity entity, PoseStack matrices, float bob, float bodyRot, float tickDelta, float scale) {
       super.setupRotations(entity, matrices, bob, this.model.current.bodyRot, tickDelta, scale);
    //?} else {
-   /^protected void setupRotations(StatueEntity entity, PoseStack matrices, float bob, float bodyRot, float tickDelta) {
+   /*protected void setupRotations(StatueEntity entity, PoseStack matrices, float bob, float bodyRot, float tickDelta) {
       super.setupRotations(entity, matrices, bob, this.model.current.bodyRot, tickDelta);
-   ^///?}
+   *///?}
    }
 
    @Override
@@ -226,20 +226,20 @@ public class StatueEntityRenderer<T extends StatueEntity>
       state.boundingBoxWidth = entity.getBbWidth();
       state.boundingBoxHeight = entity.getBbHeight();
       state.scale = entity.getScale();
-   *///?}
+   //?}
 
       state.statue = entity;
       //? if >=1.21.4 {
-      HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta, this.itemModelManager);
-      //?} elif >=1.21.2 {
+      /*HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta, this.itemModelManager);
+      *///?} elif >=1.21.2 {
       /*HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta);
       *///?} else {
-      /*state.headEquipment = entity.getItemBySlot(EquipmentSlot.HEAD);
-      state.chestEquipment = entity.getItemBySlot(EquipmentSlot.CHEST);
-      state.legsEquipment = entity.getItemBySlot(EquipmentSlot.LEGS);
-      state.feetEquipment = entity.getItemBySlot(EquipmentSlot.FEET);
+      state.headItem = entity.getItemBySlot(EquipmentSlot.HEAD);
+      state.chestItem = entity.getItemBySlot(EquipmentSlot.CHEST);
+      state.legsItem = entity.getItemBySlot(EquipmentSlot.LEGS);
+      state.feetItem = entity.getItemBySlot(EquipmentSlot.FEET);
       state.mainArm = entity.getMainArm();
-      *///?}
+      //?}
       Pose pose = entity.getPose();
       state.pose = pose;
       state.bodyRot = entity.getVisualRotationYInDegrees();
@@ -248,13 +248,13 @@ public class StatueEntityRenderer<T extends StatueEntity>
       state.walkAnimationPos = entity.getLimbAngle();
       state.walkAnimationSpeed = entity.getLimbAmplitude();
       //? if >=26.3 {
-      state.swingAnimation = entity.getHandSwing();
+      /*state.swingAnimation = entity.getHandSwing();
       state.currentSwing = entity.getHandSwing() > 0.0F
          ? new net.minecraft.world.entity.LivingEntity.SwingDescription(
             net.minecraft.world.InteractionHand.MAIN_HAND, entity.getMainHandItem().getAttackAnimation(), 6)
          : null;
-      //?} else
-      //state.attackTime = entity.getHandSwing();
+      *///?} else
+      state.attackTime = entity.getHandSwing();
       state.swimAmount = entity.getLeaning();
       state.isCrouching = pose == Pose.CROUCHING;
       state.isDiscrete = state.isCrouching;
@@ -303,41 +303,41 @@ public class StatueEntityRenderer<T extends StatueEntity>
       }
 
       //? if >=1.21.11 {
-      if (stack.is(ItemTags.SPEARS)) {
+      /*if (stack.is(ItemTags.SPEARS)) {
          return HumanoidModel.ArmPose.SPEAR;
       }
-      //?}
+      *///?}
 
       return HumanoidModel.ArmPose.ITEM;
    }
 
    @Override
    //? if >=1.21.2 {
-   protected void scale(State state, PoseStack matrices) {
-   //?} else
-   //protected void scale(StatueEntity entity, PoseStack matrices, float tickDelta) {
+   /*protected void scale(State state, PoseStack matrices) {
+   *///?} else
+   protected void scale(StatueEntity entity, PoseStack matrices, float tickDelta) {
       matrices.scale(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
    }
 
    @Override
    //? if >=1.21.2 {
-   protected boolean shouldShowName(T entity, double squaredDistance) {
+   /*protected boolean shouldShowName(T entity, double squaredDistance) {
       return super.shouldShowName(entity, squaredDistance)
-   //?} else {
-   /*protected boolean shouldShowName(StatueEntity entity) {
+   *///?} else {
+   protected boolean shouldShowName(StatueEntity entity) {
       return this.preview == null && super.shouldShowName(entity)
-   *///?}
+   //?}
          && (entity.shouldShowName() || entity.hasCustomName() && entity == this.entityRenderDispatcher.crosshairPickEntity);
    }
 
    @Override
    //? if >=1.21.2 {
-   public Identifier getTextureLocation(State state) {
-      Identifier carved = state.variant.texture();
-   //?} else {
-   /*public Identifier getTextureLocation(StatueEntity entity) {
-      Identifier carved = entity.getVariant().texture();
-   *///?}
+   /*public ResourceLocation getTextureLocation(State state) {
+      ResourceLocation carved = state.variant.texture();
+   *///?} else {
+   public ResourceLocation getTextureLocation(StatueEntity entity) {
+      ResourceLocation carved = entity.getVariant().texture();
+   //?}
       return carved != null ? carved : this.texture;
    }
 }
