@@ -205,7 +205,14 @@ public class CosmeticStatueEntity extends StatueEntity {
    }
 
    @Override
+   //? if >=1.21.2 {
    public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
+   //?} else {
+   /*public boolean hurt(DamageSource source, float amount) {
+      if (!(this.level() instanceof ServerLevel world)) {
+         return false;
+      }
+   *///?}
       if (this.isRemoved() || this.isWaxed()) {
          return false;
       }
@@ -240,7 +247,7 @@ public class CosmeticStatueEntity extends StatueEntity {
    private void breakApart(ServerLevel world) {
       Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));
 
-      for (EquipmentSlot slot : EquipmentSlot.VALUES) {
+      for (EquipmentSlot slot : EquipmentSlot.values()) {
          if (this.canUseSlot(slot)) {
             ItemStack stack = this.getItemBySlot(slot);
             if (!stack.isEmpty()) {

@@ -109,7 +109,7 @@ public final class StatuePartPicker {
       /*java.util.Set<org.joml.Vector3f> corners = new java.util.HashSet<>();
       modelPart.getExtentsForGui(matrices, corners);
       corners.forEach(bounds);
-      *///?} else {
+      *///?} elif >=1.21.2 {
       /*// What getExtentsForGui does from 1.21.9; vertex positions are still in pixels here.
       modelPart.visit(matrices, (pose, path, index, cube) -> {
          for (ModelPart.Polygon polygon : cube.polygons) {
@@ -117,6 +117,17 @@ public final class StatuePartPicker {
                bounds.accept(pose.pose().transformPosition(
                   vertex.pos().x() / 16.0F, vertex.pos().y() / 16.0F, vertex.pos().z() / 16.0F, new org.joml.Vector3f()));
             }
+         }
+      });
+      *///?} else {
+      /*// Polygons are private here; a cube's corners bound the same box, give or take its inflation.
+      modelPart.visit(matrices, (pose, path, index, cube) -> {
+         for (int corner = 0; corner < 8; corner++) {
+            bounds.accept(pose.pose().transformPosition(
+               ((corner & 1) == 0 ? cube.minX : cube.maxX) / 16.0F,
+               ((corner & 2) == 0 ? cube.minY : cube.maxY) / 16.0F,
+               ((corner & 4) == 0 ? cube.minZ : cube.maxZ) / 16.0F,
+               new org.joml.Vector3f()));
          }
       });
       *///?}

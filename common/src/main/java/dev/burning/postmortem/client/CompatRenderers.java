@@ -1,5 +1,6 @@
 package dev.burning.postmortem.client;
 
+//? if >=1.21.2 {
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.burning.postmortem.Postmortem;
@@ -342,3 +343,42 @@ public abstract class CompatRenderers {
       }
    }
 }
+//?} else {
+/*import com.mojang.blaze3d.vertex.PoseStack;
+import dev.burning.postmortem.entity.StatueEntity;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+
+// The bridges drive other mods' renderers through a player render state, which only exists from 1.21.2. Before it
+// there are no bridges yet: create() finds nothing, and StatueBackItemLayer places items itself.
+public abstract class CompatRenderers {
+   public abstract boolean render(
+      PoseStack matrices, RenderSink sink, int light,
+      StatueEntityRenderer.State source, StatueEntityModel sourceModel, StatueEntity statue);
+
+   public static final class Backslot extends CompatRenderers {
+      public static Backslot create(EntityRendererProvider.Context factory) {
+         return null;
+      }
+
+      @Override
+      public boolean render(
+         PoseStack matrices, RenderSink sink, int light,
+         StatueEntityRenderer.State source, StatueEntityModel sourceModel, StatueEntity statue) {
+         return false;
+      }
+   }
+
+   public static final class Amenities extends CompatRenderers {
+      public static Amenities create(EntityRendererProvider.Context factory) {
+         return null;
+      }
+
+      @Override
+      public boolean render(
+         PoseStack matrices, RenderSink sink, int light,
+         StatueEntityRenderer.State source, StatueEntityModel sourceModel, StatueEntity statue) {
+         return false;
+      }
+   }
+}
+*///?}
