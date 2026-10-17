@@ -17,15 +17,16 @@ plugins {
 
 stonecutter {
     create(rootProject) {
-        // Each "{name}-{loader}" node lives in versions/ and builds with build.{loader}.gradle.kts.
-        // [version] is the exact Minecraft release compiled against when it differs from the node's name.
-        fun match(name: String, vararg loaders: String, version: String = name) {
-            for (loader in loaders) version("$name-$loader", version).buildscript("build.$loader.gradle.kts")
+        // common/ holds the shared code and only version-processes it; each loader branch compiles common's
+        // sources for its Minecraft version alongside its own. Nodes are named after the Minecraft line and
+        // compile against the exact release given as the second value.
+        val versions = listOf("26.1" to "26.1.2", "26.2" to "26.2")
+
+        for (loader in listOf("common", "fabric", "neoforge")) branch(loader) {
+            for ((name, release) in versions) version(name, release)
         }
 
-        match("26.1", "fabric", "neoforge", version = "26.1.2")
-        match("26.2", "fabric", "neoforge")
-        vcsVersion = "26.2-fabric"
+        vcsVersion = "26.2"
     }
 }
 
