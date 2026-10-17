@@ -11,6 +11,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 //? if >=1.21.11
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 
+//? if >=1.20.5
 @Mod(value = Postmortem.MOD_ID, dist = Dist.CLIENT)
 public final class PostmortemNeoForgeClient {
    public PostmortemNeoForgeClient(IEventBus modBus) {
