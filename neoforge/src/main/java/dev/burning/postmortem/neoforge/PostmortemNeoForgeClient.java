@@ -9,14 +9,14 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 //? if >=1.21.11
-import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+//import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 
 @Mod(value = Postmortem.MOD_ID, dist = Dist.CLIENT)
 public final class PostmortemNeoForgeClient {
    public PostmortemNeoForgeClient(IEventBus modBus) {
       modBus.addListener(PostmortemNeoForgeClient::registerRenderers);
       //? if >=1.21.11
-      modBus.addListener(PostmortemNeoForgeClient::registerPayloadHandlers);
+      //modBus.addListener(PostmortemNeoForgeClient::registerPayloadHandlers);
    }
 
    private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -25,10 +25,10 @@ public final class PostmortemNeoForgeClient {
    }
 
    //? if >=1.21.11 {
-   private static void registerPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
+   /*private static void registerPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
       event.register(
          PostmortemRegistry.OpenPoseScreen.ID,
          (payload, context) -> PostmortemClient.openPoseScreen(Minecraft.getInstance(), payload.entityId()));
    }
-   //?}
+   *///?}
 }
