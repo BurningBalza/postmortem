@@ -63,9 +63,9 @@ public class MemorialStatueEntity extends StatueEntity {
    public MemorialStatueEntity(EntityType<? extends MemorialStatueEntity> type, Level world) {
       super(type, world);
       //? if >=26.3 {
-      this.setPermanentlyInvulnerable(true);
-      //?} else
-      //this.setInvulnerable(true);
+      /*this.setPermanentlyInvulnerable(true);
+      *///?} else
+      this.setInvulnerable(true);
    }
 
    public void setOwner(Player player) {
@@ -262,9 +262,9 @@ public class MemorialStatueEntity extends StatueEntity {
 
       for (ItemStack stack : displaced) {
          //? if >=26.3 {
-         inventory.placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
-         //?} else
-         //inventory.placeItemBackInInventory(stack);
+         /*inventory.placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
+         *///?} else
+         inventory.placeItemBackInInventory(stack);
       }
 
       return returned;
@@ -280,9 +280,9 @@ public class MemorialStatueEntity extends StatueEntity {
 
    @Override
    //? if >=26.1 {
-   public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
-   //?} else
-   //public InteractionResult interactAt(Player player, Vec3 hitPos, InteractionHand hand) {
+   /*public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
+   *///?} else
+   public InteractionResult interactAt(Player player, Vec3 hitPos, InteractionHand hand) {
       if (this.level().isClientSide()) {
          return InteractionResult.SUCCESS;
       }
