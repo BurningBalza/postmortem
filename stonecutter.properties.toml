@@ -12,6 +12,8 @@ loomx.loom_version = "1.17.20"
 mod.mc_releases = ["1.21.4"]
 
 [fabric."1.21.4"]
+# Lowest loader the mod accepts: the same floor as this version's Fabric API.
+mod.fabric_loader_min = "0.16.9"
 mod.mc_compat = "1.21.4"
 deps.fabric_api = "0.119.4+1.21.4"
 
@@ -23,6 +25,8 @@ deps.neoforge = "21.4.161"
 mod.mc_releases = ["1.21.11"]
 
 [fabric."1.21.11"]
+# Lowest loader the mod accepts: the same floor as this version's Fabric API.
+mod.fabric_loader_min = "0.17.3"
 mod.mc_compat = "1.21.11"
 deps.fabric_api = "0.141.6+1.21.11"
 
@@ -34,6 +38,8 @@ deps.neoforge = "21.11.48"
 mod.mc_releases = ["26.1.2"]
 
 [fabric."26.1"]
+# Lowest loader the mod accepts: the same floor as this version's Fabric API.
+mod.fabric_loader_min = "0.18.4"
 mod.mc_compat = "26.1.2"
 deps.fabric_api = "0.155.3+26.1.2"
 
@@ -45,6 +51,8 @@ deps.neoforge = "26.1.2.122"
 mod.mc_releases = ["26.2"]
 
 [fabric."26.2"]
+# Lowest loader the mod accepts: the same floor as this version's Fabric API.
+mod.fabric_loader_min = "0.18.4"
 mod.mc_compat = "~26.2"
 deps.fabric_api = "0.159.0+26.2"
 
