@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "ARR"
+
+[[mods]]
+modId = "postmortem"
+version = "${version}"
+displayName = "Postmortem"
+authors = "Burning & Kindling"
+description = "A mod that explores the concepts of death in Minecraft, and acts to change it for the better."
+
+[[mixins]]
+config = "postmortem.mixins.json"
+
+[[dependencies.postmortem]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.postmortem]]
+modId = "neoforge"
+type = "required"
+versionRange = "[0,)"
+ordering = "NONE"
+side = "BOTH"
