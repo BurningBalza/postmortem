@@ -1,6 +1,7 @@
 package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.Postmortem;
+import dev.burning.postmortem.compat.BackSlots;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.chat.Component;
@@ -12,6 +13,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -63,8 +65,14 @@ public abstract class StatueEntity extends LivingEntity {
    private static final EntityDataAccessor<Boolean> WAXED =
       SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.BOOLEAN);
 
+   private boolean checkedBackSlots;
+
    //? if <1.21.5 {
    // LivingEntity only stores equipment itself from 1.21.5; before that every entity kept its own, like ArmorStand.
+   //? if >=1.20.5 {
+   private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.OPTIONAL_CODEC;
+   //?} else
+   //private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.CODEC;
    private final java.util.List<ItemStack> handItems = net.minecraft.core.NonNullList.withSize(2, ItemStack.EMPTY);
    private final java.util.List<ItemStack> armorItems = net.minecraft.core.NonNullList.withSize(4, ItemStack.EMPTY);
    //?}
@@ -113,8 +121,14 @@ public abstract class StatueEntity extends LivingEntity {
    //?}
 
    @Override
+   //? if >=1.20.5 {
    protected void defineSynchedData(SynchedEntityData.Builder builder) {
       super.defineSynchedData(builder);
+   //?} else {
+   /*protected void defineSynchedData() {
+      super.defineSynchedData();
+      SynchedEntityData builder = this.entityData;
+   *///?}
       builder.define(LIMB_ANGLE, 0.0F);
       builder.define(LIMB_AMPLITUDE, 0.0F);
       builder.define(HAND_SWING, 0.0F);
@@ -139,7 +153,13 @@ public abstract class StatueEntity extends LivingEntity {
 
       if (!this.isWaxed() && held.is(Items.HONEYCOMB)) {
          this.setWaxed(true);
+         //? if >=1.20.5 {
          held.consume(1, player);
+         //?} else {
+         /*if (!player.getAbilities().instabuild) {
+            held.shrink(1);
+         }
+         *///?}
          this.playWaxEffect(SoundEvents.HONEYCOMB_WAX_ON, ParticleTypes.WAX_ON);
          return InteractionResult.SUCCESS;
       }
@@ -148,8 +168,10 @@ public abstract class StatueEntity extends LivingEntity {
          this.setWaxed(false);
          //? if >=1.21.9 {
          /*held.hurtAndBreak(1, player, hand);
-         *///?} else
+         *///?} elif >=1.20.5 {
          held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+         //?} else
+         //held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
          //? if >=26.3 {
          /*this.playWaxEffect(SoundEvents.AXE_WAX_OFF.value(), ParticleTypes.WAX_OFF);
          *///?} else
@@ -198,6 +220,29 @@ public abstract class StatueEntity extends LivingEntity {
 
    public void setBeltslotStack(ItemStack stack) {
       this.entityData.set(BELTSLOT, stack.copy());
+   }
+
+   @Override
+   public void tick() {
+      super.tick();
+
+      // A statue saved while a back-slot mod was installed keeps the item after the mod is removed; let it go.
+      if (!this.checkedBackSlots && this.level() instanceof ServerLevel world) {
+         this.checkedBackSlots = true;
+         if (!BackSlots.back() && !this.getBackslotStack().isEmpty()) {
+            this.releaseUnsupported(world, this.getBackslotStack());
+            this.setBackslotStack(ItemStack.EMPTY);
+         }
+         if (!BackSlots.belt() && !this.getBeltslotStack().isEmpty()) {
+            this.releaseUnsupported(world, this.getBeltslotStack());
+            this.setBeltslotStack(ItemStack.EMPTY);
+         }
+      }
+   }
+
+   /** Called with an item left in a back or belt slot no installed mod provides. A statue's own item drops. */
+   protected void releaseUnsupported(ServerLevel world, ItemStack stack) {
+      Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), stack.copy());
    }
 
    public void applyPose(PoseSnapshot snapshot) {
@@ -259,8 +304,10 @@ public abstract class StatueEntity extends LivingEntity {
       this.setVariant(next);
       //? if >=1.21.9 {
       /*held.hurtAndBreak(1, player, hand);
-      *///?} else
+      *///?} elif >=1.20.5 {
       held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+      //?} else
+      //held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
       Postmortem.overlay(player, 
          Component.translatable("message.postmortem.variant", Component.translatable(next.translationKey())));
       this.level().playSound(
@@ -291,7 +338,7 @@ public abstract class StatueEntity extends LivingEntity {
    *///?} else {
    public void addAdditionalSaveData(CompoundTag tag) {
       super.addAdditionalSaveData(tag);
-      ValueOutput view = ValueOutput.of(tag, this.registryAccess());
+      ValueOutput view = ValueOutput.of(tag, this);
    //?}
       //? if >=1.21.11 {
       /*view.store("StatuePose", Pose.CODEC, this.getPose());
@@ -317,8 +364,8 @@ public abstract class StatueEntity extends LivingEntity {
          view.putBoolean("Waxed", true);
       }
       //? if <1.21.5 {
-      view.store("ArmorItems", ItemStack.OPTIONAL_CODEC.listOf(), this.armorItems);
-      view.store("HandItems", ItemStack.OPTIONAL_CODEC.listOf(), this.handItems);
+      view.store("ArmorItems", EQUIPMENT_CODEC.listOf(), this.armorItems);
+      view.store("HandItems", EQUIPMENT_CODEC.listOf(), this.handItems);
       //?}
    }
 
@@ -329,7 +376,7 @@ public abstract class StatueEntity extends LivingEntity {
    *///?} else {
    public void readAdditionalSaveData(CompoundTag tag) {
       super.readAdditionalSaveData(tag);
-      ValueInput view = ValueInput.of(tag, this.registryAccess());
+      ValueInput view = ValueInput.of(tag, this);
    //?}
       //? if >=1.21.11 {
       /*view.read("StatuePose", Pose.CODEC).ifPresent(this::setPose);
@@ -345,8 +392,8 @@ public abstract class StatueEntity extends LivingEntity {
       this.setSeated(view.getBooleanOr("Seated", false));
       this.setWaxed(view.getBooleanOr("Waxed", false));
       //? if <1.21.5 {
-      view.read("ArmorItems", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.armorItems));
-      view.read("HandItems", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.handItems));
+      view.read("ArmorItems", EQUIPMENT_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.armorItems));
+      view.read("HandItems", EQUIPMENT_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.handItems));
       //?}
    }
 
@@ -359,12 +406,17 @@ public abstract class StatueEntity extends LivingEntity {
       return HumanoidArm.RIGHT;
    }
 
+   //? if >=1.20.5
    @Override
    public boolean canUseSlot(EquipmentSlot slot) {
       //? if >=1.21.5 {
       /*return slot != EquipmentSlot.BODY && slot != EquipmentSlot.SADDLE;
-      *///?} else
+      *///?} elif >=1.20.5 {
       return slot != EquipmentSlot.BODY;
+      //?} else {
+      /*// Before 1.20.5 there are only hands and armour.
+      return true;
+      *///?}
    }
 
    // Same as vanilla, but without calling super: Enchancement's Veil hooks the
@@ -411,7 +463,10 @@ public abstract class StatueEntity extends LivingEntity {
    }
 
    @Override
+   //? if >=1.20.3 {
    public boolean ignoreExplosion(Explosion explosion) {
+   //?} else
+   //public boolean ignoreExplosion() {
       return true;
    }
 

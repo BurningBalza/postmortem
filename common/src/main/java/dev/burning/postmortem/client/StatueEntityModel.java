@@ -76,7 +76,7 @@ public class StatueEntityModel extends HumanoidModel<StatueEntity> {
    *///?} else {
    public void translateToHand(HumanoidArm arm, PoseStack matrices) {
       super.translateToHand(arm, matrices);
-      StatueEntityRenderer.State state = this.current;
+      Object state = this.current;
    //?}
 
       if (state instanceof StatueEntityRenderer.State statueState) {
