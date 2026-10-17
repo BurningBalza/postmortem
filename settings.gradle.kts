@@ -20,11 +20,18 @@ stonecutter {
         // common/ holds the shared code and only version-processes it; each loader branch compiles common's
         // sources for its Minecraft version alongside its own. Nodes are named after the Minecraft line and
         // compile against the exact release given as the second value.
-        val versions = listOf("1.21.4" to "1.21.4", "1.21.11" to "1.21.11", "26.1" to "26.1.2", "26.2" to "26.2", "26.3" to "26.3")
+        val versions = listOf(
+            "1.21.4" to "1.21.4", "1.21.5" to "1.21.5", "1.21.6" to "1.21.6", "1.21.7" to "1.21.7",
+            "1.21.8" to "1.21.8", "1.21.9" to "1.21.9", "1.21.10" to "1.21.10", "1.21.11" to "1.21.11",
+            "26.1" to "26.1.2", "26.2" to "26.2", "26.3" to "26.3",
+        )
+        // NeoForge only builds where it had a stable release; its jar for the next release up also declares the
+        // versions it skipped (e.g. 1.21.8 covers 1.21.6 and 1.21.7).
+        val neoforgeSkips = setOf("1.21.6", "1.21.7", "1.21.9")
 
-        for (loader in listOf("common", "fabric", "neoforge")) branch(loader) {
-            for ((name, release) in versions) version(name, release)
-        }
+        branch("common") { for ((name, release) in versions) version(name, release) }
+        branch("fabric") { for ((name, release) in versions) version(name, release) }
+        branch("neoforge") { for ((name, release) in versions) if (name !in neoforgeSkips) version(name, release) }
 
         vcsVersion = "26.3"
     }
