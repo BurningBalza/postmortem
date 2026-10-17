@@ -13,6 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+//? if >=1.21.2
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -53,7 +54,15 @@ public class CosmeticStatueItem extends Item {
    }
 
    @Override
+   //? if >=1.21.2 {
    public InteractionResult use(Level world, Player player, InteractionHand hand) {
+   //?} else {
+   /*public net.minecraft.world.InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+      return new net.minecraft.world.InteractionResultHolder<>(this.useResult(world, player, hand), player.getItemInHand(hand));
+   }
+
+   private InteractionResult useResult(Level world, Player player, InteractionHand hand) {
+   *///?}
       BlockHitResult hit = getPlayerPOVHitResult(world, player, ClipContext.Fluid.SOURCE_ONLY);
 
       if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP) {
@@ -85,7 +94,10 @@ public class CosmeticStatueItem extends Item {
       }
 
       if (world instanceof ServerLevel serverWorld) {
+         //? if >=1.21.2 {
          CosmeticStatueEntity statue = PostmortemRegistry.COSMETIC_STATUE.get().create(serverWorld, EntitySpawnReason.SPAWN_ITEM_USE);
+         //?} else
+         //CosmeticStatueEntity statue = PostmortemRegistry.COSMETIC_STATUE.get().create(serverWorld);
          if (statue == null) {
             return InteractionResult.FAIL;
          }
