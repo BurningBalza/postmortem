@@ -33,6 +33,8 @@ stonecutter {
         branch("common") { for ((name, release) in versions) version(name, release) }
         branch("fabric") { for ((name, release) in versions) version(name, release) }
         branch("neoforge") { for ((name, release) in versions) if (name !in neoforgeSkips) version(name, release) }
+        // Forge only for 1.20.1, the one version NeoForge does not reach.
+        branch("forge") { version("1.20.1", "1.20.1") }
 
         vcsVersion = "26.3"
     }
