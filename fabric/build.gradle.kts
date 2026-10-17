@@ -65,6 +65,8 @@ tasks {
         inputs.properties(props)
 
         filesMatching("fabric.mod.json") { expand(props) }
+        // Recipe ingredients became plain item ids in 1.21.2.
+        if (sc.current.parsed < "1.21.2") legacyRecipeIngredients()
         filesMatching("*.mixins.json") { expand(props) }
     }
 
