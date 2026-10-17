@@ -61,6 +61,8 @@ tasks {
         filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
         // Recipe ingredients became plain item ids in 1.21.2.
         if (sc.current.parsed < "1.21.2") legacyRecipeIngredients()
+        // Data-pack folders went singular in 1.21.
+        if (sc.current.parsed < "1.21") pluralDataFolders()
         filesMatching("*.mixins.json") { expand(props) }
     }
 
