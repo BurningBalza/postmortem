@@ -46,7 +46,7 @@ public final class ValueInput {
       return this.tag.getBooleanOr(key, fallback);
    }
    //?} else {
-   public float getFloatOr(String key, float fallback) {
+   /^public float getFloatOr(String key, float fallback) {
       return this.tag.contains(key) ? this.tag.getFloat(key) : fallback;
    }
 
@@ -61,6 +61,6 @@ public final class ValueInput {
    public boolean getBooleanOr(String key, boolean fallback) {
       return this.tag.contains(key) ? this.tag.getBoolean(key) : fallback;
    }
-   //?}
+   ^///?}
 }
 *///?}
