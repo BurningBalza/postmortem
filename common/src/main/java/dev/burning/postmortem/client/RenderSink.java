@@ -2,7 +2,6 @@ package dev.burning.postmortem.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 //? if >=1.21.9 {
@@ -34,8 +33,8 @@ public final class RenderSink {
       //this.queue.submitModelPart(part, matrices, type, light, OverlayTexture.NO_OVERLAY, null, colour, null);
    }
 
-   public void item(ItemStackRenderState item, PoseStack matrices, int light) {
-      item.submit(matrices, this.queue, light, OverlayTexture.NO_OVERLAY, 0);
+   public void item(ItemDrawState item, PoseStack matrices, int light) {
+      item.state.submit(matrices, this.queue, light, OverlayTexture.NO_OVERLAY, 0);
    }
    //?} else {
    /*private final MultiBufferSource buffers;
@@ -52,8 +51,13 @@ public final class RenderSink {
       part.render(matrices, this.buffers.getBuffer(type), light, OverlayTexture.NO_OVERLAY, colour);
    }
 
-   public void item(ItemStackRenderState item, PoseStack matrices, int light) {
-      item.render(matrices, this.buffers, light, OverlayTexture.NO_OVERLAY);
+   public void item(ItemDrawState item, PoseStack matrices, int light) {
+      //? if >=1.21.4 {
+      item.state.render(matrices, this.buffers, light, OverlayTexture.NO_OVERLAY);
+      //?} else {
+      /^net.minecraft.client.Minecraft.getInstance().getItemRenderer().render(
+         item.stack, item.context, false, matrices, this.buffers, light, OverlayTexture.NO_OVERLAY, item.model);
+      ^///?}
    }
    *///?}
 }
