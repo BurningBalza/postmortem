@@ -17,7 +17,10 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
+//? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
+//?} else
+//import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -36,9 +39,18 @@ public abstract class CompatRenderers {
 
    private static final int STAND_IN_ID = 1 << 30;
 
+   // Other mods' layers draw through RenderLayer's own method: submit from 1.21.9, render before it.
+   //? if >=1.21.9 {
+   private static final String SUBMIT = "submit";
    private static final Class<?>[] SUBMIT_SIGNATURE = {
       PoseStack.class, SubmitNodeCollector.class, int.class, AvatarRenderState.class, float.class, float.class
    };
+   //?} else {
+   /*private static final String SUBMIT = "render";
+   private static final Class<?>[] SUBMIT_SIGNATURE = {
+      PoseStack.class, MultiBufferSource.class, int.class, AvatarRenderState.class, float.class, float.class
+   };
+   *///?}
 
    private static RemotePlayer standIn;
 
@@ -95,7 +107,7 @@ public abstract class CompatRenderers {
    }
 
    public abstract boolean render(
-      PoseStack matrices, SubmitNodeCollector queue, int light,
+      PoseStack matrices, RenderSink sink, int light,
       StatueEntityRenderer.State source, StatueEntityModel sourceModel, StatueEntity statue);
 
    /** Backslot Mod's back-item renderer. */
@@ -136,7 +148,7 @@ public abstract class CompatRenderers {
 
       @Override
       public boolean render(
-         PoseStack matrices, SubmitNodeCollector queue, int light,
+         PoseStack matrices, RenderSink sink, int light,
          StatueEntityRenderer.State source, StatueEntityModel sourceModel, StatueEntity statue) {
 
          if (!available) {
@@ -156,7 +168,7 @@ public abstract class CompatRenderers {
             previous = (Entity) getStateEntity.invoke(this.state);
             setStateEntity.invoke(this.state, standIn);
 
-            submit.invoke(this.renderer, matrices, queue, light, this.state, 0.0F, 0.0F);
+            submit.invoke(this.renderer, matrices, sink.raw(), light, this.state, 0.0F, 0.0F);
             return true;
          } catch (ReflectiveOperationException | RuntimeException e) {
             available = false;
@@ -188,7 +200,7 @@ public abstract class CompatRenderers {
             Class<?> addon = Class.forName(ADDON);
 
             rendererConstructor = renderer.getConstructors()[0];
-            submit = renderer.getMethod("submit", SUBMIT_SIGNATURE);
+            submit = renderer.getMethod(SUBMIT, SUBMIT_SIGNATURE);
             getStateEntity = addon.getMethod("entity");
             setStateEntity = addon.getMethod("backslotMod$entity", Entity.class);
 
@@ -251,7 +263,7 @@ public abstract class CompatRenderers {
 
       @Override
       public boolean render(
-         PoseStack matrices, SubmitNodeCollector queue, int light,
+         PoseStack matrices, RenderSink sink, int light,
          StatueEntityRenderer.State source, StatueEntityModel sourceModel, StatueEntity statue) {
 
          EquipmentSlot backSlot = CombatAmenitiesCompat.backSlot();
@@ -272,8 +284,8 @@ public abstract class CompatRenderers {
             standIn.setItemSlot(backSlot, statue.getBackslotStack());
             standIn.setItemSlot(beltSlot, statue.getBeltslotStack());
 
-            this.submitIsolated(submitBack, this.backRenderer, matrices, queue, light, source.limbPose.get(StatuePart.BACK_ITEM));
-            this.submitIsolated(submitBelt, this.beltRenderer, matrices, queue, light, source.limbPose.get(StatuePart.BELT_ITEM));
+            this.submitIsolated(submitBack, this.backRenderer, matrices, sink, light, source.limbPose.get(StatuePart.BACK_ITEM));
+            this.submitIsolated(submitBelt, this.beltRenderer, matrices, sink, light, source.limbPose.get(StatuePart.BELT_ITEM));
             return true;
          } catch (ReflectiveOperationException | RuntimeException e) {
             available = false;
@@ -286,13 +298,14 @@ public abstract class CompatRenderers {
       }
 
       private void submitIsolated(
-         Method submit, Object renderer, PoseStack parent, SubmitNodeCollector queue, int light, LimbTransform transform)
+         Method submit, Object renderer, PoseStack parent, RenderSink sink, int light, LimbTransform transform)
          throws ReflectiveOperationException {
 
          PoseStack isolated = new PoseStack();
-         isolated.last().set(parent.last());
+         isolated.last().pose().set(parent.last().pose());
+         isolated.last().normal().set(parent.last().normal());
          StatueEntityModel.applyToMatrix(isolated, transform);
-         submit.invoke(renderer, isolated, queue, light, this.state, 0.0F, 0.0F);
+         submit.invoke(renderer, isolated, sink.raw(), light, this.state, 0.0F, 0.0F);
       }
 
       private static boolean resolve() {
@@ -312,8 +325,8 @@ public abstract class CompatRenderers {
 
             backConstructor = back.getConstructors()[0];
             beltConstructor = belt.getConstructors()[0];
-            submitBack = back.getMethod("submit", SUBMIT_SIGNATURE);
-            submitBelt = belt.getMethod("submit", SUBMIT_SIGNATURE);
+            submitBack = back.getMethod(SUBMIT, SUBMIT_SIGNATURE);
+            submitBelt = belt.getMethod(SUBMIT, SUBMIT_SIGNATURE);
             setPlayer = access.getMethod("combat_Amenities$setPlayerEntity", Player.class);
 
             available = true;

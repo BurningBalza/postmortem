@@ -7,6 +7,7 @@ import dev.burning.postmortem.entity.StatuePose;
 import dev.burning.postmortem.entity.StatueVariant;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
+//? if >=1.21.9
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
@@ -19,6 +20,7 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
+//? if >=1.21.11
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
@@ -61,6 +63,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       super(context, new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM)), 0.0F);
       this.itemModelManager = context.getItemModelResolver();
       this.texture = texture;
+      //? if >=1.21.9 {
       this.addLayer(new HumanoidArmorLayer<>(
          this,
          ArmorModelSet.bake(
@@ -68,6 +71,14 @@ public class StatueEntityRenderer<T extends StatueEntity>
          context.getEquipmentRenderer()));
       this.addLayer(new CustomHeadLayer<>(
          this, context.getModelSet(), context.getPlayerSkinRenderCache()));
+      //?} else {
+      /*this.addLayer(new HumanoidArmorLayer<>(
+         this,
+         new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_INNER_ARMOR)),
+         new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_OUTER_ARMOR)),
+         context.getEquipmentRenderer()));
+      this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
+      *///?}
       this.addLayer(new ItemInHandLayer<>(this));
       this.addLayer(new StatueBackItemLayer(this, context));
       this.addLayer(new StatueHighlightLayer(this));
@@ -125,8 +136,13 @@ public class StatueEntityRenderer<T extends StatueEntity>
          state.backslotFit = StatueBackItemLayer.Fit.GENERIC;
       } else {
          state.backslotFit = StatueBackItemLayer.Fit.forItem(backslot);
+         //? if >=1.21.9 {
          this.itemModelManager.updateForLiving(
             state.backslotItemState, backslot, state.backslotFit.displayContext(), entity);
+         //?} else {
+         /*this.itemModelManager.updateForLiving(
+            state.backslotItemState, backslot, state.backslotFit.displayContext(), false, entity);
+         *///?}
       }
    }
 
@@ -153,9 +169,11 @@ public class StatueEntityRenderer<T extends StatueEntity>
          return HumanoidModel.ArmPose.CROSSBOW_HOLD;
       }
 
+      //? if >=1.21.11 {
       if (stack.is(ItemTags.SPEARS)) {
          return HumanoidModel.ArmPose.SPEAR;
       }
+      //?}
 
       return HumanoidModel.ArmPose.ITEM;
    }

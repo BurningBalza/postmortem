@@ -7,8 +7,10 @@ import java.util.function.Supplier;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 //? if >=26.1 {
 /*import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
-*///?} else
+*///?} elif >=1.21.5 {
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricTrackedDataRegistry;
+//?} else
+//import net.minecraft.network.syncher.EntityDataSerializers;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -36,8 +38,10 @@ public final class FabricPlatform implements Platform {
    public void registerDataSerializer(String name, EntityDataSerializer<?> serializer) {
       //? if >=26.1 {
       /*FabricEntityDataRegistry.register(Postmortem.id(name), serializer);
-      *///?} else
+      *///?} elif >=1.21.5 {
       FabricTrackedDataRegistry.register(Postmortem.id(name), serializer);
+      //?} else
+      //EntityDataSerializers.registerSerializer(serializer);
    }
 
    @Override

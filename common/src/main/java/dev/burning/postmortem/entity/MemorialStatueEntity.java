@@ -27,8 +27,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+//? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+//?} else {
+/*import dev.burning.postmortem.legacy.ValueInput;
+import dev.burning.postmortem.legacy.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
+*///?}
 import net.minecraft.world.phys.Vec3;
 
 public class MemorialStatueEntity extends StatueEntity {
@@ -348,8 +354,14 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    @Override
+   //? if >=1.21.6 {
    protected void addAdditionalSaveData(ValueOutput view) {
       super.addAdditionalSaveData(view);
+   //?} else {
+   /*public void addAdditionalSaveData(CompoundTag tag) {
+      super.addAdditionalSaveData(tag);
+      ValueOutput view = ValueOutput.of(tag, this.registryAccess());
+   *///?}
       if (!this.pending.isEmpty()) {
          view.store("Stored", StoredStack.CODEC.listOf(), this.pending);
       }
@@ -360,8 +372,14 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    @Override
+   //? if >=1.21.6 {
    protected void readAdditionalSaveData(ValueInput view) {
       super.readAdditionalSaveData(view);
+   //?} else {
+   /*public void readAdditionalSaveData(CompoundTag tag) {
+      super.readAdditionalSaveData(tag);
+      ValueInput view = ValueInput.of(tag, this.registryAccess());
+   *///?}
       this.pending.clear();
       view.read("Stored", StoredStack.CODEC.listOf()).ifPresent(this.pending::addAll);
       this.ownerUuid = view.read("Owner", UUIDUtil.CODEC).orElse(null);
