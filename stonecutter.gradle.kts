@@ -2,7 +2,7 @@ plugins {
     id("dev.kikugie.stonecutter")
 }
 
-stonecutter active "26.2"
+stonecutter active "1.21.11"
 
 stonecutter parameters {
     val loader = node.branch.id

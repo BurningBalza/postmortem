@@ -9,7 +9,7 @@ import dev.burning.postmortem.entity.StatuePose;
 import dev.burning.postmortem.platform.ClientPlatform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,7 +18,7 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -273,7 +273,7 @@ public class StatuePoseScreen extends Screen {
       return part == StatuePart.BACK_ITEM ? BACK_YAW : FRONT_YAW;
    }
 
-   private void drawPreview(GuiGraphicsExtractor context, float centreX) {
+   private void drawPreview(GuiGraphics context, float centreX) {
       EntityRenderState raw = Minecraft.getInstance()
          .getEntityRenderDispatcher()
          .getRenderer(this.statue)
@@ -282,7 +282,7 @@ public class StatuePoseScreen extends Screen {
          return;
       }
 
-      state.lightCoords = LightCoordsUtil.FULL_BRIGHT;
+      state.lightCoords = LightTexture.FULL_BRIGHT;
       state.shadowPieces.clear();
       state.outlineColor = 0;
       state.bodyRot = this.previewYaw;
@@ -300,25 +300,25 @@ public class StatuePoseScreen extends Screen {
       this.picker.update(state, centreX, centreY, PREVIEW_SIZE, translate, rotation, state.bodyRot);
 
       //? if >=26.1 {
-      context.entity(
-      //?} else
-      //context.submitEntityRenderState(
+      /*context.entity(
+      *///?} else
+      context.submitEntityRenderState(
          state, PREVIEW_SIZE, translate, rotation, cameraAngle,
          this.contentLeft, this.contentTop, this.contentLeft + CONTENT_WIDTH, this.previewBottom);
    }
 
    @Override
    //? if >=26.1 {
-   public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
+   /*public void extractRenderState(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
       super.extractRenderState(context, mouseX, mouseY, deltaTicks);
-   //?} else {
-   /*public void render(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
+   *///?} else {
+   public void render(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
       super.render(context, mouseX, mouseY, deltaTicks);
-   *///?}
+   //?}
 
       this.previewYaw = Mth.rotLerp(Math.min(1.0F, deltaTicks * TURN_SPEED), this.previewYaw, this.targetYaw);
 
-      context.centeredText(this.font, this.title, this.contentLeft + CONTENT_WIDTH / 2, this.contentTop - 16, 0xFFFFFF);
+      context.drawCenteredString(this.font, this.title, this.contentLeft + CONTENT_WIDTH / 2, this.contentTop - 16, 0xFFFFFF);
       context.fill(this.contentLeft, this.contentTop, this.contentLeft + CONTENT_WIDTH, this.previewBottom, PANEL_COLOUR);
 
       this.hovered = this.inPreview(mouseX, mouseY) ? this.picker.pick(mouseX, mouseY) : null;
@@ -328,7 +328,7 @@ public class StatuePoseScreen extends Screen {
 
       boolean previewing = this.hovered != null && this.hovered != this.selected;
       StatuePart named = previewing ? this.hovered : this.selected;
-      context.centeredText(
+      context.drawCenteredString(
          this.font,
          Component.translatable("screen.postmortem.pose.editing", Component.translatable(named.translationKey()))
             .withStyle(previewing ? ChatFormatting.YELLOW : ChatFormatting.GRAY),

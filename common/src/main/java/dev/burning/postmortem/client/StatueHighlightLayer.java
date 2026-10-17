@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.entity.HumanoidArm;
 
 /**
@@ -156,7 +156,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
 
    private static void submit(ModelPart part, PoseStack matrices, SubmitNodeCollector queue, RenderType type, int colour) {
       queue.submitModelPart(
-         part, matrices, type, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, null, colour, null);
+         part, matrices, type, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, null, colour, null);
    }
 
    private static ModelPart bakeItemMarker() {

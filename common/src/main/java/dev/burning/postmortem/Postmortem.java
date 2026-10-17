@@ -21,9 +21,9 @@ public final class Postmortem {
    /** Shows {@code message} above the hotbar. */
    public static void overlay(Player player, Component message) {
       //? if >=26.1 {
-      player.sendOverlayMessage(message);
-      //?} else
-      //player.displayClientMessage(message, true);
+      /*player.sendOverlayMessage(message);
+      *///?} else
+      player.displayClientMessage(message, true);
    }
 
    public static void init() {

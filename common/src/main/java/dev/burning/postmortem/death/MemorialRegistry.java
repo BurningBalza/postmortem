@@ -47,9 +47,9 @@ public final class MemorialRegistry extends SavedData {
    // Fabric API lets a null DataFixTypes through; there is no vanilla fixer for mod data anyway.
    private static final SavedDataType<MemorialRegistry> TYPE =
       //? if >=26.1 {
-      new SavedDataType<>(Postmortem.id("memorials"), MemorialRegistry::new, CODEC, null);
-      //?} else
-      //new SavedDataType<>("postmortem_memorials", MemorialRegistry::new, CODEC, null);
+      /*new SavedDataType<>(Postmortem.id("memorials"), MemorialRegistry::new, CODEC, null);
+      *///?} else
+      new SavedDataType<>("postmortem_memorials", MemorialRegistry::new, CODEC, null);
 
    private final Map<UUID, Entry> entries;
 
@@ -63,9 +63,9 @@ public final class MemorialRegistry extends SavedData {
 
    public static MemorialRegistry get(MinecraftServer server) {
       //? if >=26.1 {
-      return server.getDataStorage().computeIfAbsent(TYPE);
-      //?} else
-      //return server.overworld().getDataStorage().computeIfAbsent(TYPE);
+      /*return server.getDataStorage().computeIfAbsent(TYPE);
+      *///?} else
+      return server.overworld().getDataStorage().computeIfAbsent(TYPE);
    }
 
    public Entry get(UUID statue) {
