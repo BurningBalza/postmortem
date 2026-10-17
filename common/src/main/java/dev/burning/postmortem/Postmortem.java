@@ -15,7 +15,10 @@ public final class Postmortem {
    }
 
    public static ResourceLocation id(String path) {
+      //? if >=1.21 {
       return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+      //?} else
+      //return new ResourceLocation(MOD_ID, path);
    }
 
    /** Shows {@code message} above the hotbar. */

@@ -17,3 +17,14 @@ fun CopySpec.legacyRecipeIngredients() {
         }
     }
 }
+
+private val SINGULAR_FOLDER = Regex(
+    "^data/([^/]+)/(recipe|loot_table|advancement|structure|tags/item|tags/block|tags/entity_type|tags/fluid|tags/game_event)/")
+
+/** Moves data-pack folders back to their pre-1.21 plural names: `recipe/` to `recipes/`, `tags/item/` to `tags/items/`. */
+fun CopySpec.pluralDataFolders() {
+    includeEmptyDirs = false
+    eachFile {
+        path = SINGULAR_FOLDER.replace(path) { m -> "data/${m.groupValues[1]}/${m.groupValues[2]}s/" }
+    }
+}
