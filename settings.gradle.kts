@@ -27,7 +27,7 @@ stonecutter {
         )
         // NeoForge only builds where it had a stable release; its jar for the next release up also declares the
         // versions it skipped (e.g. 1.21.8 covers 1.21.6 and 1.21.7).
-        // 1.20.2 is a stable NeoForge release, but it never published the bundle ModDevGradle builds against.
+        // 1.20.2 had a stable NeoForge, but never published the bundle ModDevGradle builds against; 1.20.2 is Fabric only.
         val neoforgeSkips = setOf("1.20.1", "1.20.2", "1.20.3", "1.20.5", "1.21.2", "1.21.6", "1.21.7", "1.21.9")
 
         branch("common") { for ((name, release) in versions) version(name, release) }
