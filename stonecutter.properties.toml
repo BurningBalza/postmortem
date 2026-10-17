@@ -1,12 +1,12 @@
 mod.id = "postmortem"
 mod.name = "Postmortem"
 mod.group = "dev.burning.postmortem"
-mod.version = "1.0.8"
+mod.version = "1.0.0"
 
 deps.fabric_loader = "0.19.5"
 loomx.loom_version = "1.17.20"
 
-# Sections are keyed by node name (the part before "-{loader}" in settings.gradle.kts).
+# Sections are keyed by node name from settings.gradle.kts ("26.1"), not the exact release it compiles against.
 
 ["26.1"]
 mod.mc_releases = ["26.1.2"]
