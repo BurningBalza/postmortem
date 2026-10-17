@@ -6,7 +6,7 @@ import dev.burning.postmortem.death.DeathCapture;
 import dev.burning.postmortem.entity.PoseSnapshot;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -82,10 +82,10 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
    private void postmortem$captureIntoStatue(ServerLevel world, CallbackInfo ci) {
       if (PostmortemConfig.get().debug()) {
          Postmortem.LOGGER.info("[postmortem] death drop intercepted; keepInventory={}",
-            world.getGameRules().get(GameRules.KEEP_INVENTORY));
+            world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY));
       }
 
-      if (world.getGameRules().get(GameRules.KEEP_INVENTORY)) {
+      if (world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
          return;
       }
 

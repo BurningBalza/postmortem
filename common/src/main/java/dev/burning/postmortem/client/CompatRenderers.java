@@ -14,16 +14,16 @@ import java.util.UUID;
 import dev.burning.postmortem.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
 //? if >=1.21.9 {
-import net.minecraft.client.renderer.SubmitNodeCollector;
-//?} else
-//import net.minecraft.client.renderer.MultiBufferSource;
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+*///?} else
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -41,22 +41,22 @@ public abstract class CompatRenderers {
 
    // Other mods' layers draw through RenderLayer's own method: submit from 1.21.9, render before it.
    //? if >=1.21.9 {
-   private static final String SUBMIT = "submit";
+   /*private static final String SUBMIT = "submit";
    private static final Class<?>[] SUBMIT_SIGNATURE = {
-      PoseStack.class, SubmitNodeCollector.class, int.class, AvatarRenderState.class, float.class, float.class
+      PoseStack.class, SubmitNodeCollector.class, int.class, PlayerRenderState.class, float.class, float.class
    };
-   //?} else {
-   /*private static final String SUBMIT = "render";
+   *///?} else {
+   private static final String SUBMIT = "render";
    private static final Class<?>[] SUBMIT_SIGNATURE = {
-      PoseStack.class, MultiBufferSource.class, int.class, AvatarRenderState.class, float.class, float.class
+      PoseStack.class, MultiBufferSource.class, int.class, PlayerRenderState.class, float.class, float.class
    };
-   *///?}
+   //?}
 
    private static RemotePlayer standIn;
 
    protected final PlayerModel model;
 
-   protected final AvatarRenderState state = new AvatarRenderState();
+   protected final PlayerRenderState state = new PlayerRenderState();
 
    protected CompatRenderers(PlayerModel model) {
       this.model = model;
@@ -66,7 +66,7 @@ public abstract class CompatRenderers {
       return new PlayerModel(factory.bakeLayer(ModelLayers.PLAYER), false);
    }
 
-   protected static RenderLayerParent<AvatarRenderState, PlayerModel> parentOf(PlayerModel model) {
+   protected static RenderLayerParent<PlayerRenderState, PlayerModel> parentOf(PlayerModel model) {
       return () -> model;
    }
 
@@ -247,11 +247,11 @@ public abstract class CompatRenderers {
 
          try {
             PlayerModel model = bakeModel(factory);
-            RenderLayerParent<AvatarRenderState, PlayerModel> parent = parentOf(model);
+            RenderLayerParent<PlayerRenderState, PlayerModel> parent = parentOf(model);
             //? if >=26.3 {
-            Object heldItemRenderer = null;
-            //?} else
-            //Object heldItemRenderer = Minecraft.getInstance().gameRenderer.itemInHandRenderer;
+            /*Object heldItemRenderer = null;
+            *///?} else
+            Object heldItemRenderer = Minecraft.getInstance().gameRenderer.itemInHandRenderer;
 
             return new Amenities(
                backConstructor.newInstance(parent, heldItemRenderer),

@@ -20,9 +20,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 //? if >=1.21.9 {
-import net.minecraft.server.players.NameAndId;
-//?} else
-//import com.mojang.authlib.GameProfile;
+/*import net.minecraft.server.players.NameAndId;
+*///?} else
+import com.mojang.authlib.GameProfile;
 import net.minecraft.world.entity.Entity;
 
 public final class PostmortemCommand {
@@ -42,9 +42,9 @@ public final class PostmortemCommand {
    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
       dispatcher.register(Commands.literal("postmortem")
          //? if >=1.21.11 {
-         .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-         //?} else
-         //.requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
+         /*.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+         *///?} else
+         .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
          .then(Commands.literal("locate")
             .then(Commands.argument("player", GameProfileArgument.gameProfile())
                .executes(context -> locate(context.getSource(), byOwner(context)))))
@@ -76,7 +76,7 @@ public final class PostmortemCommand {
 
       for (Memorial memorial : found) {
          BlockPos pos = memorial.statue() != null ? memorial.statue().blockPosition() : memorial.entry().pos();
-         String dimension = memorial.entry().dimension().identifier().toString();
+         String dimension = memorial.entry().dimension().location().toString();
          int stored = memorial.storedCount();
 
          if (memorial.statue() != null) {
@@ -151,22 +151,22 @@ public final class PostmortemCommand {
 
    private static List<Memorial> byOwner(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
       //? if >=1.21.9 {
-      Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(context, "player");
-      //?} else
-      //Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(context, "player");
+      /*Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(context, "player");
+      *///?} else
+      Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(context, "player");
       MinecraftServer server = context.getSource().getServer();
       MemorialRegistry registry = MemorialRegistry.get(server);
 
       List<Memorial> found = new ArrayList<>();
       //? if >=1.21.9 {
-      for (NameAndId profile : profiles) {
+      /*for (NameAndId profile : profiles) {
          UUID owner = profile.id();
          String ownerName = profile.name();
-      //?} else {
-      /*for (GameProfile profile : profiles) {
+      *///?} else {
+      for (GameProfile profile : profiles) {
          UUID owner = profile.getId();
          String ownerName = profile.getName();
-      *///?}
+      //?}
          registry.ownedBy(owner).forEach((id, entry) -> {
             MemorialStatueEntity statue = loadedStatue(server, id, entry);
             Component name = statue != null
