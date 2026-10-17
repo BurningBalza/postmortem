@@ -115,6 +115,13 @@ public class StatueEntityRenderer<T extends StatueEntity>
       state.xRot = entity.getXRot();
       state.walkAnimationPos = entity.getLimbAngle();
       state.walkAnimationSpeed = entity.getLimbAmplitude();
+      //? if >=26.3 {
+      /*state.swingAnimation = entity.getHandSwing();
+      state.currentSwing = entity.getHandSwing() > 0.0F
+         ? new net.minecraft.world.entity.LivingEntity.SwingDescription(
+            net.minecraft.world.InteractionHand.MAIN_HAND, entity.getMainHandItem().getAttackAnimation(), 6)
+         : null;
+      *///?} else
       state.attackTime = entity.getHandSwing();
       state.swimAmount = entity.getLeaning();
       state.isCrouching = pose == Pose.CROUCHING;

@@ -61,6 +61,9 @@ public final class DeathCapture {
          if (slot < fresh.getContainerSize() && fresh.getItem(slot).isEmpty()) {
             fresh.setItem(slot, stack);
          } else {
+            //? if >=26.3 {
+            /*fresh.placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
+            *///?} else
             fresh.placeItemBackInInventory(stack);
          }
       }
