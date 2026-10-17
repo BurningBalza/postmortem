@@ -20,12 +20,12 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 //? if >=1.20.5 {
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-//?} else {
-/*import net.neoforged.api.distmarker.Dist;
+/*import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+*///?} else {
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-*///?}
+//?}
 
 @Mod(Postmortem.MOD_ID)
 public final class PostmortemNeoForge {
@@ -41,11 +41,11 @@ public final class PostmortemNeoForge {
       NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> PostmortemCommand.register(event.getDispatcher()));
 
       //? if <1.20.5 {
-      /*// @Mod only takes a dist from 1.20.5, so the client half is started from here before that.
+      // @Mod only takes a dist from 1.20.5, so the client half is started from here before that.
       if (FMLEnvironment.dist == Dist.CLIENT) {
          new PostmortemNeoForgeClient(modBus);
       }
-      *///?}
+      //?}
    }
 
    private static void registerAttributes(EntityAttributeCreationEvent event) {
@@ -57,38 +57,38 @@ public final class PostmortemNeoForge {
       CreativeModeTab.TabVisibility visibility = CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS;
       if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
          //? if >=1.21 {
-         event.insertAfter(new ItemStack(Items.ARMOR_STAND), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()), visibility);
-         //?} else
-         //event.getEntries().putAfter(new ItemStack(Items.ARMOR_STAND), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()), visibility);
+         /*event.insertAfter(new ItemStack(Items.ARMOR_STAND), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()), visibility);
+         *///?} else
+         event.getEntries().putAfter(new ItemStack(Items.ARMOR_STAND), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()), visibility);
       } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
          //? if >=1.21 {
-         event.insertAfter(new ItemStack(Items.RECOVERY_COMPASS), new ItemStack(PostmortemRegistry.STATUE_COLLECTOR.get()), visibility);
-         //?} else
-         //event.getEntries().putAfter(new ItemStack(Items.RECOVERY_COMPASS), new ItemStack(PostmortemRegistry.STATUE_COLLECTOR.get()), visibility);
+         /*event.insertAfter(new ItemStack(Items.RECOVERY_COMPASS), new ItemStack(PostmortemRegistry.STATUE_COLLECTOR.get()), visibility);
+         *///?} else
+         event.getEntries().putAfter(new ItemStack(Items.RECOVERY_COMPASS), new ItemStack(PostmortemRegistry.STATUE_COLLECTOR.get()), visibility);
       }
    }
 
    //? if >=1.20.5 {
-   private static void registerPayloads(RegisterPayloadHandlersEvent event) {
+   /*private static void registerPayloads(RegisterPayloadHandlersEvent event) {
       //? if >=1.21.11 {
-      // The client handler for OpenPoseScreen is attached in PostmortemNeoForgeClient.
+      /^// The client handler for OpenPoseScreen is attached in PostmortemNeoForgeClient.
       event.registrar("1")
          .playToClient(PostmortemRegistry.OpenPoseScreen.ID, PostmortemRegistry.OpenPoseScreen.CODEC)
-      //?} else {
-      /*// Only the client receives this, so the handler's client classes never load on a dedicated server.
+      ^///?} else {
+      // Only the client receives this, so the handler's client classes never load on a dedicated server.
       event.registrar("1")
          .playToClient(
             PostmortemRegistry.OpenPoseScreen.ID,
             PostmortemRegistry.OpenPoseScreen.CODEC,
             (payload, context) -> PostmortemClient.openPoseScreen(net.minecraft.client.Minecraft.getInstance(), payload.entityId()))
-      *///?}
+      //?}
          .playToServer(
             PostmortemRegistry.SetPose.ID,
             PostmortemRegistry.SetPose.CODEC,
             (payload, context) -> PostmortemRegistry.applyPose((ServerPlayer) context.player(), payload));
    }
-   //?} else {
-   /*// Handlers run on the network thread here, so each hands its work to the game thread.
+   *///?} else {
+   // Handlers run on the network thread here, so each hands its work to the game thread.
    private static void registerPayloads(RegisterPayloadHandlerEvent event) {
       event.registrar(Postmortem.MOD_ID).versioned("1")
          .play(PostmortemRegistry.OpenPoseScreen.ID, buf -> PostmortemRegistry.OpenPoseScreen.CODEC.decode(buf), handler -> handler
@@ -98,7 +98,7 @@ public final class PostmortemNeoForge {
             .server((payload, context) -> context.workHandler().execute(() -> context.player().ifPresent(
                player -> PostmortemRegistry.applyPose((ServerPlayer) player, payload)))));
    }
-   *///?}
+   //?}
 
    private static void carryKeptItems(PlayerEvent.Clone event) {
       if (event.getOriginal() instanceof ServerPlayer oldPlayer && event.getEntity() instanceof ServerPlayer newPlayer) {

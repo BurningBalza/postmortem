@@ -6,11 +6,11 @@ import java.nio.file.Path;
 import java.util.function.Supplier;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 //? if >=26.1 {
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
-//?} elif >=1.21.5 {
+/*import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
+*///?} elif >=1.21.5 {
 /*import net.fabricmc.fabric.api.object.builder.v1.entity.FabricTrackedDataRegistry;
 *///?} else
-//import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 //? if >=1.20.2 {
@@ -40,22 +40,22 @@ public final class FabricPlatform implements Platform {
    @Override
    public void registerDataSerializer(String name, EntityDataSerializer<?> serializer) {
       //? if >=26.1 {
-      FabricEntityDataRegistry.register(Postmortem.id(name), serializer);
-      //?} elif >=1.21.5 {
+      /*FabricEntityDataRegistry.register(Postmortem.id(name), serializer);
+      *///?} elif >=1.21.5 {
       /*FabricTrackedDataRegistry.register(Postmortem.id(name), serializer);
       *///?} else
-      //EntityDataSerializers.registerSerializer(serializer);
+      EntityDataSerializers.registerSerializer(serializer);
    }
 
    @Override
    public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
       //? if >=1.20.5 {
-      ServerPlayNetworking.send(player, payload);
-      //?} else {
-      /*// Before 1.20.5 Fabric sends raw buffers on a channel; the payload writes itself into one.
+      /*ServerPlayNetworking.send(player, payload);
+      *///?} else {
+      // Before 1.20.5 Fabric sends raw buffers on a channel; the payload writes itself into one.
       net.minecraft.network.FriendlyByteBuf buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
       payload.write(buf);
       ServerPlayNetworking.send(player, payload.id(), buf);
-      *///?}
+      //?}
    }
 }

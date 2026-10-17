@@ -1,7 +1,7 @@
 package dev.burning.postmortem.legacy;
 
 //? if <1.20.5 {
-/*import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import org.joml.Vector3f;
 
@@ -18,4 +18,4 @@ public final class ByteBufCodecs {
    private ByteBufCodecs() {
    }
 }
-*///?}
+//?}
