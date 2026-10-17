@@ -14,14 +14,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import io.netty.buffer.ByteBuf;
 //? if >=1.20.5 {
-import net.minecraft.network.codec.ByteBufCodecs;
+/*import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-//?} else {
-/*import dev.burning.postmortem.legacy.ByteBufCodecs;
+*///?} else {
+import dev.burning.postmortem.legacy.ByteBufCodecs;
 import dev.burning.postmortem.legacy.StreamCodec;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.Identifier;
-*///?}
+import net.minecraft.resources.ResourceLocation;
+//?}
 //? if >=1.20.2 {
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 //?} else
@@ -60,23 +60,23 @@ public final class PostmortemRegistry {
 
    public record OpenPoseScreen(int entityId) implements CustomPacketPayload {
       //? if >=1.20.5 {
-      public static final CustomPacketPayload.Type<OpenPoseScreen> ID =
+      /*public static final CustomPacketPayload.Type<OpenPoseScreen> ID =
          new CustomPacketPayload.Type<>(Postmortem.id("open_pose_screen"));
-      //?} else
-      //public static final Identifier ID = Postmortem.id("open_pose_screen");
+      *///?} else
+      public static final ResourceLocation ID = Postmortem.id("open_pose_screen");
 
       public static final StreamCodec<ByteBuf, OpenPoseScreen> CODEC = StreamCodec.composite(
          ByteBufCodecs.VAR_INT, OpenPoseScreen::entityId,
          OpenPoseScreen::new);
 
       //? if >=1.20.5 {
-      @Override
+      /*@Override
       public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
          return ID;
       }
-      //?} else {
-      /*@Override
-      public Identifier id() {
+      *///?} else {
+      @Override
+      public ResourceLocation id() {
          return ID;
       }
 
@@ -84,15 +84,15 @@ public final class PostmortemRegistry {
       public void write(FriendlyByteBuf buf) {
          CODEC.encode(buf, this);
       }
-      *///?}
+      //?}
    }
 
    public record SetPose(int entityId, StatuePose pose) implements CustomPacketPayload {
       //? if >=1.20.5 {
-      public static final CustomPacketPayload.Type<SetPose> ID =
+      /*public static final CustomPacketPayload.Type<SetPose> ID =
          new CustomPacketPayload.Type<>(Postmortem.id("set_pose"));
-      //?} else
-      //public static final Identifier ID = Postmortem.id("set_pose");
+      *///?} else
+      public static final ResourceLocation ID = Postmortem.id("set_pose");
 
       public static final StreamCodec<ByteBuf, SetPose> CODEC = StreamCodec.composite(
          ByteBufCodecs.VAR_INT, SetPose::entityId,
@@ -100,13 +100,13 @@ public final class PostmortemRegistry {
          SetPose::new);
 
       //? if >=1.20.5 {
-      @Override
+      /*@Override
       public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
          return ID;
       }
-      //?} else {
-      /*@Override
-      public Identifier id() {
+      *///?} else {
+      @Override
+      public ResourceLocation id() {
          return ID;
       }
 
@@ -114,7 +114,7 @@ public final class PostmortemRegistry {
       public void write(FriendlyByteBuf buf) {
          CODEC.encode(buf, this);
       }
-      *///?}
+      //?}
    }
 
    /** Loading this class registers its entries; the entity data serializer has no field, so it goes here. */
@@ -144,21 +144,21 @@ public final class PostmortemRegistry {
          .sized(STATUE_WIDTH, STATUE_HEIGHT)
          // Before 1.20.5 eye height is 85% of the height without being asked.
          //? if >=1.20.5
-         .eyeHeight(STATUE_HEIGHT * 0.85F)
+         //.eyeHeight(STATUE_HEIGHT * 0.85F)
          .fireImmune()
          .clientTrackingRange(10)
          //? if >=1.21.2 {
-         .build(key));
-         //?} else
-         //.build(key.identifier().toString()));
+         /*.build(key));
+         *///?} else
+         .build(key.location().toString()));
    }
 
    private static Supplier<Item> registerItem(String name, Function<Properties, Item> factory, Supplier<Properties> settings) {
       ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Postmortem.id(name));
       // Items carry their own id from 1.21.2; before it the registry is the only place it lives.
       //? if >=1.21.2 {
-      return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get().setId(key)));
-      //?} else
-      //return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get()));
+      /*return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get().setId(key)));
+      *///?} else
+      return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get()));
    }
 }

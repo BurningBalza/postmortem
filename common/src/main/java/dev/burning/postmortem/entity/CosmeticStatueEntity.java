@@ -5,7 +5,7 @@ import dev.burning.postmortem.compat.BackSlots;
 import java.util.function.Consumer;
 import dev.burning.postmortem.platform.Platform;
 //? if >=1.20.5
-import net.minecraft.core.component.DataComponents;
+//import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -28,13 +28,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 //? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueInput;
+/*import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-//?} else {
-/*import dev.burning.postmortem.legacy.ValueInput;
+*///?} else {
+import dev.burning.postmortem.legacy.ValueInput;
 import dev.burning.postmortem.legacy.ValueOutput;
 import net.minecraft.nbt.CompoundTag;
-*///?}
+//?}
 import net.minecraft.world.phys.Vec3;
 
 public class CosmeticStatueEntity extends StatueEntity {
@@ -47,13 +47,13 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    @Override
    //? if >=1.20.5 {
-   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+   /*protected void defineSynchedData(SynchedEntityData.Builder builder) {
       super.defineSynchedData(builder);
-   //?} else {
-   /*protected void defineSynchedData() {
+   *///?} else {
+   protected void defineSynchedData() {
       super.defineSynchedData();
       SynchedEntityData builder = this.entityData;
-   *///?}
+   //?}
       builder.define(LIMB_POSE, StatuePose.DEFAULT);
    }
 
@@ -77,9 +77,9 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    @Override
    //? if >=26.1 {
-   public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
-   //?} else
-   //public InteractionResult interactAt(Player player, Vec3 hitPos, InteractionHand hand) {
+   /*public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
+   *///?} else
+   public InteractionResult interactAt(Player player, Vec3 hitPos, InteractionHand hand) {
       if (this.level().isClientSide()) {
          return InteractionResult.SUCCESS;
       }
@@ -136,21 +136,21 @@ public class CosmeticStatueEntity extends StatueEntity {
       }
 
       //? if >=1.20.5 {
-      Component name = held.get(DataComponents.CUSTOM_NAME);
-      //?} else
-      //Component name = held.hasCustomHoverName() ? held.getHoverName() : null;
+      /*Component name = held.get(DataComponents.CUSTOM_NAME);
+      *///?} else
+      Component name = held.hasCustomHoverName() ? held.getHoverName() : null;
       if (name == null) {
          return InteractionResult.PASS;
       }
 
       this.setCustomName(name);
       //? if >=1.20.5 {
-      held.consume(1, player);
-      //?} else {
-      /*if (!player.getAbilities().instabuild) {
+      /*held.consume(1, player);
+      *///?} else {
+      if (!player.getAbilities().instabuild) {
          held.shrink(1);
       }
-      *///?}
+      //?}
       this.level()
          .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.STONE_PLACE, SoundSource.NEUTRAL, 0.7F, 1.6F);
       return InteractionResult.SUCCESS;
@@ -222,13 +222,13 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    @Override
    //? if >=1.21.2 {
-   public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
-   //?} else {
-   /*public boolean hurt(DamageSource source, float amount) {
+   /*public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
+   *///?} else {
+   public boolean hurt(DamageSource source, float amount) {
       if (!(this.level() instanceof ServerLevel world)) {
          return false;
       }
-   *///?}
+   //?}
       if (this.isRemoved() || this.isWaxed()) {
          return false;
       }
@@ -240,9 +240,9 @@ public class CosmeticStatueEntity extends StatueEntity {
       }
 
       //? if >=1.20.5 {
-      if (source.is(DamageTypeTags.IS_PLAYER_ATTACK)
-      //?} else
-      //if (source.is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)
+      /*if (source.is(DamageTypeTags.IS_PLAYER_ATTACK)
+      *///?} else
+      if (source.is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)
          || source.is(DamageTypeTags.IS_EXPLOSION)
          || source.is(DamageTypeTags.IS_PROJECTILE)
          || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
@@ -300,13 +300,13 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    @Override
    //? if >=1.21.6 {
-   protected void addAdditionalSaveData(ValueOutput view) {
+   /*protected void addAdditionalSaveData(ValueOutput view) {
       super.addAdditionalSaveData(view);
-   //?} else {
-   /*public void addAdditionalSaveData(CompoundTag tag) {
+   *///?} else {
+   public void addAdditionalSaveData(CompoundTag tag) {
       super.addAdditionalSaveData(tag);
       ValueOutput view = ValueOutput.of(tag, this);
-   *///?}
+   //?}
 
       StatuePose pose = this.getLimbPose();
       if (!pose.isDefault()) {
@@ -316,21 +316,21 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    @Override
    //? if >=1.21.6 {
-   protected void readAdditionalSaveData(ValueInput view) {
+   /*protected void readAdditionalSaveData(ValueInput view) {
       super.readAdditionalSaveData(view);
-   //?} else {
-   /*public void readAdditionalSaveData(CompoundTag tag) {
+   *///?} else {
+   public void readAdditionalSaveData(CompoundTag tag) {
       super.readAdditionalSaveData(tag);
       ValueInput view = ValueInput.of(tag, this);
-   *///?}
+   //?}
       this.setLimbPose(view.read("LimbPose", StatuePose.CODEC).orElse(StatuePose.DEFAULT));
    }
 
    @Override
    //? if >=1.20.3 {
-   public boolean ignoreExplosion(Explosion explosion) {
-   //?} else
-   //public boolean ignoreExplosion() {
+   /*public boolean ignoreExplosion(Explosion explosion) {
+   *///?} else
+   public boolean ignoreExplosion() {
       return false;
    }
 }

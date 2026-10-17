@@ -30,13 +30,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 //? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueInput;
+/*import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-//?} else {
-/*import dev.burning.postmortem.legacy.ValueInput;
+*///?} else {
+import dev.burning.postmortem.legacy.ValueInput;
 import dev.burning.postmortem.legacy.ValueOutput;
 import net.minecraft.nbt.CompoundTag;
-*///?}
+//?}
 import net.minecraft.world.phys.Vec3;
 
 public abstract class StatueEntity extends LivingEntity {
@@ -68,21 +68,21 @@ public abstract class StatueEntity extends LivingEntity {
    private boolean checkedBackSlots;
 
    //? if <1.21.5 {
-   /*// LivingEntity only stores equipment itself from 1.21.5; before that every entity kept its own, like ArmorStand.
+   // LivingEntity only stores equipment itself from 1.21.5; before that every entity kept its own, like ArmorStand.
    //? if >=1.20.5 {
-   private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.OPTIONAL_CODEC;
-   //?} else
-   //private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.CODEC;
+   /*private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.OPTIONAL_CODEC;
+   *///?} else
+   private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.CODEC;
    private final java.util.List<ItemStack> handItems = net.minecraft.core.NonNullList.withSize(2, ItemStack.EMPTY);
    private final java.util.List<ItemStack> armorItems = net.minecraft.core.NonNullList.withSize(4, ItemStack.EMPTY);
-   *///?}
+   //?}
 
    protected StatueEntity(EntityType<? extends StatueEntity> type, Level world) {
       super(type, world);
    }
 
    //? if <1.21.5 {
-   /*@Override
+   @Override
    public Iterable<ItemStack> getArmorSlots() {
       return this.armorItems;
    }
@@ -92,9 +92,9 @@ public abstract class StatueEntity extends LivingEntity {
       return switch (slot.getType()) {
          case HAND -> this.handItems.get(slot.getIndex());
          //? if >=1.21 {
-         case HUMANOID_ARMOR -> this.armorItems.get(slot.getIndex());
-         //?} else
-         //case ARMOR -> this.armorItems.get(slot.getIndex());
+         /*case HUMANOID_ARMOR -> this.armorItems.get(slot.getIndex());
+         *///?} else
+         case ARMOR -> this.armorItems.get(slot.getIndex());
          default -> ItemStack.EMPTY;
       };
    }
@@ -105,9 +105,9 @@ public abstract class StatueEntity extends LivingEntity {
       switch (slot.getType()) {
          case HAND -> this.onEquipItem(slot, this.handItems.set(slot.getIndex(), stack), stack);
          //? if >=1.21 {
-         case HUMANOID_ARMOR -> this.onEquipItem(slot, this.armorItems.set(slot.getIndex(), stack), stack);
-         //?} else
-         //case ARMOR -> this.onEquipItem(slot, this.armorItems.set(slot.getIndex(), stack), stack);
+         /*case HUMANOID_ARMOR -> this.onEquipItem(slot, this.armorItems.set(slot.getIndex(), stack), stack);
+         *///?} else
+         case ARMOR -> this.onEquipItem(slot, this.armorItems.set(slot.getIndex(), stack), stack);
          default -> {
          }
       }
@@ -118,17 +118,17 @@ public abstract class StatueEntity extends LivingEntity {
          to.set(i, i < from.size() ? from.get(i) : ItemStack.EMPTY);
       }
    }
-   *///?}
+   //?}
 
    @Override
    //? if >=1.20.5 {
-   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+   /*protected void defineSynchedData(SynchedEntityData.Builder builder) {
       super.defineSynchedData(builder);
-   //?} else {
-   /*protected void defineSynchedData() {
+   *///?} else {
+   protected void defineSynchedData() {
       super.defineSynchedData();
       SynchedEntityData builder = this.entityData;
-   *///?}
+   //?}
       builder.define(LIMB_ANGLE, 0.0F);
       builder.define(LIMB_AMPLITUDE, 0.0F);
       builder.define(HAND_SWING, 0.0F);
@@ -154,12 +154,12 @@ public abstract class StatueEntity extends LivingEntity {
       if (!this.isWaxed() && held.is(Items.HONEYCOMB)) {
          this.setWaxed(true);
          //? if >=1.20.5 {
-         held.consume(1, player);
-         //?} else {
-         /*if (!player.getAbilities().instabuild) {
+         /*held.consume(1, player);
+         *///?} else {
+         if (!player.getAbilities().instabuild) {
             held.shrink(1);
          }
-         *///?}
+         //?}
          this.playWaxEffect(SoundEvents.HONEYCOMB_WAX_ON, ParticleTypes.WAX_ON);
          return InteractionResult.SUCCESS;
       }
@@ -167,15 +167,15 @@ public abstract class StatueEntity extends LivingEntity {
       if (this.isWaxed() && held.is(ItemTags.AXES)) {
          this.setWaxed(false);
          //? if >=1.21.9 {
-         held.hurtAndBreak(1, player, hand);
-         //?} elif >=1.20.5 {
+         /*held.hurtAndBreak(1, player, hand);
+         *///?} elif >=1.20.5 {
          /*held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
          *///?} else
-         //held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
+         held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
          //? if >=26.3 {
-         this.playWaxEffect(SoundEvents.AXE_WAX_OFF.value(), ParticleTypes.WAX_OFF);
-         //?} else
-         //this.playWaxEffect(SoundEvents.AXE_WAX_OFF, ParticleTypes.WAX_OFF);
+         /*this.playWaxEffect(SoundEvents.AXE_WAX_OFF.value(), ParticleTypes.WAX_OFF);
+         *///?} else
+         this.playWaxEffect(SoundEvents.AXE_WAX_OFF, ParticleTypes.WAX_OFF);
          return InteractionResult.SUCCESS;
       }
 
@@ -303,11 +303,11 @@ public abstract class StatueEntity extends LivingEntity {
       StatueVariant next = this.getVariant().next();
       this.setVariant(next);
       //? if >=1.21.9 {
-      held.hurtAndBreak(1, player, hand);
-      //?} elif >=1.20.5 {
+      /*held.hurtAndBreak(1, player, hand);
+      *///?} elif >=1.20.5 {
       /*held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
       *///?} else
-      //held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
+      held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
       Postmortem.overlay(player, 
          Component.translatable("message.postmortem.variant", Component.translatable(next.translationKey())));
       this.level().playSound(
@@ -333,17 +333,17 @@ public abstract class StatueEntity extends LivingEntity {
 
    @Override
    //? if >=1.21.6 {
-   protected void addAdditionalSaveData(ValueOutput view) {
+   /*protected void addAdditionalSaveData(ValueOutput view) {
       super.addAdditionalSaveData(view);
-   //?} else {
-   /*public void addAdditionalSaveData(CompoundTag tag) {
+   *///?} else {
+   public void addAdditionalSaveData(CompoundTag tag) {
       super.addAdditionalSaveData(tag);
       ValueOutput view = ValueOutput.of(tag, this);
-   *///?}
+   //?}
       //? if >=1.21.11 {
-      view.store("StatuePose", Pose.CODEC, this.getPose());
-      //?} else
-      //view.putString("StatuePose", this.getPose().name().toLowerCase(java.util.Locale.ROOT));
+      /*view.store("StatuePose", Pose.CODEC, this.getPose());
+      *///?} else
+      view.putString("StatuePose", this.getPose().name().toLowerCase(java.util.Locale.ROOT));
       view.putFloat("LimbAngle", this.getLimbAngle());
       view.putFloat("LimbAmplitude", this.getLimbAmplitude());
       view.putFloat("HandSwing", this.getHandSwing());
@@ -364,24 +364,24 @@ public abstract class StatueEntity extends LivingEntity {
          view.putBoolean("Waxed", true);
       }
       //? if <1.21.5 {
-      /*view.store("ArmorItems", EQUIPMENT_CODEC.listOf(), this.armorItems);
+      view.store("ArmorItems", EQUIPMENT_CODEC.listOf(), this.armorItems);
       view.store("HandItems", EQUIPMENT_CODEC.listOf(), this.handItems);
-      *///?}
+      //?}
    }
 
    @Override
    //? if >=1.21.6 {
-   protected void readAdditionalSaveData(ValueInput view) {
+   /*protected void readAdditionalSaveData(ValueInput view) {
       super.readAdditionalSaveData(view);
-   //?} else {
-   /*public void readAdditionalSaveData(CompoundTag tag) {
+   *///?} else {
+   public void readAdditionalSaveData(CompoundTag tag) {
       super.readAdditionalSaveData(tag);
       ValueInput view = ValueInput.of(tag, this);
-   *///?}
+   //?}
       //? if >=1.21.11 {
-      view.read("StatuePose", Pose.CODEC).ifPresent(this::setPose);
-      //?} else
-      //poseByName(view.getStringOr("StatuePose", "")).ifPresent(this::setPose);
+      /*view.read("StatuePose", Pose.CODEC).ifPresent(this::setPose);
+      *///?} else
+      poseByName(view.getStringOr("StatuePose", "")).ifPresent(this::setPose);
       this.setLimbAngle(view.getFloatOr("LimbAngle", 0.0F));
       this.setLimbAmplitude(view.getFloatOr("LimbAmplitude", 0.0F));
       this.setHandSwing(view.getFloatOr("HandSwing", 0.0F));
@@ -392,9 +392,9 @@ public abstract class StatueEntity extends LivingEntity {
       this.setSeated(view.getBooleanOr("Seated", false));
       this.setWaxed(view.getBooleanOr("Waxed", false));
       //? if <1.21.5 {
-      /*view.read("ArmorItems", EQUIPMENT_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.armorItems));
+      view.read("ArmorItems", EQUIPMENT_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.armorItems));
       view.read("HandItems", EQUIPMENT_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.handItems));
-      *///?}
+      //?}
    }
 
    public static AttributeSupplier.Builder createStatueAttributes() {
@@ -407,16 +407,16 @@ public abstract class StatueEntity extends LivingEntity {
    }
 
    //? if >=1.20.5
-   @Override
+   //@Override
    public boolean canUseSlot(EquipmentSlot slot) {
       //? if >=1.21.5 {
-      return slot != EquipmentSlot.BODY && slot != EquipmentSlot.SADDLE;
-      //?} elif >=1.20.5 {
+      /*return slot != EquipmentSlot.BODY && slot != EquipmentSlot.SADDLE;
+      *///?} elif >=1.20.5 {
       /*return slot != EquipmentSlot.BODY;
       *///?} else {
-      /*// Before 1.20.5 there are only hands and armour.
+      // Before 1.20.5 there are only hands and armour.
       return true;
-      *///?}
+      //?}
    }
 
    // Same as vanilla, but without calling super: Enchancement's Veil hooks the
@@ -451,11 +451,11 @@ public abstract class StatueEntity extends LivingEntity {
 
    // Also granted by the minecraft:can_breathe_under_water tag, which is all that works where this is final.
    //? if >=1.21.11 {
-   @Override
+   /*@Override
    public boolean canBreatheUnderwater() {
       return true;
    }
-   //?}
+   *///?}
 
    @Override
    public boolean isAffectedByPotions() {
@@ -464,14 +464,14 @@ public abstract class StatueEntity extends LivingEntity {
 
    @Override
    //? if >=1.20.3 {
-   public boolean ignoreExplosion(Explosion explosion) {
-   //?} else
-   //public boolean ignoreExplosion() {
+   /*public boolean ignoreExplosion(Explosion explosion) {
+   *///?} else
+   public boolean ignoreExplosion() {
       return true;
    }
 
    //? if <1.21.11 {
-   /*private static java.util.Optional<Pose> poseByName(String name) {
+   private static java.util.Optional<Pose> poseByName(String name) {
       for (Pose pose : Pose.values()) {
          if (pose.name().toLowerCase(java.util.Locale.ROOT).equals(name)) {
             return java.util.Optional.of(pose);
@@ -479,5 +479,5 @@ public abstract class StatueEntity extends LivingEntity {
       }
       return java.util.Optional.empty();
    }
-   *///?}
+   //?}
 }

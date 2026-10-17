@@ -1,7 +1,7 @@
 package dev.burning.postmortem.legacy;
 
 //? if <1.20.5 {
-/*import java.util.function.BiConsumer;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -66,4 +66,4 @@ public interface StreamCodec<B, V> {
       R apply(T1 t1, T2 t2, T3 t3);
    }
 }
-*///?}
+//?}

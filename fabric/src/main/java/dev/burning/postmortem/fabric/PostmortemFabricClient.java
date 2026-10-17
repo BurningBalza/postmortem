@@ -14,14 +14,14 @@ public final class PostmortemFabricClient implements ClientModInitializer {
       EntityRendererRegistry.register(PostmortemRegistry.COSMETIC_STATUE.get(), PostmortemClient::cosmeticRenderer);
 
       //? if >=1.20.5 {
-      ClientPlayNetworking.registerGlobalReceiver(
+      /*ClientPlayNetworking.registerGlobalReceiver(
          PostmortemRegistry.OpenPoseScreen.ID,
          (payload, context) -> PostmortemClient.openPoseScreen(context.client(), payload.entityId()));
-      //?} else {
-      /*ClientPlayNetworking.registerGlobalReceiver(PostmortemRegistry.OpenPoseScreen.ID, (client, handler, buf, sender) -> {
+      *///?} else {
+      ClientPlayNetworking.registerGlobalReceiver(PostmortemRegistry.OpenPoseScreen.ID, (client, handler, buf, sender) -> {
          int entityId = PostmortemRegistry.OpenPoseScreen.CODEC.decode(buf).entityId();
          client.execute(() -> PostmortemClient.openPoseScreen(client, entityId));
       });
-      *///?}
+      //?}
    }
 }
