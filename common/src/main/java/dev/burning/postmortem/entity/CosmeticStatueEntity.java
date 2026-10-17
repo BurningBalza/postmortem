@@ -1,7 +1,7 @@
 package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.PostmortemRegistry;
-import dev.burning.postmortem.compat.CombatAmenitiesCompat;
+import dev.burning.postmortem.compat.BackSlots;
 import java.util.function.Consumer;
 import dev.burning.postmortem.platform.Platform;
 import net.minecraft.core.component.DataComponents;
@@ -92,7 +92,7 @@ public class CosmeticStatueEntity extends StatueEntity {
             return this.refuseWaxed(player);
          }
 
-         if (CombatAmenitiesCompat.isPresent() && this.isBehind(player)) {
+         if (BackSlots.belt() && this.isBehind(player)) {
             return this.swap(player, hand, this.getBeltslotStack(), this::setBeltslotStack, 1.0F);
          }
 
@@ -109,7 +109,7 @@ public class CosmeticStatueEntity extends StatueEntity {
          return this.refuseWaxed(player);
       }
 
-      if (this.isBehind(player)) {
+      if (BackSlots.back() && this.isBehind(player)) {
          return this.swap(player, hand, this.getBackslotStack(), this::setBackslotStack, 1.2F);
       }
 

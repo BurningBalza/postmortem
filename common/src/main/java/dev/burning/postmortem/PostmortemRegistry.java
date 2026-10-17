@@ -1,5 +1,6 @@
 package dev.burning.postmortem;
 
+import dev.burning.postmortem.compat.BackSlots;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
 import dev.burning.postmortem.entity.CosmeticStatueItem;
 import dev.burning.postmortem.entity.MemorialStatueEntity;
@@ -89,7 +90,8 @@ public final class PostmortemRegistry {
          return;
       }
 
-      statue.setLimbPose(payload.pose().clamped());
+      // Back and belt items are only posable when a mod provides those slots.
+      statue.setLimbPose(payload.pose().clamped().retain(BackSlots::has));
 
       if (PostmortemConfig.get().debug()) {
          Postmortem.LOGGER.info("[postmortem] {} posed statue {}", player.getName().getString(), statue.getUUID());

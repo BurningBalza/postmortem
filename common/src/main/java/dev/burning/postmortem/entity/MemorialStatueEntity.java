@@ -117,6 +117,11 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    @Override
+   protected void releaseUnsupported(ServerLevel world, ItemStack stack) {
+      // A memorial only shows a copy; the real item is stored for return, or never left its owner.
+   }
+
+   @Override
    public void tick() {
       super.tick();
 

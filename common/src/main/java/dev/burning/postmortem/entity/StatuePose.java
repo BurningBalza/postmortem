@@ -63,6 +63,17 @@ public record StatuePose(Map<StatuePart, LimbTransform> parts) {
       return new StatuePose(parts);
    }
 
+   /** This pose without the parts {@code keep} rejects. */
+   public StatuePose retain(java.util.function.Predicate<StatuePart> keep) {
+      Map<StatuePart, LimbTransform> parts = new EnumMap<>(StatuePart.class);
+      this.parts.forEach((part, transform) -> {
+         if (keep.test(part)) {
+            parts.put(part, transform);
+         }
+      });
+      return new StatuePose(parts);
+   }
+
    public StatuePose clamped() {
       Map<StatuePart, LimbTransform> parts = new EnumMap<>(StatuePart.class);
       this.parts.forEach((part, transform) -> parts.put(part, transform.clamped()));

@@ -1,7 +1,7 @@
 package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.PostmortemRegistry;
-import dev.burning.postmortem.compat.CombatAmenitiesCompat;
+import dev.burning.postmortem.compat.BackSlots;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -44,8 +44,10 @@ public class CosmeticStatueItem extends Item {
       Consumer<Component> consumer = tooltip::add;
    *///?}
       consumer.accept(Component.translatable("item.postmortem.cosmetic_statue.tooltip").withStyle(ChatFormatting.GRAY));
-      consumer.accept(Component.translatable("item.postmortem.cosmetic_statue.tooltip.back").withStyle(ChatFormatting.GRAY));
-      if (CombatAmenitiesCompat.isPresent()) {
+      if (BackSlots.back()) {
+         consumer.accept(Component.translatable("item.postmortem.cosmetic_statue.tooltip.back").withStyle(ChatFormatting.GRAY));
+      }
+      if (BackSlots.belt()) {
          consumer.accept(Component.translatable("item.postmortem.cosmetic_statue.tooltip.belt").withStyle(ChatFormatting.GRAY));
       }
       consumer.accept(Component.translatable("item.postmortem.cosmetic_statue.tooltip.name").withStyle(ChatFormatting.GRAY));

@@ -1,6 +1,7 @@
 package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.Postmortem;
+import dev.burning.postmortem.compat.BackSlots;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.chat.Component;
@@ -12,6 +13,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -62,6 +64,8 @@ public abstract class StatueEntity extends LivingEntity {
 
    private static final EntityDataAccessor<Boolean> WAXED =
       SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.BOOLEAN);
+
+   private boolean checkedBackSlots;
 
    //? if <1.21.5 {
    /*// LivingEntity only stores equipment itself from 1.21.5; before that every entity kept its own, like ArmorStand.
@@ -198,6 +202,29 @@ public abstract class StatueEntity extends LivingEntity {
 
    public void setBeltslotStack(ItemStack stack) {
       this.entityData.set(BELTSLOT, stack.copy());
+   }
+
+   @Override
+   public void tick() {
+      super.tick();
+
+      // A statue saved while a back-slot mod was installed keeps the item after the mod is removed; let it go.
+      if (!this.checkedBackSlots && this.level() instanceof ServerLevel world) {
+         this.checkedBackSlots = true;
+         if (!BackSlots.back() && !this.getBackslotStack().isEmpty()) {
+            this.releaseUnsupported(world, this.getBackslotStack());
+            this.setBackslotStack(ItemStack.EMPTY);
+         }
+         if (!BackSlots.belt() && !this.getBeltslotStack().isEmpty()) {
+            this.releaseUnsupported(world, this.getBeltslotStack());
+            this.setBeltslotStack(ItemStack.EMPTY);
+         }
+      }
+   }
+
+   /** Called with an item left in a back or belt slot no installed mod provides. A statue's own item drops. */
+   protected void releaseUnsupported(ServerLevel world, ItemStack stack) {
+      Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), stack.copy());
    }
 
    public void applyPose(PoseSnapshot snapshot) {
