@@ -37,7 +37,15 @@ public class StatueCollectorItem extends Item {
    }
 
    @Override
+   //? if >=1.21.2 {
    public InteractionResult use(Level world, Player player, InteractionHand hand) {
+   //?} else {
+   /*public net.minecraft.world.InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+      return new net.minecraft.world.InteractionResultHolder<>(this.useResult(world, player, hand), player.getItemInHand(hand));
+   }
+
+   private InteractionResult useResult(Level world, Player player, InteractionHand hand) {
+   *///?}
       ItemStack stack = player.getItemInHand(hand);
       if (world.isClientSide()) {
          return InteractionResult.SUCCESS;
@@ -61,7 +69,10 @@ public class StatueCollectorItem extends Item {
       world.playSound(
          null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.6F, 1.6F);
       Postmortem.overlay(player, Component.translatable("message.postmortem.collected", returned));
+      //? if >=1.21.2 {
       player.getCooldowns().addCooldown(stack, 20);
+      //?} else
+      //player.getCooldowns().addCooldown(stack.getItem(), 20);
       return InteractionResult.SUCCESS;
    }
 }

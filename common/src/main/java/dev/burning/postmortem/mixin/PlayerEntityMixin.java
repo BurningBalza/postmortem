@@ -78,8 +78,17 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
       this.postmortem$limbProgress += this.postmortem$limbSpeed;
    }
 
+   //? if >=1.21.2 {
    @Inject(method = "dropEquipment(Lnet/minecraft/server/level/ServerLevel;)V", at = @At("HEAD"), cancellable = true)
    private void postmortem$captureIntoStatue(ServerLevel world, CallbackInfo ci) {
+   //?} else {
+   /*// Before 1.21.2 the drop runs without being handed the level.
+   @Inject(method = "dropEquipment()V", at = @At("HEAD"), cancellable = true)
+   private void postmortem$captureIntoStatue(CallbackInfo ci) {
+      if (!(((Player)(Object)this).level() instanceof ServerLevel world)) {
+         return;
+      }
+   *///?}
       if (PostmortemConfig.get().debug()) {
          Postmortem.LOGGER.info("[postmortem] death drop intercepted; keepInventory={}",
             world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY));
