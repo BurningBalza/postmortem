@@ -8,6 +8,20 @@ loomx.loom_version = "1.17.20"
 
 # Sections are keyed by node name from settings.gradle.kts ("26.1"), not the exact release it compiles against.
 
+["1.21.3"]
+mod.mc_releases = ["1.21.3"]
+
+[fabric."1.21.3"]
+# Lowest loader the mod accepts: the same floor as this version's Fabric API.
+mod.fabric_loader_min = "0.16.8"
+mod.mc_compat = "1.21.3"
+deps.fabric_api = "0.114.1+1.21.3"
+
+# NeoForge 1.21.2 only ever had a beta; this jar covers it.
+[neoforge."1.21.3"]
+mod.mc_compat = "[1.21.2, 1.21.3]"
+deps.neoforge = "21.3.100"
+
 ["1.21.4"]
 mod.mc_releases = ["1.21.4"]
 
