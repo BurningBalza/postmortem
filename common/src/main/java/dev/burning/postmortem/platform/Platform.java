@@ -5,9 +5,9 @@ import java.util.ServiceLoader;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 //? if >=1.20.2 {
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-//?} else
-//import dev.burning.postmortem.legacy.CustomPacketPayload;
+/*import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+*///?} else
+import dev.burning.postmortem.legacy.CustomPacketPayload;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.server.level.ServerPlayer;
 
