@@ -15,7 +15,10 @@ public final class Postmortem {
    }
 
    public static Identifier id(String path) {
+      //? if >=1.21 {
       return Identifier.fromNamespaceAndPath(MOD_ID, path);
+      //?} else
+      //return new Identifier(MOD_ID, path);
    }
 
    /** Shows {@code message} above the hotbar. */
