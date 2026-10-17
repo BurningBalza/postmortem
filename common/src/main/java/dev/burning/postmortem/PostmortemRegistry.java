@@ -22,7 +22,10 @@ import dev.burning.postmortem.legacy.StreamCodec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 *///?}
+//? if >=1.20.2 {
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//?} else
+//import dev.burning.postmortem.legacy.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;

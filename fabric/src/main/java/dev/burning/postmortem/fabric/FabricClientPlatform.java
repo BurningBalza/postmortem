@@ -2,7 +2,10 @@ package dev.burning.postmortem.fabric;
 
 import dev.burning.postmortem.platform.ClientPlatform;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+//? if >=1.20.2 {
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//?} else
+//import dev.burning.postmortem.legacy.CustomPacketPayload;
 
 public final class FabricClientPlatform implements ClientPlatform {
    @Override
