@@ -271,7 +271,7 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    private void clearDisplay() {
-      for (EquipmentSlot slot : EquipmentSlot.VALUES) {
+      for (EquipmentSlot slot : EquipmentSlot.values()) {
          if (this.canUseSlot(slot)) {
             this.setItemSlot(slot, ItemStack.EMPTY);
          }
@@ -316,7 +316,14 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    @Override
+   //? if >=1.21.2 {
    public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
+   //?} else {
+   /*public boolean hurt(DamageSource source, float amount) {
+      if (!(this.level() instanceof ServerLevel world)) {
+         return false;
+      }
+   *///?}
       if (this.isRemoved() || !this.canBeBrokenBy(source)) {
          return false;
       }
@@ -326,7 +333,10 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    @Override
+   //? if >=1.21.2 {
    public boolean isInvulnerableTo(ServerLevel world, DamageSource source) {
+   //?} else
+   //public boolean isInvulnerableTo(DamageSource source) {
       return !this.canBeBrokenBy(source);
    }
 
