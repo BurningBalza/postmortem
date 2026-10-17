@@ -48,7 +48,13 @@ public final class RenderSink {
    }
 
    public void part(ModelPart part, PoseStack matrices, RenderType type, int light, int colour) {
+      //? if >=1.21 {
       part.render(matrices, this.buffers.getBuffer(type), light, OverlayTexture.NO_OVERLAY, colour);
+      //?} else {
+      /*// Before 1.21 the tint is four floats rather than one ARGB int.
+      part.render(matrices, this.buffers.getBuffer(type), light, OverlayTexture.NO_OVERLAY,
+         (colour >> 16 & 0xFF) / 255.0F, (colour >> 8 & 0xFF) / 255.0F, (colour & 0xFF) / 255.0F, (colour >>> 24) / 255.0F);
+      *///?}
    }
 
    public void item(ItemDrawState item, PoseStack matrices, int light) {
