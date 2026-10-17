@@ -59,6 +59,13 @@ public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State>
       }
    }
 
+   //? if <1.21.4 {
+   /*@Override
+   protected HumanoidModel.ArmPose getArmPose(StatueEntityRenderer.State state, HumanoidArm arm) {
+      return arm == HumanoidArm.RIGHT ? state.rightArmPose : state.leftArmPose;
+   }
+   *///?}
+
    public static void applyToMatrix(PoseStack matrices, LimbTransform transform) {
       if (transform.isNone()) {
          return;
