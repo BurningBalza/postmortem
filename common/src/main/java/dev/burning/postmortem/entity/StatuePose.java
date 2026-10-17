@@ -5,7 +5,10 @@ import io.netty.buffer.ByteBuf;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+//? if >=1.20.5 {
 import net.minecraft.network.codec.StreamCodec;
+//?} else
+//import dev.burning.postmortem.legacy.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.util.StringRepresentable;
 
@@ -35,7 +38,10 @@ public record StatuePose(Map<StatuePart, LimbTransform> parts) {
          return new StatuePose(parts);
       });
 
+   //? if >=1.20.5 {
    public static final EntityDataSerializer<StatuePose> TRACKED_HANDLER = EntityDataSerializer.forValueType(PACKET_CODEC);
+   //?} else
+   //public static final EntityDataSerializer<StatuePose> TRACKED_HANDLER = EntityDataSerializer.simple(PACKET_CODEC::encode, PACKET_CODEC::decode);
 
    public StatuePose {
       // Dropping untouched parts keeps equals() honest, which entity data sync relies on.

@@ -69,6 +69,10 @@ public abstract class StatueEntity extends LivingEntity {
 
    //? if <1.21.5 {
    /*// LivingEntity only stores equipment itself from 1.21.5; before that every entity kept its own, like ArmorStand.
+   //? if >=1.20.5 {
+   private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.OPTIONAL_CODEC;
+   //?} else
+   //private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.CODEC;
    private final java.util.List<ItemStack> handItems = net.minecraft.core.NonNullList.withSize(2, ItemStack.EMPTY);
    private final java.util.List<ItemStack> armorItems = net.minecraft.core.NonNullList.withSize(4, ItemStack.EMPTY);
    *///?}
@@ -117,8 +121,14 @@ public abstract class StatueEntity extends LivingEntity {
    *///?}
 
    @Override
+   //? if >=1.20.5 {
    protected void defineSynchedData(SynchedEntityData.Builder builder) {
       super.defineSynchedData(builder);
+   //?} else {
+   /*protected void defineSynchedData() {
+      super.defineSynchedData();
+      SynchedEntityData builder = this.entityData;
+   *///?}
       builder.define(LIMB_ANGLE, 0.0F);
       builder.define(LIMB_AMPLITUDE, 0.0F);
       builder.define(HAND_SWING, 0.0F);
@@ -143,7 +153,13 @@ public abstract class StatueEntity extends LivingEntity {
 
       if (!this.isWaxed() && held.is(Items.HONEYCOMB)) {
          this.setWaxed(true);
+         //? if >=1.20.5 {
          held.consume(1, player);
+         //?} else {
+         /*if (!player.getAbilities().instabuild) {
+            held.shrink(1);
+         }
+         *///?}
          this.playWaxEffect(SoundEvents.HONEYCOMB_WAX_ON, ParticleTypes.WAX_ON);
          return InteractionResult.SUCCESS;
       }
@@ -152,8 +168,10 @@ public abstract class StatueEntity extends LivingEntity {
          this.setWaxed(false);
          //? if >=1.21.9 {
          held.hurtAndBreak(1, player, hand);
-         //?} else
-         //held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+         //?} elif >=1.20.5 {
+         /*held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+         *///?} else
+         //held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
          //? if >=26.3 {
          this.playWaxEffect(SoundEvents.AXE_WAX_OFF.value(), ParticleTypes.WAX_OFF);
          //?} else
@@ -286,8 +304,10 @@ public abstract class StatueEntity extends LivingEntity {
       this.setVariant(next);
       //? if >=1.21.9 {
       held.hurtAndBreak(1, player, hand);
-      //?} else
-      //held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+      //?} elif >=1.20.5 {
+      /*held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+      *///?} else
+      //held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
       Postmortem.overlay(player, 
          Component.translatable("message.postmortem.variant", Component.translatable(next.translationKey())));
       this.level().playSound(
@@ -318,7 +338,7 @@ public abstract class StatueEntity extends LivingEntity {
    //?} else {
    /*public void addAdditionalSaveData(CompoundTag tag) {
       super.addAdditionalSaveData(tag);
-      ValueOutput view = ValueOutput.of(tag, this.registryAccess());
+      ValueOutput view = ValueOutput.of(tag, this);
    *///?}
       //? if >=1.21.11 {
       view.store("StatuePose", Pose.CODEC, this.getPose());
@@ -344,8 +364,8 @@ public abstract class StatueEntity extends LivingEntity {
          view.putBoolean("Waxed", true);
       }
       //? if <1.21.5 {
-      /*view.store("ArmorItems", ItemStack.OPTIONAL_CODEC.listOf(), this.armorItems);
-      view.store("HandItems", ItemStack.OPTIONAL_CODEC.listOf(), this.handItems);
+      /*view.store("ArmorItems", EQUIPMENT_CODEC.listOf(), this.armorItems);
+      view.store("HandItems", EQUIPMENT_CODEC.listOf(), this.handItems);
       *///?}
    }
 
@@ -356,7 +376,7 @@ public abstract class StatueEntity extends LivingEntity {
    //?} else {
    /*public void readAdditionalSaveData(CompoundTag tag) {
       super.readAdditionalSaveData(tag);
-      ValueInput view = ValueInput.of(tag, this.registryAccess());
+      ValueInput view = ValueInput.of(tag, this);
    *///?}
       //? if >=1.21.11 {
       view.read("StatuePose", Pose.CODEC).ifPresent(this::setPose);
@@ -372,8 +392,8 @@ public abstract class StatueEntity extends LivingEntity {
       this.setSeated(view.getBooleanOr("Seated", false));
       this.setWaxed(view.getBooleanOr("Waxed", false));
       //? if <1.21.5 {
-      /*view.read("ArmorItems", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.armorItems));
-      view.read("HandItems", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.handItems));
+      /*view.read("ArmorItems", EQUIPMENT_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.armorItems));
+      view.read("HandItems", EQUIPMENT_CODEC.listOf()).ifPresent(stacks -> copyInto(stacks, this.handItems));
       *///?}
    }
 
@@ -386,12 +406,17 @@ public abstract class StatueEntity extends LivingEntity {
       return HumanoidArm.RIGHT;
    }
 
+   //? if >=1.20.5
    @Override
    public boolean canUseSlot(EquipmentSlot slot) {
       //? if >=1.21.5 {
       return slot != EquipmentSlot.BODY && slot != EquipmentSlot.SADDLE;
-      //?} else
-      //return slot != EquipmentSlot.BODY;
+      //?} elif >=1.20.5 {
+      /*return slot != EquipmentSlot.BODY;
+      *///?} else {
+      /*// Before 1.20.5 there are only hands and armour.
+      return true;
+      *///?}
    }
 
    // Same as vanilla, but without calling super: Enchancement's Veil hooks the

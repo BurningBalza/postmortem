@@ -25,6 +25,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -39,8 +40,11 @@ public class CosmeticStatueItem extends Item {
    //? if >=1.21.5 {
    public void appendHoverText(
       ItemStack stack, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> consumer, TooltipFlag type) {
-   //?} else {
+   //?} elif >=1.20.5 {
    /*public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<Component> tooltip, TooltipFlag type) {
+      Consumer<Component> consumer = tooltip::add;
+   *///?} else {
+   /*public void appendHoverText(ItemStack stack, Level world, java.util.List<Component> tooltip, TooltipFlag type) {
       Consumer<Component> consumer = tooltip::add;
    *///?}
       consumer.accept(Component.translatable("item.postmortem.cosmetic_statue.tooltip").withStyle(ChatFormatting.GRAY));
@@ -91,7 +95,11 @@ public class CosmeticStatueItem extends Item {
          return InteractionResult.FAIL;
       }
 
-      if (!world.getWorldBorder().isWithinBounds(PostmortemRegistry.COSMETIC_STATUE.get().getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5))) {
+      //? if >=1.20.5 {
+      AABB spawnBox = PostmortemRegistry.COSMETIC_STATUE.get().getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+      //?} else
+      //AABB spawnBox = PostmortemRegistry.COSMETIC_STATUE.get().getAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+      if (!world.getWorldBorder().isWithinBounds(spawnBox)) {
          return InteractionResult.FAIL;
       }
 
@@ -121,7 +129,10 @@ public class CosmeticStatueItem extends Item {
             null, statue.getX(), statue.getY(), statue.getZ(), SoundEvents.STONE_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
 
          ItemStack stack = context.getItemInHand();
+         //? if >=1.20.5 {
          if (context.getPlayer() == null || !context.getPlayer().hasInfiniteMaterials()) {
+         //?} else
+         //if (context.getPlayer() == null || !context.getPlayer().getAbilities().instabuild) {
             stack.shrink(1);
          }
       }

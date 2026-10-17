@@ -196,9 +196,14 @@ public class StatueEntityRenderer<T extends StatueEntity>
    }
 
    @Override
+   //? if >=1.20.5 {
    protected void setupRotations(
       StatueEntity entity, PoseStack matrices, float bob, float bodyRot, float tickDelta, float scale) {
       super.setupRotations(entity, matrices, bob, this.model.current.bodyRot, tickDelta, scale);
+   //?} else {
+   /^protected void setupRotations(StatueEntity entity, PoseStack matrices, float bob, float bodyRot, float tickDelta) {
+      super.setupRotations(entity, matrices, bob, this.model.current.bodyRot, tickDelta);
+   ^///?}
    }
 
    @Override
