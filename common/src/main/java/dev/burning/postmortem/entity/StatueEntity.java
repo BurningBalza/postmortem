@@ -145,9 +145,9 @@ public abstract class StatueEntity extends LivingEntity {
          //?} else
          //held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
          //? if >=26.3 {
-         /*this.playWaxEffect(SoundEvents.AXE_WAX_OFF.value(), ParticleTypes.WAX_OFF);
-         *///?} else
-         this.playWaxEffect(SoundEvents.AXE_WAX_OFF, ParticleTypes.WAX_OFF);
+         this.playWaxEffect(SoundEvents.AXE_WAX_OFF.value(), ParticleTypes.WAX_OFF);
+         //?} else
+         //this.playWaxEffect(SoundEvents.AXE_WAX_OFF, ParticleTypes.WAX_OFF);
          return InteractionResult.SUCCESS;
       }
 

@@ -62,9 +62,9 @@ public final class DeathCapture {
             fresh.setItem(slot, stack);
          } else {
             //? if >=26.3 {
-            /*fresh.placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
-            *///?} else
-            fresh.placeItemBackInInventory(stack);
+            fresh.placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
+            //?} else
+            //fresh.placeItemBackInInventory(stack);
          }
       }
 

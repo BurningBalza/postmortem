@@ -346,7 +346,7 @@ public class StatuePoseScreen extends Screen {
       context.pose().translate((left + right) / 2.0F, (top + bottom) / 2.0F, 50.0F);
       context.pose().scale(size, size, -size);
       context.pose().translate(translate.x, translate.y, translate.z);
-      context.pose().mulPose(rotation);
+      context.pose().rotate(rotation);
       context.flush();
       com.mojang.blaze3d.platform.Lighting.setupForEntityInInventory();
 

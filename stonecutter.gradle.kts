@@ -2,7 +2,7 @@ plugins {
     id("dev.kikugie.stonecutter")
 }
 
-stonecutter active "26.2"
+stonecutter active "26.3"
 
 stonecutter parameters {
     val loader = node.branch.id
@@ -12,9 +12,9 @@ stonecutter parameters {
         tags(current.project, loader)
     }
 
-    // Plain renames. Sources are stored in their 26.2 form, so each replacement maps the 26.x text back to the
-    // older one. Stonecutter runs them in reverse on the versions outside the range, so the older text must never
-    // appear in the 26.2 sources (which rules out names like GameProfile).
+    // Plain renames, applied in the range given and in reverse outside it. Sources are stored in their vcsVersion
+    // (newest) form, so the text a rule produces for the other side must never already appear in the stored sources;
+    // GameProfile -> NameAndId, for one, would have rewritten GameProfileArgument.
     replacements {
         string(current.parsed >= "26.3") {
             replace(".mulPose(", ".rotate(")

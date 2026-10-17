@@ -68,9 +68,9 @@ public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State>
       matrices.translate(offset.x() / 16.0F, offset.y() / 16.0F, offset.z() / 16.0F);
 
       LimbTransform.Rotation rotation = transform.rotation();
-      matrices.mulPose(Axis.XP.rotationDegrees(rotation.x()));
-      matrices.mulPose(Axis.YP.rotationDegrees(rotation.y()));
-      matrices.mulPose(Axis.ZP.rotationDegrees(rotation.z()));
+      matrices.rotate(Axis.XP.rotationDegrees(rotation.x()));
+      matrices.rotate(Axis.YP.rotationDegrees(rotation.y()));
+      matrices.rotate(Axis.ZP.rotationDegrees(rotation.z()));
    }
 
    private static void apply(ModelPart part, LimbTransform transform) {

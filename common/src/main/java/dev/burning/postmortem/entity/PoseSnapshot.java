@@ -26,9 +26,9 @@ public record PoseSnapshot(
          limbAngle,
          limbAmplitude,
          //? if >=26.3 {
-         /*entity.getSwingAnimation(1.0F),
-         *///?} else
-         entity.attackAnim,
+         entity.getSwingAnimation(1.0F),
+         //?} else
+         //entity.attackAnim,
          entity.getSwimAmount(1.0F),
          entity.isPassenger());
    }

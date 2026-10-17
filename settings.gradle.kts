@@ -26,7 +26,7 @@ stonecutter {
             for ((name, release) in versions) version(name, release)
         }
 
-        vcsVersion = "26.2"
+        vcsVersion = "26.3"
     }
 }
 

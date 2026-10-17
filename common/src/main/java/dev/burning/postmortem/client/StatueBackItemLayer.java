@@ -127,12 +127,12 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       switch (state.backslotFit) {
          case TRIDENT -> {
             matrices.translate(TRIDENT_X, TRIDENT_Y, TRIDENT_Z);
-            matrices.mulPose(Axis.ZN.rotationDegrees(TRIDENT_ANGLE));
+            matrices.rotate(Axis.ZN.rotationDegrees(TRIDENT_ANGLE));
          }
          case BANNER -> {
-            matrices.mulPose(Axis.XN.rotationDegrees(BANNER_TURN));
+            matrices.rotate(Axis.XN.rotationDegrees(BANNER_TURN));
             matrices.translate(0.0F, BANNER_LIFT, 0.0F);
-            matrices.mulPose(Axis.XP.rotationDegrees(BANNER_TILT));
+            matrices.rotate(Axis.XP.rotationDegrees(BANNER_TILT));
             matrices.translate(0.0F, BANNER_DROP, BANNER_OUT);
             matrices.scale(BANNER_SCALE, BANNER_SCALE, BANNER_SCALE);
          }

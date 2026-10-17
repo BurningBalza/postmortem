@@ -143,8 +143,8 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       model.translateToHand(state, arm, matrices);
       //?} else
       //model.translateToHand(arm, matrices);
-      matrices.mulPose(Axis.XP.rotationDegrees(-90.0F));
-      matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
+      matrices.rotate(Axis.XP.rotationDegrees(-90.0F));
+      matrices.rotate(Axis.YP.rotationDegrees(180.0F));
       matrices.translate(arm == HumanoidArm.LEFT ? -HAND_SIDE : HAND_SIDE, HAND_UP, HAND_FORWARD);
    }
 

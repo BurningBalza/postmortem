@@ -84,8 +84,8 @@ public final class StatuePartPicker {
       matrices.translate(centerX, centerY, 0.0F);
       matrices.scale(scale, scale, -scale);
       matrices.translate(translation.x(), translation.y(), translation.z());
-      matrices.mulPose(new Quaternionf(rotation));
-      matrices.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
+      matrices.rotate(new Quaternionf(rotation));
+      matrices.rotate(Axis.YP.rotationDegrees(180.0F - bodyRot));
       matrices.scale(STATUE_SCALE, STATUE_SCALE, STATUE_SCALE);
       matrices.scale(-1.0F, -1.0F, 1.0F);
       matrices.translate(0.0F, MODEL_LIFT, 0.0F);
