@@ -4,12 +4,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 //? if >=1.21.4 {
-import net.minecraft.client.renderer.item.ItemModelResolver;
+/*import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-//?} else {
-/*import net.minecraft.client.renderer.entity.ItemRenderer;
+*///?} else {
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-*///?}
+//?}
 
 /**
  * An item a statue layer draws itself, resolved while the render state is extracted: 1.21.4's ItemStackRenderState,
@@ -17,13 +17,13 @@ import net.minecraft.client.resources.model.BakedModel;
  */
 public final class ItemDrawState {
    //? if >=1.21.4 {
-   final ItemStackRenderState state = new ItemStackRenderState();
+   /*final ItemStackRenderState state = new ItemStackRenderState();
 
    public void update(ItemModelResolver resolver, ItemStack stack, ItemDisplayContext context, LivingEntity entity) {
       //? if >=1.21.5 {
-      resolver.updateForLiving(this.state, stack, context, entity);
-      //?} else
-      //resolver.updateForLiving(this.state, stack, context, false, entity);
+      /^resolver.updateForLiving(this.state, stack, context, entity);
+      ^///?} else
+      resolver.updateForLiving(this.state, stack, context, false, entity);
    }
 
    public boolean isEmpty() {
@@ -33,8 +33,8 @@ public final class ItemDrawState {
    public void clear() {
       this.state.clear();
    }
-   //?} else {
-   /*ItemStack stack = ItemStack.EMPTY;
+   *///?} else {
+   ItemStack stack = ItemStack.EMPTY;
    ItemDisplayContext context = ItemDisplayContext.NONE;
    BakedModel model;
 
@@ -52,5 +52,5 @@ public final class ItemDrawState {
       this.stack = ItemStack.EMPTY;
       this.model = null;
    }
-   *///?}
+   //?}
 }
