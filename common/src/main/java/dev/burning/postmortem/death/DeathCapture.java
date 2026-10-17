@@ -22,7 +22,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
 
 public final class DeathCapture {
@@ -39,9 +39,9 @@ public final class DeathCapture {
       if (alive
          || oldPlayer.isSpectator()
          //? if >=1.21.6 {
-         || newPlayer.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
-         //?} else
-         //|| newPlayer.serverLevel().getGameRules().get(GameRules.KEEP_INVENTORY)) {
+         /*|| newPlayer.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+         *///?} else
+         || newPlayer.serverLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
          return;
       }
 
@@ -62,9 +62,9 @@ public final class DeathCapture {
             fresh.setItem(slot, stack);
          } else {
             //? if >=26.3 {
-            fresh.placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
-            //?} else
-            //fresh.placeItemBackInInventory(stack);
+            /*fresh.placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
+            *///?} else
+            fresh.placeItemBackInInventory(stack);
          }
       }
 

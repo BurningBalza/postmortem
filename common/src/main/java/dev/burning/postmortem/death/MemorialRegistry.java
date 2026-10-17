@@ -55,9 +55,9 @@ public final class MemorialRegistry extends SavedData {
    //? if >=1.21.5 {
    private static final SavedDataType<MemorialRegistry> TYPE =
       //? if >=26.1 {
-      new SavedDataType<>(Postmortem.id("memorials"), MemorialRegistry::new, CODEC, null);
-      //?} else
-      //new SavedDataType<>("postmortem_memorials", MemorialRegistry::new, CODEC, null);
+      /*new SavedDataType<>(Postmortem.id("memorials"), MemorialRegistry::new, CODEC, null);
+      *///?} else
+      new SavedDataType<>("postmortem_memorials", MemorialRegistry::new, CODEC, null);
    //?} else {
    /*private static final String FILE = "postmortem_memorials";
    private static final SavedData.Factory<MemorialRegistry> TYPE =
@@ -87,10 +87,10 @@ public final class MemorialRegistry extends SavedData {
 
    public static MemorialRegistry get(MinecraftServer server) {
       //? if >=26.1 {
-      return server.getDataStorage().computeIfAbsent(TYPE);
-      //?} elif >=1.21.5 {
-      /*return server.overworld().getDataStorage().computeIfAbsent(TYPE);
-      *///?} else
+      /*return server.getDataStorage().computeIfAbsent(TYPE);
+      *///?} elif >=1.21.5 {
+      return server.overworld().getDataStorage().computeIfAbsent(TYPE);
+      //?} else
       //return server.overworld().getDataStorage().computeIfAbsent(TYPE, FILE);
    }
 
