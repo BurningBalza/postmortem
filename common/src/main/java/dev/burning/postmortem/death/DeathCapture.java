@@ -38,7 +38,7 @@ public final class DeathCapture {
    public static void carryKeptItems(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
       if (alive
          || oldPlayer.isSpectator()
-         //? if >=1.21.9 {
+         //? if >=1.21.6 {
          || newPlayer.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
          //?} else
          //|| newPlayer.serverLevel().getGameRules().get(GameRules.KEEP_INVENTORY)) {

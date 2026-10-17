@@ -140,7 +140,7 @@ public abstract class StatueEntity extends LivingEntity {
 
       if (this.isWaxed() && held.is(ItemTags.AXES)) {
          this.setWaxed(false);
-         //? if >=1.21.11 {
+         //? if >=1.21.9 {
          held.hurtAndBreak(1, player, hand);
          //?} else
          //held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
@@ -251,7 +251,7 @@ public abstract class StatueEntity extends LivingEntity {
 
       StatueVariant next = this.getVariant().next();
       this.setVariant(next);
-      //? if >=1.21.11 {
+      //? if >=1.21.9 {
       held.hurtAndBreak(1, player, hand);
       //?} else
       //held.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
