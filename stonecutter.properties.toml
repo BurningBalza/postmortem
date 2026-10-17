@@ -6,6 +6,19 @@ mod.version = "1.0.8"
 deps.fabric_loader = "0.19.5"
 loomx.loom_version = "1.17.20"
 
+# Sections are keyed by node name (the part before "-{loader}" in settings.gradle.kts).
+
+["26.1"]
+mod.mc_releases = ["26.1.2"]
+
+[fabric."26.1"]
+mod.mc_compat = "26.1.2"
+deps.fabric_api = "0.155.3+26.1.2"
+
+[neoforge."26.1"]
+mod.mc_compat = "[26.1.2]"
+deps.neoforge = "26.1.2.122"
+
 ["26.2"]
 mod.mc_releases = ["26.2"]
 

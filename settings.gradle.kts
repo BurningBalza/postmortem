@@ -17,11 +17,13 @@ plugins {
 
 stonecutter {
     create(rootProject) {
-        // Each "{version}-{loader}" node lives in versions/ and builds with build.{loader}.gradle.kts.
-        fun match(version: String, vararg loaders: String) {
-            for (loader in loaders) version("$version-$loader", version).buildscript("build.$loader.gradle.kts")
+        // Each "{name}-{loader}" node lives in versions/ and builds with build.{loader}.gradle.kts.
+        // [version] is the exact Minecraft release compiled against when it differs from the node's name.
+        fun match(name: String, vararg loaders: String, version: String = name) {
+            for (loader in loaders) version("$name-$loader", version).buildscript("build.$loader.gradle.kts")
         }
 
+        match("26.1", "fabric", "neoforge", version = "26.1.2")
         match("26.2", "fabric", "neoforge")
         vcsVersion = "26.2-fabric"
     }
