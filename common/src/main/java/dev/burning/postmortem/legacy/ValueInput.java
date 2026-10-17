@@ -20,8 +20,11 @@ public final class ValueInput {
       this.ops = ops;
    }
 
-   public static ValueInput of(CompoundTag tag, HolderLookup.Provider registries) {
-      return new ValueInput(tag, RegistryOps.create(NbtOps.INSTANCE, registries));
+   public static ValueInput of(CompoundTag tag, net.minecraft.world.entity.Entity entity) {
+      //? if >=1.20.5 {
+      return new ValueInput(tag, RegistryOps.create(NbtOps.INSTANCE, entity.registryAccess()));
+      //?} else
+      //return new ValueInput(tag, NbtOps.INSTANCE);
    }
 
    public <T> Optional<T> read(String key, Codec<T> codec) {
