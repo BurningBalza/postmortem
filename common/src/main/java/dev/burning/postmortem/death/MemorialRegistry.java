@@ -15,13 +15,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 //? if >=1.21.5 {
-import net.minecraft.world.level.saveddata.SavedDataType;
-//?} else {
-/*import net.minecraft.core.HolderLookup;
+/*import net.minecraft.world.level.saveddata.SavedDataType;
+*///?} else {
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.RegistryOps;
-*///?}
+//?}
 
 /**
  * Holds the items of every memorial statue, keyed by the statue's UUID. The entity itself stores nothing, so a statue
@@ -53,13 +53,13 @@ public final class MemorialRegistry extends SavedData {
 
    // A null DataFixTypes is let through; there is no vanilla fixer for mod data anyway.
    //? if >=1.21.5 {
-   private static final SavedDataType<MemorialRegistry> TYPE =
+   /*private static final SavedDataType<MemorialRegistry> TYPE =
       //? if >=26.1 {
-      new SavedDataType<>(Postmortem.id("memorials"), MemorialRegistry::new, CODEC, null);
-      //?} else
-      //new SavedDataType<>("postmortem_memorials", MemorialRegistry::new, CODEC, null);
-   //?} else {
-   /*private static final String FILE = "postmortem_memorials";
+      /^new SavedDataType<>(Postmortem.id("memorials"), MemorialRegistry::new, CODEC, null);
+      ^///?} else
+      new SavedDataType<>("postmortem_memorials", MemorialRegistry::new, CODEC, null);
+   *///?} else {
+   private static final String FILE = "postmortem_memorials";
    private static final SavedData.Factory<MemorialRegistry> TYPE =
       new SavedData.Factory<>(MemorialRegistry::new, MemorialRegistry::load, null);
 
@@ -73,7 +73,7 @@ public final class MemorialRegistry extends SavedData {
          .ifPresent(encoded -> tag.merge((CompoundTag) encoded));
       return tag;
    }
-   *///?}
+   //?}
 
    private final Map<UUID, Entry> entries;
 
@@ -87,11 +87,11 @@ public final class MemorialRegistry extends SavedData {
 
    public static MemorialRegistry get(MinecraftServer server) {
       //? if >=26.1 {
-      return server.getDataStorage().computeIfAbsent(TYPE);
-      //?} elif >=1.21.5 {
+      /*return server.getDataStorage().computeIfAbsent(TYPE);
+      *///?} elif >=1.21.5 {
       /*return server.overworld().getDataStorage().computeIfAbsent(TYPE);
       *///?} else
-      //return server.overworld().getDataStorage().computeIfAbsent(TYPE, FILE);
+      return server.overworld().getDataStorage().computeIfAbsent(TYPE, FILE);
    }
 
    public Entry get(UUID statue) {

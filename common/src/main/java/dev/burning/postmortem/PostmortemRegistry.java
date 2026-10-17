@@ -104,17 +104,17 @@ public final class PostmortemRegistry {
          .fireImmune()
          .clientTrackingRange(10)
          //? if >=1.21.2 {
-         .build(key));
-         //?} else
-         //.build(key.identifier().toString()));
+         /*.build(key));
+         *///?} else
+         .build(key.location().toString()));
    }
 
    private static Supplier<Item> registerItem(String name, Function<Properties, Item> factory, Supplier<Properties> settings) {
       ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Postmortem.id(name));
       // Items carry their own id from 1.21.2; before it the registry is the only place it lives.
       //? if >=1.21.2 {
-      return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get().setId(key)));
-      //?} else
-      //return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get()));
+      /*return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get().setId(key)));
+      *///?} else
+      return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get()));
    }
 }
