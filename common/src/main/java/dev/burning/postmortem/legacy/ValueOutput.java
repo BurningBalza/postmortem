@@ -1,7 +1,7 @@
 package dev.burning.postmortem.legacy;
 
 //? if <1.21.6 {
-/*import com.mojang.serialization.Codec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,9 +22,9 @@ public final class ValueOutput {
 
    public static ValueOutput of(CompoundTag tag, net.minecraft.world.entity.Entity entity) {
       //? if >=1.20.5 {
-      return new ValueOutput(tag, RegistryOps.create(NbtOps.INSTANCE, entity.registryAccess()));
-      //?} else
-      //return new ValueOutput(tag, NbtOps.INSTANCE);
+      /*return new ValueOutput(tag, RegistryOps.create(NbtOps.INSTANCE, entity.registryAccess()));
+      *///?} else
+      return new ValueOutput(tag, NbtOps.INSTANCE);
    }
 
    public <T> void store(String key, Codec<T> codec, T value) {
@@ -47,4 +47,4 @@ public final class ValueOutput {
       this.tag.putBoolean(key, value);
    }
 }
-*///?}
+//?}

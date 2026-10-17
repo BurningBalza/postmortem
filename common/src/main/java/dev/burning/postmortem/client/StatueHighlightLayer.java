@@ -10,17 +10,17 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 //? if >=1.21.9 {
-import net.minecraft.client.renderer.SubmitNodeCollector;
-//?} else
-//import net.minecraft.client.renderer.MultiBufferSource;
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+*///?} else
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 //? if <1.21.2
-//import dev.burning.postmortem.entity.StatueEntity;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import dev.burning.postmortem.entity.StatueEntity;
+import net.minecraft.client.renderer.RenderType;
 //? if >=1.21.11
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.LightCoordsUtil;
+//import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.entity.HumanoidArm;
 
 /**
@@ -28,9 +28,9 @@ import net.minecraft.world.entity.HumanoidArm;
  * points for item parts, which the screen's part picker shares.
  */
 //? if >=1.21.2 {
-public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
-//?} else
-//public class StatueHighlightLayer extends RenderLayer<StatueEntity, StatueEntityModel> {
+/*public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
+*///?} else
+public class StatueHighlightLayer extends RenderLayer<StatueEntity, StatueEntityModel> {
    private static final int SELECTED_TINT = 0xCCFFA526;
    private static final int SELECTED_GLOW = 0xFFFFBE45;
    private static final int HOVERED_TINT = 0x40FFA526;
@@ -78,7 +78,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
 
    @Override
    //? if >=1.21.9 {
-   public void submit(
+   /*public void submit(
       PoseStack matrices,
       SubmitNodeCollector queue,
       int light,
@@ -86,7 +86,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       float limbAngle,
       float limbDistance) {
       RenderSink sink = new RenderSink(queue);
-   //?} elif >=1.21.2 {
+   *///?} elif >=1.21.2 {
    /*public void render(
       PoseStack matrices,
       MultiBufferSource buffers,
@@ -96,7 +96,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       float limbDistance) {
       RenderSink sink = new RenderSink(buffers);
    *///?} else {
-   /*public void render(
+   public void render(
       PoseStack matrices,
       MultiBufferSource buffers,
       int light,
@@ -109,7 +109,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       float headPitch) {
       RenderSink sink = new RenderSink(buffers);
       StatueEntityRenderer.State state = this.getParentModel().current;
-   *///?}
+   //?}
 
       if (state.statue == null || state.statue.getId() != highlightedId) {
          return;
@@ -138,7 +138,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
             model.body.translateAndRotate(matrices);
 
             if (CombatAmenitiesCompat.isPresent()) {
-               float out = AMENITIES_BACK_OUT + (state.chestEquipment.isEmpty() ? 0.0F : AMENITIES_CHEST_NUDGE);
+               float out = AMENITIES_BACK_OUT + (state.chestItem.isEmpty() ? 0.0F : AMENITIES_CHEST_NUDGE);
                matrices.translate(0.0F, AMENITIES_BACK_UP, out);
             } else {
                matrices.translate(0.0F, BACK_ITEM_UP, BACK_ITEM_OUT);
@@ -159,11 +159,11 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
 
    private static void hand(PoseStack matrices, StatueEntityModel model, StatueEntityRenderer.State state, HumanoidArm arm) {
       //? if >=1.21.9 {
-      model.translateToHand(state, arm, matrices);
-      //?} else
-      //model.translateToHand(arm, matrices);
-      matrices.rotate(Axis.XP.rotationDegrees(-90.0F));
-      matrices.rotate(Axis.YP.rotationDegrees(180.0F));
+      /*model.translateToHand(state, arm, matrices);
+      *///?} else
+      model.translateToHand(arm, matrices);
+      matrices.mulPose(Axis.XP.rotationDegrees(-90.0F));
+      matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
       matrices.translate(arm == HumanoidArm.LEFT ? -HAND_SIDE : HAND_SIDE, HAND_UP, HAND_FORWARD);
    }
 
@@ -176,10 +176,10 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       boolean additive) {
 
       //? if >=1.21.2 {
-      Identifier texture = this.renderer.getTextureLocation(state);
-      //?} else
-      //Identifier texture = this.renderer.getTextureLocation(state.statue);
-      RenderType type = additive ? RenderTypes.eyes(texture) : RenderTypes.entityTranslucentEmissive(texture);
+      /*ResourceLocation texture = this.renderer.getTextureLocation(state);
+      *///?} else
+      ResourceLocation texture = this.renderer.getTextureLocation(state.statue);
+      RenderType type = additive ? RenderType.eyes(texture) : RenderType.entityTranslucentEmissive(texture);
 
       ModelPart limb = this.limbFor(part);
       if (limb != null) {
@@ -195,7 +195,7 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
    }
 
    private static void submit(ModelPart part, PoseStack matrices, RenderSink sink, RenderType type, int colour) {
-      sink.part(part, matrices, type, LightCoordsUtil.FULL_BRIGHT, colour);
+      sink.part(part, matrices, type, LightTexture.FULL_BRIGHT, colour);
    }
 
    private static ModelPart bakeItemMarker() {

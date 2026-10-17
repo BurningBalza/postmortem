@@ -1,7 +1,7 @@
 package dev.burning.postmortem.client;
 
 //? if >=1.21.2 {
-import com.mojang.authlib.GameProfile;
+/*import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.compat.BackslotCompat;
@@ -15,26 +15,26 @@ import java.util.UUID;
 import dev.burning.postmortem.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
 //? if >=1.21.9 {
-import net.minecraft.client.renderer.SubmitNodeCollector;
-//?} else
-//import net.minecraft.client.renderer.MultiBufferSource;
+/^import net.minecraft.client.renderer.SubmitNodeCollector;
+^///?} else
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-/**
+/^*
  * Drives other mods' player back-item renderers on a statue. Those renderers expect a player, so each bridge poses a
  * shared stand-in player and player model to match the statue, then hands them over.
- */
+ ^/
 public abstract class CompatRenderers {
    private static final GameProfile STAND_IN_PROFILE = new GameProfile(new UUID(0L, 0L), "PostmortemStatue");
 
@@ -42,22 +42,22 @@ public abstract class CompatRenderers {
 
    // Other mods' layers draw through RenderLayer's own method: submit from 1.21.9, render before it.
    //? if >=1.21.9 {
-   private static final String SUBMIT = "submit";
+   /^private static final String SUBMIT = "submit";
    private static final Class<?>[] SUBMIT_SIGNATURE = {
-      PoseStack.class, SubmitNodeCollector.class, int.class, AvatarRenderState.class, float.class, float.class
+      PoseStack.class, SubmitNodeCollector.class, int.class, PlayerRenderState.class, float.class, float.class
    };
-   //?} else {
-   /*private static final String SUBMIT = "render";
+   ^///?} else {
+   private static final String SUBMIT = "render";
    private static final Class<?>[] SUBMIT_SIGNATURE = {
-      PoseStack.class, MultiBufferSource.class, int.class, AvatarRenderState.class, float.class, float.class
+      PoseStack.class, MultiBufferSource.class, int.class, PlayerRenderState.class, float.class, float.class
    };
-   *///?}
+   //?}
 
    private static RemotePlayer standIn;
 
    protected final PlayerModel model;
 
-   protected final AvatarRenderState state = new AvatarRenderState();
+   protected final PlayerRenderState state = new PlayerRenderState();
 
    protected CompatRenderers(PlayerModel model) {
       this.model = model;
@@ -67,11 +67,11 @@ public abstract class CompatRenderers {
       return new PlayerModel(factory.bakeLayer(ModelLayers.PLAYER), false);
    }
 
-   protected static RenderLayerParent<AvatarRenderState, PlayerModel> parentOf(PlayerModel model) {
+   protected static RenderLayerParent<PlayerRenderState, PlayerModel> parentOf(PlayerModel model) {
       return () -> model;
    }
 
-   /** Returns the stand-in player dressed in the statue's chest and legs, or null outside a world. */
+   /^* Returns the stand-in player dressed in the statue's chest and legs, or null outside a world. ^/
    protected static Player dressStandIn(StatueEntity statue) {
       ClientLevel world = Minecraft.getInstance().level;
       if (world == null) {
@@ -88,7 +88,7 @@ public abstract class CompatRenderers {
       return standIn;
    }
 
-   /** Copies the statue's pose and worn armour onto the stand-in model and render state. */
+   /^* Copies the statue's pose and worn armour onto the stand-in model and render state. ^/
    protected void match(StatueEntityModel from, StatueEntityRenderer.State source) {
       this.model.head.loadPose(from.head.storePose());
       this.model.hat.loadPose(from.hat.storePose());
@@ -98,10 +98,10 @@ public abstract class CompatRenderers {
       this.model.rightLeg.loadPose(from.rightLeg.storePose());
       this.model.leftLeg.loadPose(from.leftLeg.storePose());
 
-      this.state.headEquipment = source.headEquipment;
-      this.state.chestEquipment = source.chestEquipment;
-      this.state.legsEquipment = source.legsEquipment;
-      this.state.feetEquipment = source.feetEquipment;
+      this.state.headItem = source.headItem;
+      this.state.chestItem = source.chestItem;
+      this.state.legsItem = source.legsItem;
+      this.state.feetItem = source.feetItem;
       this.state.mainArm = source.mainArm;
       this.state.skin = DefaultPlayerSkin.getDefaultSkin();
       this.state.showCape = false;
@@ -111,7 +111,7 @@ public abstract class CompatRenderers {
       PoseStack matrices, RenderSink sink, int light,
       StatueEntityRenderer.State source, StatueEntityModel sourceModel, StatueEntity statue);
 
-   /** Backslot Mod's back-item renderer. */
+   /^* Backslot Mod's back-item renderer. ^/
    public static final class Backslot extends CompatRenderers {
       private static final String MOD_ID = "backslot";
       private static final String RENDERER = "net.medecoole.backslot.registry.BackslotFeatureRenderer";
@@ -216,7 +216,7 @@ public abstract class CompatRenderers {
       }
    }
 
-   /** Combat Amenities' back and belt renderers. */
+   /^* Combat Amenities' back and belt renderers. ^/
    public static final class Amenities extends CompatRenderers {
       private static final String MOD_ID = "combatamenities";
       private static final String BACK = "net.hollowed.combatamenities.renderer.BackSlotFeatureRenderer";
@@ -248,11 +248,11 @@ public abstract class CompatRenderers {
 
          try {
             PlayerModel model = bakeModel(factory);
-            RenderLayerParent<AvatarRenderState, PlayerModel> parent = parentOf(model);
+            RenderLayerParent<PlayerRenderState, PlayerModel> parent = parentOf(model);
             //? if >=26.3 {
-            Object heldItemRenderer = null;
-            //?} else
-            //Object heldItemRenderer = Minecraft.getInstance().gameRenderer.itemInHandRenderer;
+            /^Object heldItemRenderer = null;
+            ^///?} else
+            Object heldItemRenderer = Minecraft.getInstance().gameRenderer.itemInHandRenderer;
 
             return new Amenities(
                backConstructor.newInstance(parent, heldItemRenderer),
@@ -343,8 +343,8 @@ public abstract class CompatRenderers {
       }
    }
 }
-//?} else {
-/*import com.mojang.blaze3d.vertex.PoseStack;
+*///?} else {
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.burning.postmortem.entity.StatueEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
@@ -381,4 +381,4 @@ public abstract class CompatRenderers {
       }
    }
 }
-*///?}
+//?}
