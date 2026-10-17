@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 //? if >=1.21.9
 //import net.minecraft.client.input.MouseButtonEvent;
+//? if >=1.21.2
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -296,6 +297,7 @@ public class StatuePoseScreen extends Screen {
    }
 
    private void drawPreview(GuiGraphics context, float centreX) {
+      //? if >=1.21.2 {
       EntityRenderState raw = Minecraft.getInstance()
          .getEntityRenderDispatcher()
          .getRenderer(this.statue)
@@ -303,13 +305,21 @@ public class StatuePoseScreen extends Screen {
       if (!(raw instanceof StatueEntityRenderer.State state)) {
          return;
       }
+      //?} else {
+      /*Object renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(this.statue);
+      if (!(renderer instanceof StatueEntityRenderer<?> statueRenderer)) {
+         return;
+      }
+      StatueEntityRenderer.State state = statueRenderer.createRenderState(this.statue, 1.0F);
+      *///?}
 
       //? if >=1.21.9 {
       /*state.lightCoords = LightTexture.FULL_BRIGHT;
       state.shadowPieces.clear();
       state.outlineColor = 0;
-      *///?} else
+      *///?} elif >=1.21.2 {
       state.nameTag = null;
+      //?}
       state.bodyRot = this.previewYaw;
       state.yRot = 0.0F;
       state.xRot = 0.0F;
@@ -353,8 +363,13 @@ public class StatuePoseScreen extends Screen {
       var dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
       dispatcher.overrideCameraOrientation(cameraAngle.conjugate(new Quaternionf()).rotateY((float) Math.PI));
       dispatcher.setRenderShadow(false);
-      var renderer = (StatueEntityRenderer<?>) dispatcher.getRenderer(this.statue);
+      var renderer = (StatueEntityRenderer<?>) (Object) dispatcher.getRenderer(this.statue);
+      //? if >=1.21.2 {
       context.drawSpecial(buffers -> renderer.render(state, context.pose(), buffers, LightTexture.FULL_BRIGHT));
+      //?} else {
+      /*com.mojang.blaze3d.systems.RenderSystem.runAsFancy(() -> renderer.renderPreview(
+         state, context.pose(), context.bufferSource(), LightTexture.FULL_BRIGHT));
+      *///?}
       context.flush();
       dispatcher.setRenderShadow(true);
 

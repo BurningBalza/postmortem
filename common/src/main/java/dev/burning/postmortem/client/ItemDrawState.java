@@ -41,7 +41,10 @@ public final class ItemDrawState {
    public void update(ItemRenderer resolver, ItemStack stack, ItemDisplayContext context, LivingEntity entity) {
       this.stack = stack.copy();
       this.context = context;
+      //? if >=1.21.2 {
       this.model = resolver.resolveItemModel(stack, entity, context);
+      //?} else
+      //this.model = resolver.getModel(stack, entity.level(), entity, entity.getId() + context.ordinal());
    }
 
    public boolean isEmpty() {
