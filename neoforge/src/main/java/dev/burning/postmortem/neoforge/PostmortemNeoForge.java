@@ -3,6 +3,7 @@ package dev.burning.postmortem.neoforge;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemCommand;
 import dev.burning.postmortem.PostmortemRegistry;
+import dev.burning.postmortem.client.PostmortemClient;
 import dev.burning.postmortem.death.DeathCapture;
 import dev.burning.postmortem.entity.StatueEntity;
 import dev.burning.postmortem.platform.Platform;
@@ -49,9 +50,18 @@ public final class PostmortemNeoForge {
    }
 
    private static void registerPayloads(RegisterPayloadHandlersEvent event) {
+      //? if >=1.21.11 {
       // The client handler for OpenPoseScreen is attached in PostmortemNeoForgeClient.
       event.registrar("1")
          .playToClient(PostmortemRegistry.OpenPoseScreen.ID, PostmortemRegistry.OpenPoseScreen.CODEC)
+      //?} else {
+      /*// Only the client receives this, so the handler's client classes never load on a dedicated server.
+      event.registrar("1")
+         .playToClient(
+            PostmortemRegistry.OpenPoseScreen.ID,
+            PostmortemRegistry.OpenPoseScreen.CODEC,
+            (payload, context) -> PostmortemClient.openPoseScreen(net.minecraft.client.Minecraft.getInstance(), payload.entityId()))
+      *///?}
          .playToServer(
             PostmortemRegistry.SetPose.ID,
             PostmortemRegistry.SetPose.CODEC,
