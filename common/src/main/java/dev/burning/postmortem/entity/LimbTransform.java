@@ -5,8 +5,13 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
+//? if >=1.20.5 {
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+//?} else {
+/*import dev.burning.postmortem.legacy.ByteBufCodecs;
+import dev.burning.postmortem.legacy.StreamCodec;
+*///?}
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
