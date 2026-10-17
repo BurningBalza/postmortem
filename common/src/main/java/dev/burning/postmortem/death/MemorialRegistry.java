@@ -60,9 +60,12 @@ public final class MemorialRegistry extends SavedData {
       new SavedDataType<>("postmortem_memorials", MemorialRegistry::new, CODEC, null);
    *///?} else {
    private static final String FILE = "postmortem_memorials";
+   //? if >=1.20.2 {
    private static final SavedData.Factory<MemorialRegistry> TYPE =
       new SavedData.Factory<>(MemorialRegistry::new, MemorialRegistry::load, null);
+   //?}
 
+   //? if >=1.20.5 {
    private static MemorialRegistry load(CompoundTag tag, HolderLookup.Provider registries) {
       return CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, registries), tag).result().orElseGet(MemorialRegistry::new);
    }
@@ -73,6 +76,17 @@ public final class MemorialRegistry extends SavedData {
          .ifPresent(encoded -> tag.merge((CompoundTag) encoded));
       return tag;
    }
+   //?} else {
+   /*private static MemorialRegistry load(CompoundTag tag) {
+      return CODEC.parse(NbtOps.INSTANCE, tag).result().orElseGet(MemorialRegistry::new);
+   }
+
+   @Override
+   public CompoundTag save(CompoundTag tag) {
+      CODEC.encodeStart(NbtOps.INSTANCE, this).result().ifPresent(encoded -> tag.merge((CompoundTag) encoded));
+      return tag;
+   }
+   *///?}
    //?}
 
    private final Map<UUID, Entry> entries;
@@ -90,8 +104,10 @@ public final class MemorialRegistry extends SavedData {
       /*return server.getDataStorage().computeIfAbsent(TYPE);
       *///?} elif >=1.21.5 {
       /*return server.overworld().getDataStorage().computeIfAbsent(TYPE);
-      *///?} else
+      *///?} elif >=1.20.2 {
       return server.overworld().getDataStorage().computeIfAbsent(TYPE, FILE);
+      //?} else
+      //return server.overworld().getDataStorage().computeIfAbsent(MemorialRegistry::load, MemorialRegistry::new, FILE);
    }
 
    public Entry get(UUID statue) {
