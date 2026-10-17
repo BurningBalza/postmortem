@@ -15,7 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 //? if >=1.21.5
-import net.minecraft.world.item.component.TooltipDisplay;
+//import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 
 public class StatueCollectorItem extends Item {
@@ -26,12 +26,12 @@ public class StatueCollectorItem extends Item {
    @Override
    @SuppressWarnings("deprecation")
    //? if >=1.21.5 {
-   public void appendHoverText(
+   /*public void appendHoverText(
       ItemStack stack, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> consumer, TooltipFlag type) {
-   //?} else {
-   /*public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<Component> tooltip, TooltipFlag type) {
+   *///?} else {
+   public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<Component> tooltip, TooltipFlag type) {
       Consumer<Component> consumer = tooltip::add;
-   *///?}
+   //?}
       consumer.accept(
          Component.translatable("item.postmortem.statue_collector.tooltip", (int) PostmortemConfig.get().collectRadius()).withStyle(ChatFormatting.GRAY));
    }
