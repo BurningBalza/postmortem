@@ -3,6 +3,7 @@ package dev.burning.postmortem.death;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -24,12 +25,12 @@ public final class SafePlacement {
       //int bottom = world.getMinBuildHeight();
       int minY = bottom + 1;
       int maxY = bottom + world.getHeight() - 2;
-      BlockPos start = new BlockPos(deathPos.getX(), Math.clamp(deathPos.getY(), minY, maxY), deathPos.getZ());
+      BlockPos start = new BlockPos(deathPos.getX(), Mth.clamp(deathPos.getY(), minY, maxY), deathPos.getZ());
 
       WorldBorder border = world.getWorldBorder();
       if (!border.isWithinBounds(start)) {
          start = border.clampToBounds(start.getX() + 0.5, start.getY(), start.getZ() + 0.5);
-         start = new BlockPos(start.getX(), Math.clamp(start.getY(), minY, maxY), start.getZ());
+         start = new BlockPos(start.getX(), Mth.clamp(start.getY(), minY, maxY), start.getZ());
          log("clamped inside world border", start);
       }
 
@@ -164,7 +165,10 @@ public final class SafePlacement {
    }
 
    private static boolean fits(Level world, Entity statue, BlockPos pos) {
+      //? if >=1.20.5 {
       AABB box = statue.getType().getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+      //?} else
+      //AABB box = statue.getType().getAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
       return world.getWorldBorder().isWithinBounds(box) && world.noCollision(statue, box);
    }
 

@@ -19,7 +19,13 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+//? if >=1.20.5 {
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+//?} else {
+/*import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+*///?}
 
 @Mod(Postmortem.MOD_ID)
 public final class PostmortemNeoForge {
@@ -33,6 +39,13 @@ public final class PostmortemNeoForge {
 
       NeoForge.EVENT_BUS.addListener(PostmortemNeoForge::carryKeptItems);
       NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> PostmortemCommand.register(event.getDispatcher()));
+
+      //? if <1.20.5 {
+      /*// @Mod only takes a dist from 1.20.5, so the client half is started from here before that.
+      if (FMLEnvironment.dist == Dist.CLIENT) {
+         new PostmortemNeoForgeClient(modBus);
+      }
+      *///?}
    }
 
    private static void registerAttributes(EntityAttributeCreationEvent event) {
@@ -55,6 +68,7 @@ public final class PostmortemNeoForge {
       }
    }
 
+   //? if >=1.20.5 {
    private static void registerPayloads(RegisterPayloadHandlersEvent event) {
       //? if >=1.21.11 {
       /*// The client handler for OpenPoseScreen is attached in PostmortemNeoForgeClient.
@@ -73,6 +87,18 @@ public final class PostmortemNeoForge {
             PostmortemRegistry.SetPose.CODEC,
             (payload, context) -> PostmortemRegistry.applyPose((ServerPlayer) context.player(), payload));
    }
+   //?} else {
+   /*// Handlers run on the network thread here, so each hands its work to the game thread.
+   private static void registerPayloads(RegisterPayloadHandlerEvent event) {
+      event.registrar(Postmortem.MOD_ID).versioned("1")
+         .play(PostmortemRegistry.OpenPoseScreen.ID, buf -> PostmortemRegistry.OpenPoseScreen.CODEC.decode(buf), handler -> handler
+            .client((payload, context) -> context.workHandler().execute(
+               () -> PostmortemClient.openPoseScreen(net.minecraft.client.Minecraft.getInstance(), payload.entityId()))))
+         .play(PostmortemRegistry.SetPose.ID, buf -> PostmortemRegistry.SetPose.CODEC.decode(buf), handler -> handler
+            .server((payload, context) -> context.workHandler().execute(() -> context.player().ifPresent(
+               player -> PostmortemRegistry.applyPose((ServerPlayer) player, payload)))));
+   }
+   *///?}
 
    private static void carryKeptItems(PlayerEvent.Clone event) {
       if (event.getOriginal() instanceof ServerPlayer oldPlayer && event.getEntity() instanceof ServerPlayer newPlayer) {

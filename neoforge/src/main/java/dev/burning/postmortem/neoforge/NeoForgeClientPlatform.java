@@ -12,7 +12,9 @@ public final class NeoForgeClientPlatform implements ClientPlatform {
    public void sendToServer(CustomPacketPayload payload) {
       //? if >=1.21.6 {
       /*ClientPacketDistributor.sendToServer(payload);
-      *///?} else
+      *///?} elif >=1.20.5 {
       PacketDistributor.sendToServer(payload);
+      //?} else
+      //PacketDistributor.SERVER.noArg().send(payload);
    }
 }
