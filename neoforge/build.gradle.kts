@@ -63,6 +63,7 @@ tasks {
         if (sc.current.parsed < "1.21.2") legacyRecipeIngredients()
         // Data-pack folders went singular in 1.21.
         if (sc.current.parsed < "1.21") pluralDataFolders()
+        if (sc.current.parsed < "1.20.5") legacyRecipeResults()
         filesMatching("*.mixins.json") { expand(props) }
     }
 
