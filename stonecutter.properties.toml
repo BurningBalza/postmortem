@@ -59,3 +59,16 @@ deps.fabric_api = "0.159.0+26.2"
 [neoforge."26.2"]
 mod.mc_compat = "[26.2, 26.3)"
 deps.neoforge = "26.2.0.93"
+
+["26.3"]
+mod.mc_releases = ["26.3"]
+
+[fabric."26.3"]
+# Lowest loader the mod accepts: the same floor as this version's Fabric API.
+mod.fabric_loader_min = "0.19.3"
+mod.mc_compat = "~26.3"
+deps.fabric_api = "0.163.0+26.3"
+
+[neoforge."26.3"]
+mod.mc_compat = "[26.3, 26.4)"
+deps.neoforge = "26.3.0.86"

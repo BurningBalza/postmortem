@@ -20,7 +20,7 @@ stonecutter {
         // common/ holds the shared code and only version-processes it; each loader branch compiles common's
         // sources for its Minecraft version alongside its own. Nodes are named after the Minecraft line and
         // compile against the exact release given as the second value.
-        val versions = listOf("1.21.4" to "1.21.4", "1.21.11" to "1.21.11", "26.1" to "26.1.2", "26.2" to "26.2")
+        val versions = listOf("1.21.4" to "1.21.4", "1.21.11" to "1.21.11", "26.1" to "26.1.2", "26.2" to "26.2", "26.3" to "26.3")
 
         for (loader in listOf("common", "fabric", "neoforge")) branch(loader) {
             for ((name, release) in versions) version(name, release)

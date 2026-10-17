@@ -248,6 +248,9 @@ public abstract class CompatRenderers {
          try {
             PlayerModel model = bakeModel(factory);
             RenderLayerParent<AvatarRenderState, PlayerModel> parent = parentOf(model);
+            //? if >=26.3 {
+            /*Object heldItemRenderer = null;
+            *///?} else
             Object heldItemRenderer = Minecraft.getInstance().gameRenderer.itemInHandRenderer;
 
             return new Amenities(

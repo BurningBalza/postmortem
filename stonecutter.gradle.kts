@@ -16,6 +16,9 @@ stonecutter parameters {
     // older one. Stonecutter runs them in reverse on the versions outside the range, so the older text must never
     // appear in the 26.2 sources (which rules out names like GameProfile).
     replacements {
+        string(current.parsed >= "26.3") {
+            replace(".mulPose(", ".rotate(")
+        }
         string(current.parsed < "26.1") {
             replace("net.minecraft.util.LightCoordsUtil", "net.minecraft.client.renderer.LightTexture")
             replace("LightCoordsUtil", "LightTexture")
