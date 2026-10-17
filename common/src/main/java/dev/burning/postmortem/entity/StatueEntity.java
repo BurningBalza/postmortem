@@ -463,7 +463,10 @@ public abstract class StatueEntity extends LivingEntity {
    }
 
    @Override
+   //? if >=1.20.3 {
    public boolean ignoreExplosion(Explosion explosion) {
+   //?} else
+   //public boolean ignoreExplosion() {
       return true;
    }
 
