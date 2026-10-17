@@ -104,9 +104,9 @@ public final class StatuePartPicker {
    private void put(StatuePart part, ModelPart modelPart, PoseStack matrices) {
       Bounds bounds = new Bounds();
       //? if >=1.21.9 {
-      modelPart.getExtentsForGui(matrices, bounds);
-      //?} else {
-      /*// What getExtentsForGui does from 1.21.9; vertex positions are still in pixels here.
+      /*modelPart.getExtentsForGui(matrices, bounds);
+      *///?} else {
+      // What getExtentsForGui does from 1.21.9; vertex positions are still in pixels here.
       modelPart.visit(matrices, (pose, path, index, cube) -> {
          for (ModelPart.Polygon polygon : cube.polygons) {
             for (ModelPart.Vertex vertex : polygon.vertices()) {
@@ -115,7 +115,7 @@ public final class StatuePartPicker {
             }
          }
       });
-      *///?}
+      //?}
       bounds.storeInto(part, this.boxes);
    }
 

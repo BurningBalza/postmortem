@@ -15,9 +15,9 @@ import org.joml.Vector3fc;
 
 public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State> {
    //? if <1.21.9 {
-   /*// translateToHand gets no render state here, so keep the one setupAnim last posed.
+   // translateToHand gets no render state here, so keep the one setupAnim last posed.
    private StatueEntityRenderer.State current;
-   *///?}
+   //?}
 
    public StatueEntityModel(ModelPart root) {
       super(root);
@@ -27,7 +27,7 @@ public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State>
    public void setupAnim(StatueEntityRenderer.State state) {
       super.setupAnim(state);
       //? if <1.21.9
-      //this.current = state;
+      this.current = state;
 
       StatuePose pose = state.limbPose;
       if (pose.isDefault()) {
@@ -44,13 +44,13 @@ public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State>
 
    @Override
    //? if >=1.21.9 {
-   public void translateToHand(HumanoidRenderState state, HumanoidArm arm, PoseStack matrices) {
+   /*public void translateToHand(HumanoidRenderState state, HumanoidArm arm, PoseStack matrices) {
       super.translateToHand(state, arm, matrices);
-   //?} else {
-   /*public void translateToHand(HumanoidArm arm, PoseStack matrices) {
+   *///?} else {
+   public void translateToHand(HumanoidArm arm, PoseStack matrices) {
       super.translateToHand(arm, matrices);
       StatueEntityRenderer.State state = this.current;
-   *///?}
+   //?}
 
       if (state instanceof StatueEntityRenderer.State statueState) {
          applyToMatrix(

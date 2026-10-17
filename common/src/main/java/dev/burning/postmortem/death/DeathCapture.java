@@ -22,7 +22,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
 
 public final class DeathCapture {
@@ -39,9 +39,9 @@ public final class DeathCapture {
       if (alive
          || oldPlayer.isSpectator()
          //? if >=1.21.9 {
-         || newPlayer.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
-         //?} else
-         //|| newPlayer.serverLevel().getGameRules().get(GameRules.KEEP_INVENTORY)) {
+         /*|| newPlayer.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+         *///?} else
+         || newPlayer.serverLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
          return;
       }
 
@@ -81,9 +81,9 @@ public final class DeathCapture {
 
       Inventory inventory = player.getInventory();
       //? if >=1.21.5 {
-      int selected = inventory.getSelectedSlot();
-      //?} else
-      //int selected = inventory.selected;
+      /*int selected = inventory.getSelectedSlot();
+      *///?} else
+      int selected = inventory.selected;
       List<Integer> taken = new ArrayList<>();
       boolean keepingAnything = false;
       for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
@@ -157,9 +157,9 @@ public final class DeathCapture {
 
       BlockPos pos = SafePlacement.findFor(world, statue, player.blockPosition());
       //? if >=1.21.5 {
-      statue.snapTo(Vec3.atBottomCenterOf(pos), pose.bodyYaw(), pose.pitch());
-      //?} else
-      //statue.moveTo(Vec3.atBottomCenterOf(pos), pose.bodyYaw(), pose.pitch());
+      /*statue.snapTo(Vec3.atBottomCenterOf(pos), pose.bodyYaw(), pose.pitch());
+      *///?} else
+      statue.moveTo(Vec3.atBottomCenterOf(pos), pose.bodyYaw(), pose.pitch());
       statue.applyPose(pose);
       PehkuiCompat.copyScales(player, statue);
       // Registered before spawning so the items are safe even if the entity never makes it into the world.
@@ -186,9 +186,9 @@ public final class DeathCapture {
       }
 
       //? if >=1.21.5 {
-      return Inventory.EQUIPMENT_SLOT_MAPPING.get(slot);
-      //?} else {
-      /*return switch (slot) {
+      /*return Inventory.EQUIPMENT_SLOT_MAPPING.get(slot);
+      *///?} else {
+      return switch (slot) {
          case 36 -> EquipmentSlot.FEET;
          case 37 -> EquipmentSlot.LEGS;
          case 38 -> EquipmentSlot.CHEST;
@@ -196,6 +196,6 @@ public final class DeathCapture {
          case Inventory.SLOT_OFFHAND -> EquipmentSlot.OFFHAND;
          default -> null;
       };
-      *///?}
+      //?}
    }
 }

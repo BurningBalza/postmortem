@@ -8,7 +8,7 @@ import dev.burning.postmortem.entity.StatueVariant;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 //? if >=1.21.9
-import net.minecraft.client.renderer.entity.ArmorModelSet;
+//import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -19,10 +19,10 @@ import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.RenderType;
 //? if >=1.21.11
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.resources.Identifier;
+//import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
@@ -34,18 +34,18 @@ import net.minecraft.world.item.Items;
 public class StatueEntityRenderer<T extends StatueEntity>
    extends LivingEntityRenderer<T, StatueEntityRenderer.State, StatueEntityModel> {
 
-   public static final Identifier MEMORIAL_TEXTURE =
-      Identifier.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue.png");
-   public static final Identifier COSMETIC_TEXTURE =
-      Identifier.fromNamespaceAndPath("postmortem", "textures/entity/statue.png");
-   public static final Identifier MEMORIAL_EYES_TEXTURE =
-      Identifier.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue_eyes.png");
+   public static final ResourceLocation MEMORIAL_TEXTURE =
+      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue.png");
+   public static final ResourceLocation COSMETIC_TEXTURE =
+      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/statue.png");
+   public static final ResourceLocation MEMORIAL_EYES_TEXTURE =
+      ResourceLocation.fromNamespaceAndPath("postmortem", "textures/entity/memorial_statue_eyes.png");
 
    private static final float PLAYER_SCALE = 0.9375F;
 
    private final ItemModelResolver itemModelManager;
 
-   private final Identifier texture;
+   private final ResourceLocation texture;
 
    public static class State extends HumanoidRenderState {
       public StatueEntity statue;
@@ -59,26 +59,26 @@ public class StatueEntityRenderer<T extends StatueEntity>
       public StatueVariant variant = StatueVariant.DEFAULT;
    }
 
-   public StatueEntityRenderer(EntityRendererProvider.Context context, Identifier texture) {
+   public StatueEntityRenderer(EntityRendererProvider.Context context, ResourceLocation texture) {
       super(context, new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM)), 0.0F);
       this.itemModelManager = context.getItemModelResolver();
       this.texture = texture;
       //? if >=1.21.9 {
-      this.addLayer(new HumanoidArmorLayer<>(
+      /*this.addLayer(new HumanoidArmorLayer<>(
          this,
          ArmorModelSet.bake(
             ModelLayers.PLAYER_SLIM_ARMOR, context.getModelSet(), StatueEntityModel::new),
          context.getEquipmentRenderer()));
       this.addLayer(new CustomHeadLayer<>(
          this, context.getModelSet(), context.getPlayerSkinRenderCache()));
-      //?} else {
-      /*this.addLayer(new HumanoidArmorLayer<>(
+      *///?} else {
+      this.addLayer(new HumanoidArmorLayer<>(
          this,
          new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_INNER_ARMOR)),
          new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM_OUTER_ARMOR)),
          context.getEquipmentRenderer()));
       this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
-      *///?}
+      //?}
       this.addLayer(new ItemInHandLayer<>(this));
       this.addLayer(new StatueBackItemLayer(this, context));
       this.addLayer(new StatueHighlightLayer(this));
@@ -86,9 +86,9 @@ public class StatueEntityRenderer<T extends StatueEntity>
 
    /** A renderer whose statue also has glowing eyes. */
    public StatueEntityRenderer(
-      EntityRendererProvider.Context context, Identifier texture, Identifier eyesTexture) {
+      EntityRendererProvider.Context context, ResourceLocation texture, ResourceLocation eyesTexture) {
       this(context, texture);
-      RenderType eyes = RenderTypes.eyes(eyesTexture);
+      RenderType eyes = RenderType.eyes(eyesTexture);
       this.addLayer(new EyesLayer<>(this) {
          @Override
          public RenderType renderType() {
@@ -137,12 +137,12 @@ public class StatueEntityRenderer<T extends StatueEntity>
       } else {
          state.backslotFit = StatueBackItemLayer.Fit.forItem(backslot);
          //? if >=1.21.9 {
-         this.itemModelManager.updateForLiving(
-            state.backslotItemState, backslot, state.backslotFit.displayContext(), entity);
-         //?} else {
          /*this.itemModelManager.updateForLiving(
+            state.backslotItemState, backslot, state.backslotFit.displayContext(), entity);
+         *///?} else {
+         this.itemModelManager.updateForLiving(
             state.backslotItemState, backslot, state.backslotFit.displayContext(), false, entity);
-         *///?}
+         //?}
       }
    }
 
@@ -170,10 +170,10 @@ public class StatueEntityRenderer<T extends StatueEntity>
       }
 
       //? if >=1.21.11 {
-      if (stack.is(ItemTags.SPEARS)) {
+      /*if (stack.is(ItemTags.SPEARS)) {
          return HumanoidModel.ArmPose.SPEAR;
       }
-      //?}
+      *///?}
 
       return HumanoidModel.ArmPose.ITEM;
    }
@@ -190,8 +190,8 @@ public class StatueEntityRenderer<T extends StatueEntity>
    }
 
    @Override
-   public Identifier getTextureLocation(State state) {
-      Identifier carved = state.variant.texture();
+   public ResourceLocation getTextureLocation(State state) {
+      ResourceLocation carved = state.variant.texture();
       return carved != null ? carved : this.texture;
    }
 }
