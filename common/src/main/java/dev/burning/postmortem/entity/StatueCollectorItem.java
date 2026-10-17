@@ -28,8 +28,11 @@ public class StatueCollectorItem extends Item {
    //? if >=1.21.5 {
    public void appendHoverText(
       ItemStack stack, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> consumer, TooltipFlag type) {
-   //?} else {
+   //?} elif >=1.20.5 {
    /*public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<Component> tooltip, TooltipFlag type) {
+      Consumer<Component> consumer = tooltip::add;
+   *///?} else {
+   /*public void appendHoverText(ItemStack stack, Level world, java.util.List<Component> tooltip, TooltipFlag type) {
       Consumer<Component> consumer = tooltip::add;
    *///?}
       consumer.accept(

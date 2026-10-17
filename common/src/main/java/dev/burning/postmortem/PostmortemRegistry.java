@@ -1,5 +1,6 @@
 package dev.burning.postmortem;
 
+import dev.burning.postmortem.compat.BackSlots;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
 import dev.burning.postmortem.entity.CosmeticStatueItem;
 import dev.burning.postmortem.entity.MemorialStatueEntity;
@@ -11,10 +12,20 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
+//? if >=1.20.5 {
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+//?} else {
+/*import dev.burning.postmortem.legacy.ByteBufCodecs;
+import dev.burning.postmortem.legacy.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.Identifier;
+*///?}
+//? if >=1.20.2 {
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//?} else
+//import dev.burning.postmortem.legacy.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -48,32 +59,62 @@ public final class PostmortemRegistry {
    }
 
    public record OpenPoseScreen(int entityId) implements CustomPacketPayload {
+      //? if >=1.20.5 {
       public static final CustomPacketPayload.Type<OpenPoseScreen> ID =
          new CustomPacketPayload.Type<>(Postmortem.id("open_pose_screen"));
+      //?} else
+      //public static final Identifier ID = Postmortem.id("open_pose_screen");
 
-      public static final StreamCodec<RegistryFriendlyByteBuf, OpenPoseScreen> CODEC = StreamCodec.composite(
+      public static final StreamCodec<ByteBuf, OpenPoseScreen> CODEC = StreamCodec.composite(
          ByteBufCodecs.VAR_INT, OpenPoseScreen::entityId,
          OpenPoseScreen::new);
 
+      //? if >=1.20.5 {
       @Override
       public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
          return ID;
       }
+      //?} else {
+      /*@Override
+      public Identifier id() {
+         return ID;
+      }
+
+      @Override
+      public void write(FriendlyByteBuf buf) {
+         CODEC.encode(buf, this);
+      }
+      *///?}
    }
 
    public record SetPose(int entityId, StatuePose pose) implements CustomPacketPayload {
+      //? if >=1.20.5 {
       public static final CustomPacketPayload.Type<SetPose> ID =
          new CustomPacketPayload.Type<>(Postmortem.id("set_pose"));
+      //?} else
+      //public static final Identifier ID = Postmortem.id("set_pose");
 
-      public static final StreamCodec<RegistryFriendlyByteBuf, SetPose> CODEC = StreamCodec.composite(
+      public static final StreamCodec<ByteBuf, SetPose> CODEC = StreamCodec.composite(
          ByteBufCodecs.VAR_INT, SetPose::entityId,
          StatuePose.PACKET_CODEC, SetPose::pose,
          SetPose::new);
 
+      //? if >=1.20.5 {
       @Override
       public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
          return ID;
       }
+      //?} else {
+      /*@Override
+      public Identifier id() {
+         return ID;
+      }
+
+      @Override
+      public void write(FriendlyByteBuf buf) {
+         CODEC.encode(buf, this);
+      }
+      *///?}
    }
 
    /** Loading this class registers its entries; the entity data serializer has no field, so it goes here. */
@@ -89,7 +130,8 @@ public final class PostmortemRegistry {
          return;
       }
 
-      statue.setLimbPose(payload.pose().clamped());
+      // Back and belt items are only posable when a mod provides those slots.
+      statue.setLimbPose(payload.pose().clamped().retain(BackSlots::has));
 
       if (PostmortemConfig.get().debug()) {
          Postmortem.LOGGER.info("[postmortem] {} posed statue {}", player.getName().getString(), statue.getUUID());
@@ -100,6 +142,8 @@ public final class PostmortemRegistry {
       ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Postmortem.id(name));
       return Platform.INSTANCE.register(BuiltInRegistries.ENTITY_TYPE, name, () -> EntityType.Builder.of(factory, MobCategory.MISC)
          .sized(STATUE_WIDTH, STATUE_HEIGHT)
+         // Before 1.20.5 eye height is 85% of the height without being asked.
+         //? if >=1.20.5
          .eyeHeight(STATUE_HEIGHT * 0.85F)
          .fireImmune()
          .clientTrackingRange(10)
