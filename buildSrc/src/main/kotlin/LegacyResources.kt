@@ -28,3 +28,12 @@ fun CopySpec.pluralDataFolders() {
         path = SINGULAR_FOLDER.replace(path) { m -> "data/${m.groupValues[1]}/${m.groupValues[2]}s/" }
     }
 }
+
+private val RESULT_ID = Regex("""^(\s*)"id"(\s*:)""")
+
+/** A recipe result names its item with `"item"` before 1.20.5, not `"id"`; `"id"` only appears in results. */
+fun CopySpec.legacyRecipeResults() {
+    filesMatching("data/*/recipe/*.json") {
+        filter { line -> RESULT_ID.replace(line) { m -> "${m.groupValues[1]}\"item\"${m.groupValues[2]}" } }
+    }
+}

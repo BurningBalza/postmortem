@@ -117,6 +117,11 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    @Override
+   protected void releaseUnsupported(ServerLevel world, ItemStack stack) {
+      // A memorial only shows a copy; the real item is stored for return, or never left its owner.
+   }
+
+   @Override
    public void tick() {
       super.tick();
 
@@ -376,7 +381,7 @@ public class MemorialStatueEntity extends StatueEntity {
    //?} else {
    /*public void addAdditionalSaveData(CompoundTag tag) {
       super.addAdditionalSaveData(tag);
-      ValueOutput view = ValueOutput.of(tag, this.registryAccess());
+      ValueOutput view = ValueOutput.of(tag, this);
    *///?}
       if (!this.pending.isEmpty()) {
          view.store("Stored", StoredStack.CODEC.listOf(), this.pending);
@@ -394,7 +399,7 @@ public class MemorialStatueEntity extends StatueEntity {
    //?} else {
    /*public void readAdditionalSaveData(CompoundTag tag) {
       super.readAdditionalSaveData(tag);
-      ValueInput view = ValueInput.of(tag, this.registryAccess());
+      ValueInput view = ValueInput.of(tag, this);
    *///?}
       this.pending.clear();
       view.read("Stored", StoredStack.CODEC.listOf()).ifPresent(this.pending::addAll);
