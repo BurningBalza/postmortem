@@ -166,7 +166,7 @@ public final class DeathCapture {
       //? if >=1.21.5 {
       /*statue.snapTo(Vec3.atBottomCenterOf(pos), pose.bodyYaw(), pose.pitch());
       *///?} else
-      statue.moveTo(Vec3.atBottomCenterOf(pos), pose.bodyYaw(), pose.pitch());
+      statue.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, pose.bodyYaw(), pose.pitch());
       statue.applyPose(pose);
       PehkuiCompat.copyScales(player, statue);
       // Registered before spawning so the items are safe even if the entity never makes it into the world.
