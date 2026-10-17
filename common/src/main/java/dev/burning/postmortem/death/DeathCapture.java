@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+//? if >=1.21.2
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
@@ -74,7 +75,10 @@ public final class DeathCapture {
    }
 
    public static boolean capture(Player player, ServerLevel world) {
+      //? if >=1.21.2 {
       MemorialStatueEntity statue = PostmortemRegistry.MEMORIAL_STATUE.get().create(world, EntitySpawnReason.TRIGGERED);
+      //?} else
+      //MemorialStatueEntity statue = PostmortemRegistry.MEMORIAL_STATUE.get().create(world);
       if (statue == null) {
          Postmortem.LOGGER.error("[postmortem] could not create a memorial statue; falling back to vanilla drops");
          return false;
