@@ -13,8 +13,15 @@ base.archivesName = property("mod.id") as String
 // Forge is only built for 1.20.1, which NeoForge does not cover.
 val requiredJava = JavaVersion.VERSION_17
 
+// Curios' API for this node, if Curios has a build for it; common's curios bridge is only compiled in with it.
+val curios = findProperty("deps.curios") as String?
+
 // This branch's own src/ is the default source set; common/ is compiled in alongside it.
-addCommonSources(node, sc.current.isActive)
+addCommonSources(node, sc.current.isActive, listOfNotNull(curios?.let { "curios" }))
+
+repositories {
+    maven("https://maven.theillusivec4.top/") { name = "Curios" }
+}
 
 legacyForge {
     version = property("deps.forge") as String
@@ -44,6 +51,8 @@ mixin {
 }
 
 dependencies {
+    // Compile-only: Curios is optional, and the bridge is only reached once it is found at runtime.
+    if (curios != null) modCompileOnly("top.theillusivec4.curios:curios-forge:$curios:api")
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 }
 
@@ -64,6 +73,10 @@ tasks {
             "java" to requiredJava.majorVersion,
         )
         inputs.properties(props)
+        inputs.file(graveModList)
+
+        // The statue collector is only craftable while no grave mod handles deaths.
+        collectorRecipeConditions(this, "forge")
 
         filesMatching("META-INF/mods.toml") { expand(props) }
         legacyRecipeIngredients()
