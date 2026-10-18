@@ -3,6 +3,7 @@ package dev.burning.postmortem.neoforge;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemCommand;
 import dev.burning.postmortem.PostmortemRegistry;
+import dev.burning.postmortem.compat.GraveMods;
 import dev.burning.postmortem.client.PostmortemClient;
 import dev.burning.postmortem.death.DeathCapture;
 import dev.burning.postmortem.entity.StatueEntity;
@@ -60,7 +61,7 @@ public final class PostmortemNeoForge {
          /*event.insertAfter(new ItemStack(Items.ARMOR_STAND), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()), visibility);
          *///?} else
          event.getEntries().putAfter(new ItemStack(Items.ARMOR_STAND), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()), visibility);
-      } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+      } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES && !GraveMods.present()) {
          //? if >=1.21 {
          /*event.insertAfter(new ItemStack(Items.RECOVERY_COMPASS), new ItemStack(PostmortemRegistry.STATUE_COLLECTOR.get()), visibility);
          *///?} else
