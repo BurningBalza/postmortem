@@ -2,6 +2,7 @@ package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemConfig;
+import dev.burning.postmortem.compat.GraveMods;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
@@ -50,6 +51,11 @@ public class StatueCollectorItem extends Item {
    private InteractionResult useResult(Level world, Player player, InteractionHand hand) {
    //?}
       ItemStack stack = player.getItemInHand(hand);
+      // Memorials are off while a grave mod handles deaths, so there is nothing to recall.
+      if (GraveMods.present()) {
+         return InteractionResult.PASS;
+      }
+
       if (world.isClientSide()) {
          return InteractionResult.SUCCESS;
       }
