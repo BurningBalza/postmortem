@@ -16,8 +16,18 @@ val requiredJava = when {
     else -> JavaVersion.VERSION_17
 }
 
+// Curios' API for this node, if Curios has a build for it; common's curios bridge is only compiled in with it.
+val curios = findProperty("deps.curios") as String?
+// Likewise Accessories, with common's accessories bridge.
+val accessories = findProperty("deps.accessories") as String?
+
 // This branch's own src/ is the default source set; common/ is compiled in alongside it.
-addCommonSources(node, sc.current.isActive)
+addCommonSources(node, sc.current.isActive, listOfNotNull(curios?.let { "curios" }, accessories?.let { "accessories" }))
+
+repositories {
+    maven("https://maven.theillusivec4.top/") { name = "Curios" }
+    maven("https://maven.wispforest.io/releases/") { name = "Wisp Forest" }
+}
 
 neoForge {
     version = property("deps.neoforge") as String
@@ -40,6 +50,12 @@ neoForge {
     }
 }
 
+dependencies {
+    // Compile-only: Curios is optional, and the bridge is only reached once it is found at runtime.
+    if (curios != null) compileOnly("top.theillusivec4.curios:curios-neoforge:$curios:api")
+    if (accessories != null) compileOnly("io.wispforest:accessories-neoforge:$accessories") { isTransitive = false }
+}
+
 java {
     targetCompatibility = requiredJava
     sourceCompatibility = requiredJava
@@ -57,6 +73,10 @@ tasks {
             "java" to requiredJava.majorVersion,
         )
         inputs.properties(props)
+        inputs.file(graveModList)
+
+        // The statue collector is only craftable while no grave mod handles deaths.
+        collectorRecipeConditions(this, "neoforge")
 
         filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
         // Recipe ingredients became plain item ids in 1.21.2.
