@@ -78,6 +78,9 @@ public class StatueEntityRenderer<T extends StatueEntity>
    //?}
       public StatueEntity statue;
 
+      // Copies of what the statue wore in other mods' slots; see StatueWornLayer.
+      public java.util.List<dev.burning.postmortem.compat.WornItem> worn = java.util.List.of();
+
       public final ItemDrawState backslotItemState = new ItemDrawState();
 
       public StatueBackItemLayer.Fit backslotFit = StatueBackItemLayer.Fit.GENERIC;
@@ -130,6 +133,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
       //?}
       this.addLayer(new StatueBackItemLayer(this, context));
+      this.addLayer(new StatueWornLayer(this, context));
       this.addLayer(new StatueHighlightLayer(this));
    }
 
@@ -268,6 +272,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       state.isFullyFrozen = false;
       state.limbPose = entity instanceof CosmeticStatueEntity cosmetic ? cosmetic.getLimbPose() : StatuePose.DEFAULT;
       state.variant = entity.getVariant();
+      state.worn = entity.getWorn();
       updateArmPoses(entity, state);
       ItemStack backslot = entity.getBackslotStack();
       if (backslot.isEmpty()) {
