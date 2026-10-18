@@ -1,7 +1,7 @@
 mod.id = "postmortem"
 mod.name = "Postmortem"
 mod.group = "dev.burning.postmortem"
-mod.version = "1.0.1"
+mod.version = "1.0.2"
 
 deps.fabric_loader = "0.19.5"
 loomx.loom_version = "1.17.20"
@@ -15,10 +15,12 @@ mod.mc_releases = ["1.20.1"]
 mod.fabric_loader_min = "0.16.10"
 mod.mc_compat = "1.20.1"
 deps.fabric_api = "0.92.12+1.20.1"
+deps.accessories = "1.0.0-beta.47+1.20.1"
 
 [forge."1.20.1"]
 mod.mc_compat = "[1.20.1]"
 deps.forge = "1.20.1-47.4.28"
+deps.curios = "5.14.1+1.20.1"
 
 ["1.20.2"]
 mod.mc_releases = ["1.20.2"]
@@ -48,6 +50,7 @@ deps.fabric_api = "0.97.3+1.20.4"
 [neoforge."1.20.4"]
 mod.mc_compat = "[1.20.3, 1.20.4]"
 deps.neoforge = "20.4.253"
+deps.curios = "7.4.3+1.20.4"
 
 ["1.20.5"]
 mod.mc_releases = ["1.20.5"]
@@ -69,6 +72,7 @@ deps.fabric_api = "0.100.8+1.20.6"
 [neoforge."1.20.6"]
 mod.mc_compat = "[1.20.5, 1.20.6]"
 deps.neoforge = "20.6.144"
+deps.curios = "8.1.0+1.20.6"
 
 ["1.21"]
 mod.mc_releases = ["1.21"]
@@ -77,10 +81,12 @@ mod.mc_releases = ["1.21"]
 mod.fabric_loader_min = "0.15.11"
 mod.mc_compat = "1.21"
 deps.fabric_api = "0.102.0+1.21"
+deps.accessories = "1.0.0-beta.35+1.21"
 
 [neoforge."1.21"]
 mod.mc_compat = "[1.21]"
 deps.neoforge = "21.0.167"
+deps.accessories = "1.0.0-beta.35+1.21"
 
 ["1.21.1"]
 mod.mc_releases = ["1.21.1"]
@@ -89,10 +95,13 @@ mod.mc_releases = ["1.21.1"]
 mod.fabric_loader_min = "0.15.11"
 mod.mc_compat = "1.21.1"
 deps.fabric_api = "0.116.17+1.21.1"
+deps.accessories = "1.1.0-beta.54+1.21.1"
 
 [neoforge."1.21.1"]
 mod.mc_compat = "[1.21.1]"
 deps.neoforge = "21.1.262"
+deps.curios = "9.5.1+1.21.1"
+deps.accessories = "1.1.0-beta.54+1.21.1"
 
 ["1.21.2"]
 mod.mc_releases = ["1.21.2"]
@@ -101,6 +110,7 @@ mod.mc_releases = ["1.21.2"]
 mod.fabric_loader_min = "0.16.7"
 mod.mc_compat = "1.21.2"
 deps.fabric_api = "0.106.1+1.21.2"
+deps.accessories = "1.2.3-beta+1.21.2"
 
 ["1.21.3"]
 mod.mc_releases = ["1.21.3"]
@@ -110,11 +120,13 @@ mod.mc_releases = ["1.21.3"]
 mod.fabric_loader_min = "0.16.8"
 mod.mc_compat = "1.21.3"
 deps.fabric_api = "0.114.1+1.21.3"
+deps.accessories = "1.2.3-beta+1.21.2"
 
 # NeoForge 1.21.2 only ever had a beta; this jar covers it.
 [neoforge."1.21.3"]
 mod.mc_compat = "[1.21.2, 1.21.3]"
 deps.neoforge = "21.3.100"
+deps.accessories = "1.2.3-beta+1.21.2"
 
 ["1.21.4"]
 mod.mc_releases = ["1.21.4"]
@@ -124,10 +136,13 @@ mod.mc_releases = ["1.21.4"]
 mod.fabric_loader_min = "0.16.9"
 mod.mc_compat = "1.21.4"
 deps.fabric_api = "0.119.4+1.21.4"
+deps.accessories = "1.2.19-beta+1.21.4"
 
 [neoforge."1.21.4"]
 mod.mc_compat = "[1.21.4]"
 deps.neoforge = "21.4.161"
+deps.curios = "10.0.1+1.21.4"
+deps.accessories = "1.2.19-beta+1.21.4"
 
 ["1.21.5"]
 mod.mc_releases = ["1.21.5"]
@@ -137,10 +152,13 @@ mod.mc_releases = ["1.21.5"]
 mod.fabric_loader_min = "0.16.10"
 mod.mc_compat = "1.21.5"
 deps.fabric_api = "0.128.2+1.21.5"
+deps.accessories = "1.3.4-beta+1.21.5"
 
 [neoforge."1.21.5"]
 mod.mc_compat = "[1.21.5]"
 deps.neoforge = "21.5.101"
+deps.curios = "11.0.1+1.21.5"
+deps.accessories = "1.3.4-beta+1.21.5"
 
 ["1.21.6"]
 mod.mc_releases = ["1.21.6"]
@@ -168,10 +186,13 @@ mod.mc_releases = ["1.21.8"]
 mod.fabric_loader_min = "0.16.13"
 mod.mc_compat = "1.21.8"
 deps.fabric_api = "0.136.1+1.21.8"
+deps.accessories = "1.3.8-beta+1.21.8"
 
 [neoforge."1.21.8"]
 mod.mc_compat = "[1.21.6, 1.21.8]"
 deps.neoforge = "21.8.57"
+deps.curios = "12.0.0+1.21.8"
+deps.accessories = "1.3.8-beta+1.21.8"
 
 ["1.21.9"]
 mod.mc_releases = ["1.21.9"]
@@ -190,10 +211,13 @@ mod.mc_releases = ["1.21.10"]
 mod.fabric_loader_min = "0.17.0"
 mod.mc_compat = "1.21.10"
 deps.fabric_api = "0.138.4+1.21.10"
+deps.accessories = "1.4.3-beta+1.21.10"
 
 [neoforge."1.21.10"]
 mod.mc_compat = "[1.21.9, 1.21.10]"
 deps.neoforge = "21.10.64"
+deps.curios = "13.0.0+1.21.10"
+deps.accessories = "1.4.3-beta+1.21.10"
 
 ["1.21.11"]
 mod.mc_releases = ["1.21.11"]
@@ -207,6 +231,7 @@ deps.fabric_api = "0.141.6+1.21.11"
 [neoforge."1.21.11"]
 mod.mc_compat = "[1.21.11]"
 deps.neoforge = "21.11.48"
+deps.curios = "14.0.0+1.21.11"
 
 # One jar for the whole 26.1 line: built against 26.1.2, and also compiles against plain 26.1.
 ["26.1"]
@@ -221,6 +246,7 @@ deps.fabric_api = "0.155.3+26.1.2"
 [neoforge."26.1"]
 mod.mc_compat = "[26.1, 26.1.2]"
 deps.neoforge = "26.1.2.122"
+deps.curios = "15.0.0+26.1.2"
 
 ["26.2"]
 mod.mc_releases = ["26.2"]
@@ -234,6 +260,7 @@ deps.fabric_api = "0.159.0+26.2"
 [neoforge."26.2"]
 mod.mc_compat = "[26.2, 26.3)"
 deps.neoforge = "26.2.0.93"
+deps.curios = "16.0.0+26.2"
 
 ["26.3"]
 mod.mc_releases = ["26.3"]
@@ -247,3 +274,4 @@ deps.fabric_api = "0.163.0+26.3"
 [neoforge."26.3"]
 mod.mc_compat = "[26.3, 26.4)"
 deps.neoforge = "26.3.0.86"
+deps.curios = "17.0.0-beta.3+26.3"

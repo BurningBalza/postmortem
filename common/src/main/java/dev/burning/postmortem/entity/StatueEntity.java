@@ -2,6 +2,7 @@ package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.compat.BackSlots;
+import dev.burning.postmortem.compat.WornItem;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.chat.Component;
@@ -64,6 +65,10 @@ public abstract class StatueEntity extends LivingEntity {
 
    private static final EntityDataAccessor<Boolean> WAXED =
       SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.BOOLEAN);
+
+   // What the statue shows in other mods' slots: copies, for drawing only.
+   private static final EntityDataAccessor<java.util.List<WornItem>> WORN =
+      SynchedEntityData.defineId(StatueEntity.class, WornItem.LIST_SERIALIZER);
 
    private boolean checkedBackSlots;
 
@@ -138,6 +143,7 @@ public abstract class StatueEntity extends LivingEntity {
       builder.define(VARIANT, StatueVariant.DEFAULT.ordinal());
       builder.define(SEATED, false);
       builder.define(WAXED, false);
+      builder.define(WORN, java.util.List.of());
    }
 
    public boolean isWaxed() {
@@ -220,6 +226,14 @@ public abstract class StatueEntity extends LivingEntity {
 
    public void setBeltslotStack(ItemStack stack) {
       this.entityData.set(BELTSLOT, stack.copy());
+   }
+
+   public java.util.List<WornItem> getWorn() {
+      return this.entityData.get(WORN);
+   }
+
+   public void setWorn(java.util.List<WornItem> worn) {
+      this.entityData.set(WORN, java.util.List.copyOf(worn));
    }
 
    @Override
@@ -354,6 +368,9 @@ public abstract class StatueEntity extends LivingEntity {
       if (!this.getBeltslotStack().isEmpty()) {
          view.store("Beltslot", ItemStack.CODEC, this.getBeltslotStack());
       }
+      if (!this.getWorn().isEmpty()) {
+         view.store("Worn", WornItem.CODEC.listOf(), this.getWorn());
+      }
       if (this.getVariant() != StatueVariant.DEFAULT) {
          view.putString("Variant", this.getVariant().getSerializedName());
       }
@@ -388,6 +405,7 @@ public abstract class StatueEntity extends LivingEntity {
       this.setLeaning(view.getFloatOr("Leaning", 0.0F));
       this.setBackslotStack(view.read("Backslot", ItemStack.CODEC).orElse(ItemStack.EMPTY));
       this.setBeltslotStack(view.read("Beltslot", ItemStack.CODEC).orElse(ItemStack.EMPTY));
+      this.setWorn(view.read("Worn", WornItem.CODEC.listOf()).orElse(java.util.List.of()));
       this.setVariant(StatueVariant.byName(view.getStringOr("Variant", "")));
       this.setSeated(view.getBooleanOr("Seated", false));
       this.setWaxed(view.getBooleanOr("Waxed", false));

@@ -6,17 +6,24 @@ import dev.burning.postmortem.PostmortemRegistry;
 import dev.burning.postmortem.compat.BackslotCompat;
 import dev.burning.postmortem.compat.CarrySlot;
 import dev.burning.postmortem.compat.CombatAmenitiesCompat;
+import dev.burning.postmortem.compat.GraveMods;
 import dev.burning.postmortem.compat.PehkuiCompat;
 import dev.burning.postmortem.compat.TrinketsCompat;
+import dev.burning.postmortem.compat.WornItem;
+import dev.burning.postmortem.compat.WornSlots;
 import dev.burning.postmortem.entity.MemorialStatueEntity;
 import dev.burning.postmortem.entity.PoseSnapshot;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
 //? if >=1.21.2
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -38,6 +45,7 @@ public final class DeathCapture {
    /** Called by the loader when a player respawns, with {@code alive} false when the respawn follows a death. */
    public static void carryKeptItems(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
       if (alive
+         || GraveMods.present()
          || oldPlayer.isSpectator()
          //? if >=1.21.6 {
          /*|| newPlayer.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
@@ -74,13 +82,41 @@ public final class DeathCapture {
       }
    }
 
+   // Items taken from other mods' slots just before the death drop, waiting for capture() to keep them.
+   private static final Map<UUID, List<WornItem>> PENDING_WORN = new HashMap<>();
+
+   /**
+    * Takes what the player wore in Curios or Accessories slots, before those mods drop it. Runs ahead of the death
+    * drop because Accessories drops its items on Fabric just before vanilla's.
+    */
+   public static void takeWorn(ServerPlayer player, DamageSource source) {
+      List<WornItem> worn = new ArrayList<>();
+      for (WornSlots mod : WornSlots.loaded()) {
+         worn.addAll(mod.takeDroppable(player, source));
+      }
+      if (!worn.isEmpty()) {
+         PENDING_WORN.put(player.getUUID(), worn);
+      }
+   }
+
    public static boolean capture(Player player, ServerLevel world) {
+      List<WornItem> worn = PENDING_WORN.remove(player.getUUID());
+      if (worn == null) {
+         worn = List.of();
+      }
+
       //? if >=1.21.2 {
       MemorialStatueEntity statue = PostmortemRegistry.MEMORIAL_STATUE.get().create(world, EntitySpawnReason.TRIGGERED);
       //?} else
       //MemorialStatueEntity statue = PostmortemRegistry.MEMORIAL_STATUE.get().create(world);
       if (statue == null) {
          Postmortem.LOGGER.error("[postmortem] could not create a memorial statue; falling back to vanilla drops");
+         for (WornItem item : worn) {
+            //? if >=26.3 {
+            /*player.drop(item.stack(), true, net.minecraft.util.Prediction.SERVER_ONLY);
+            *///?} else
+            player.drop(item.stack(), true);
+         }
          return false;
       }
 
@@ -111,6 +147,11 @@ public final class DeathCapture {
 
       for (TrinketsCompat.Equipped trinket : TrinketsCompat.takeAll(player)) {
          statue.storeTrinket(trinket.stack(), trinket.slot());
+      }
+
+      statue.setWorn(WornItem.copies(worn));
+      for (WornItem item : worn) {
+         statue.storeWorn(item);
       }
 
       ItemStack backslot = BackslotCompat.get(player);
