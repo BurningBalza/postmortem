@@ -5,6 +5,11 @@ plugins {
     java
 }
 
-tasks.named { it in setOf("compileJava", "processResources", "classes", "jar") }.configureEach {
-    enabled = false
+// Bridges to other mods' slot APIs, compiled only into the loaders those mods exist on (see addCommonSources).
+sourceSets {
+    create("curios")
+    create("accessories")
 }
+
+tasks.named { it.startsWith("compile") || it.startsWith("process") || it.endsWith("classes", ignoreCase = true) || it == "jar" }
+    .configureEach { enabled = false }
