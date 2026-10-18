@@ -17,7 +17,14 @@ val requiredJava: JavaVersion = when {
 }
 
 // This branch's own src/ is the default source set; common/ is compiled in alongside it.
-addCommonSources(node, sc.current.isActive)
+// Accessories' API for this node, if Accessories has a build for it; common's accessories bridge comes with it.
+val accessories = findProperty("deps.accessories") as String?
+
+addCommonSources(node, sc.current.isActive, listOfNotNull(accessories?.let { "accessories" }))
+
+repositories {
+    maven("https://maven.wispforest.io/releases/") { name = "Wisp Forest" }
+}
 
 dependencies {
     minecraft("com.mojang:minecraft:$mcVersion")
@@ -27,6 +34,8 @@ dependencies {
     // `mod*` configurations are converted to plain ones on 26.1+ by loom-back-compat.
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+    // Compile-only: Accessories is optional, and the bridge is only reached once it is found at runtime.
+    if (accessories != null) modCompileOnly("io.wispforest:accessories-fabric:$accessories") { isTransitive = false }
 
     // Backslot, Trinkets, Combat Amenities and Pehkui are all optional at runtime and none is a compile dependency.
     // Each is reached reflectively and stays dormant when absent, so that a missing mod is a
