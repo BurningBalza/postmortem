@@ -7,6 +7,9 @@ import dev.burning.postmortem.PostmortemConfig;
 import dev.burning.postmortem.compat.CarrySlot;
 import dev.burning.postmortem.compat.TrinketsCompat.TrinketSlot;
 import dev.burning.postmortem.compat.TrinketsCompat;
+import dev.burning.postmortem.compat.WornItem;
+import dev.burning.postmortem.compat.WornSlot;
+import dev.burning.postmortem.compat.WornSlots;
 import dev.burning.postmortem.death.MemorialRegistry;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +45,14 @@ public class MemorialStatueEntity extends StatueEntity {
 
    private static final long UNKNOWN_BIRTH = Long.MIN_VALUE;
 
-   public record StoredStack(int slot, ItemStack stack, Optional<TrinketSlot> trinket, Optional<CarrySlot> carried) {
+   public record StoredStack(
+      int slot, ItemStack stack, Optional<TrinketSlot> trinket, Optional<CarrySlot> carried, Optional<WornSlot> worn) {
       public static final Codec<StoredStack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
          Codec.INT.fieldOf("Slot").forGetter(StoredStack::slot),
          ItemStack.CODEC.fieldOf("Item").forGetter(StoredStack::stack),
          TrinketSlot.CODEC.optionalFieldOf("Trinket").forGetter(StoredStack::trinket),
-         CarrySlot.CODEC.optionalFieldOf("Carried").forGetter(StoredStack::carried)
+         CarrySlot.CODEC.optionalFieldOf("Carried").forGetter(StoredStack::carried),
+         WornSlot.CODEC.optionalFieldOf("Worn").forGetter(StoredStack::worn)
       ).apply(instance, StoredStack::new));
    }
 
@@ -86,7 +91,7 @@ public class MemorialStatueEntity extends StatueEntity {
          return;
       }
 
-      this.pending.add(new StoredStack(originSlot, stack, Optional.empty(), Optional.empty()));
+      this.pending.add(new StoredStack(originSlot, stack, Optional.empty(), Optional.empty(), Optional.empty()));
 
       if (displaySlot != null && this.canUseSlot(displaySlot) && this.getItemBySlot(displaySlot).isEmpty()) {
          this.setItemSlot(displaySlot, stack.copy());
@@ -98,7 +103,7 @@ public class MemorialStatueEntity extends StatueEntity {
          return;
       }
 
-      this.pending.add(new StoredStack(NO_SLOT, stack, Optional.of(slot), Optional.empty()));
+      this.pending.add(new StoredStack(NO_SLOT, stack, Optional.of(slot), Optional.empty(), Optional.empty()));
    }
 
    public void storeCarried(ItemStack stack, CarrySlot slot) {
@@ -106,7 +111,16 @@ public class MemorialStatueEntity extends StatueEntity {
          return;
       }
 
-      this.pending.add(new StoredStack(NO_SLOT, stack, Optional.empty(), Optional.of(slot)));
+      this.pending.add(new StoredStack(NO_SLOT, stack, Optional.empty(), Optional.of(slot), Optional.empty()));
+   }
+
+   /** Keeps an item worn in another mod's slot, to be handed back to that slot. */
+   public void storeWorn(WornItem worn) {
+      if (worn.stack().isEmpty()) {
+         return;
+      }
+
+      this.pending.add(new StoredStack(NO_SLOT, worn.stack(), Optional.empty(), Optional.empty(), Optional.of(worn.where())));
    }
 
    /** Moves the pending stacks into the registry. Call once the statue has its owner and position. */
@@ -257,6 +271,10 @@ public class MemorialStatueEntity extends StatueEntity {
             continue;
          }
 
+         if (entry.worn().isPresent() && restoreWorn(player, entry.worn().get(), stack)) {
+            continue;
+         }
+
          int slot = entry.slot();
          if (slot >= 0 && slot < inventory.getContainerSize() && inventory.getItem(slot).isEmpty()) {
             inventory.setItem(slot, stack);
@@ -275,12 +293,17 @@ public class MemorialStatueEntity extends StatueEntity {
       return returned;
    }
 
+   private static boolean restoreWorn(Player player, WornSlot slot, ItemStack stack) {
+      return WornSlots.byId(slot.mod()).map(mod -> mod.restore(player, slot, stack)).orElse(false);
+   }
+
    private void clearDisplay() {
       for (EquipmentSlot slot : EquipmentSlot.values()) {
          if (this.canUseSlot(slot)) {
             this.setItemSlot(slot, ItemStack.EMPTY);
          }
       }
+      this.setWorn(List.of());
    }
 
    @Override
