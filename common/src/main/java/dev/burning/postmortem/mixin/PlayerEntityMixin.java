@@ -2,6 +2,7 @@ package dev.burning.postmortem.mixin;
 
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemConfig;
+import dev.burning.postmortem.compat.GraveMods;
 import dev.burning.postmortem.death.DeathCapture;
 import dev.burning.postmortem.entity.PoseSnapshot;
 import net.minecraft.server.level.ServerLevel;
@@ -89,6 +90,11 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
          return;
       }
    *///?}
+      // Another mod keeps players' items; leave the drop to it.
+      if (GraveMods.present()) {
+         return;
+      }
+
       if (PostmortemConfig.get().debug()) {
          Postmortem.LOGGER.info("[postmortem] death drop intercepted; keepInventory={}",
             world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY));
