@@ -120,6 +120,7 @@ public final class PostmortemRegistry {
    /** Loading this class registers its entries; the entity data serializer has no field, so it goes here. */
    public static void init() {
       Platform.INSTANCE.registerDataSerializer("statue_pose", StatuePose.TRACKED_HANDLER);
+      Platform.INSTANCE.registerDataSerializer("worn_items", dev.burning.postmortem.compat.WornItem.LIST_SERIALIZER);
    }
 
    /** Server handler for {@link SetPose}, called by each loader's payload receiver. */

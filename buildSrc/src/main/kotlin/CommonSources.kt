@@ -8,20 +8,24 @@ import org.gradle.kotlin.dsl.getByType
  * The active node reads common/src directly, so the IDE opens and edits the real files. Every other node reads
  * the copy Stonecutter generated for that version, which has its version comments already applied.
  */
-fun Project.addCommonSources(node: String, active: Boolean) {
+fun Project.addCommonSources(node: String, active: Boolean, extra: List<String> = emptyList()) {
     val common = rootProject.project(":common:$node")
-    val generate = "${common.path}:stonecutterGenerate"
-    val base = if (active) rootProject.file("common/src/main")
-               else common.layout.buildDirectory.dir("generated/stonecutter/main").get().asFile
 
-    extensions.getByType<SourceSetContainer>().named("main") {
-        java.srcDir(base.resolve("java"))
-        resources.srcDir(base.resolve("resources"))
-    }
+    // "main" plus any of common's bridge source sets this loader takes (curios, accessories).
+    for (set in listOf("main") + extra) {
+        val generate = "${common.path}:stonecutterGenerate" + if (set == "main") "" else set.replaceFirstChar { it.uppercase() }
+        val base = if (active) rootProject.file("common/src/$set")
+                   else common.layout.buildDirectory.dir("generated/stonecutter/$set").get().asFile
 
-    if (!active) {
-        tasks.named { it == "compileJava" || it == "processResources" || it == "sourcesJar" }.configureEach {
-            dependsOn(generate)
+        extensions.getByType<SourceSetContainer>().named("main") {
+            java.srcDir(base.resolve("java"))
+            resources.srcDir(base.resolve("resources"))
+        }
+
+        if (!active) {
+            tasks.named { it == "compileJava" || it == "processResources" || it == "sourcesJar" }.configureEach {
+                dependsOn(generate)
+            }
         }
     }
 }
