@@ -51,7 +51,6 @@ public class StatueCollectorItem extends Item {
    private InteractionResult useResult(Level world, Player player, InteractionHand hand) {
    *///?}
       ItemStack stack = player.getItemInHand(hand);
-      // Memorials are off while a grave mod handles deaths, so there is nothing to recall.
       if (GraveMods.present()) {
          return InteractionResult.PASS;
       }
@@ -70,14 +69,12 @@ public class StatueCollectorItem extends Item {
          return InteractionResult.FAIL;
       }
 
-      int returned = 0;
       for (MemorialStatueEntity statue : statues) {
-         returned += statue.giveTo(player);
+         statue.giveTo(player);
       }
 
       world.playSound(
          null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.6F, 1.6F);
-      Postmortem.overlay(player, Component.translatable("message.postmortem.collected", returned));
       //? if >=1.21.2 {
       player.getCooldowns().addCooldown(stack, 20);
       //?} else
