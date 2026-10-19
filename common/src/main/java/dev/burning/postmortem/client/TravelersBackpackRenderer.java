@@ -12,14 +12,6 @@ import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * Draws a Traveler's Backpack a statue wore in a Curios, Accessories or Trinkets slot. Traveler's Backpack does not
- * register with those mods' renderers; it draws the worn backpack from its own player layer, through a public static
- * {@code BackpackLayer.renderBackpackLayer}. That method's parameters change between versions (entity or render state,
- * buffers or submit collector, with or without model objects of its own), so it is found by name and each parameter
- * is filled by type: the statue's model, poses, buffers, light, entity or state, and the backpack. Anything else is
- * one of Traveler's Backpack's own objects, made once - its shared static instance if the class has one, or a new one.
- */
 public final class TravelersBackpackRenderer implements WornRenderer {
    private static final String MOD_ID = "travelersbackpack";
    private static final String LAYER = "com.tiviacz.travelersbackpack.client.renderer.BackpackLayer";
@@ -40,7 +32,6 @@ public final class TravelersBackpackRenderer implements WornRenderer {
 
    @Override
    public boolean draws(WornItem item) {
-      // Whichever mod's slot it was worn in; those mods have no renderer of their own for it.
       return BuiltInRegistries.ITEM.getKey(item.stack().getItem()).getNamespace().equals(MOD_ID);
    }
 

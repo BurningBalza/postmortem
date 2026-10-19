@@ -12,10 +12,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 //?}
 
-/**
- * An item worn in another mod's slot - Curios or Accessories - and where: that mod's slot name and index, and whether
- * it was the cosmetic copy. {@code visible} is the slot's own show/hide toggle, so a statue draws only what showed.
- */
 public record WornItem(String mod, String slot, int index, boolean cosmetic, boolean visible, ItemStack stack) {
    public static final Codec<WornItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
       Codec.STRING.fieldOf("Mod").forGetter(WornItem::mod),
@@ -26,7 +22,6 @@ public record WornItem(String mod, String slot, int index, boolean cosmetic, boo
       ItemStack.CODEC.fieldOf("Item").forGetter(WornItem::stack)
    ).apply(instance, WornItem::new));
 
-   // Statues sync what they wear to the client for drawing.
    //? if >=1.20.5 {
    private static final StreamCodec<RegistryFriendlyByteBuf, WornItem> STREAM_CODEC = StreamCodec.composite(
       ByteBufCodecs.STRING_UTF8, WornItem::mod,
@@ -61,7 +56,6 @@ public record WornItem(String mod, String slot, int index, boolean cosmetic, boo
       return new WornItem(this.mod, this.slot, this.index, this.cosmetic, this.visible, stack);
    }
 
-   /** The items in {@code worn}, each copied, for a statue to show. */
    public static List<WornItem> copies(List<WornItem> worn) {
       List<WornItem> copies = new ArrayList<>(worn.size());
       for (WornItem item : worn) {

@@ -93,7 +93,6 @@ public final class StatuePartPicker {
       return matrices;
    }
    private void putItem(StatuePart part, StatueEntityRenderer.State state, PoseStack matrices) {
-      // An item part can only be picked, and so posed, while there is an item in it.
       if (!BackSlots.has(part) || StatueHighlightLayer.itemFor(state, part).isEmpty()) {
          return;
       }
@@ -116,7 +115,7 @@ public final class StatuePartPicker {
       modelPart.getExtentsForGui(matrices, corners);
       corners.forEach(bounds);
       //?} elif >=1.21.2 {
-      /*// What getExtentsForGui does from 1.21.9; vertex positions are still in pixels here.
+      /*
       modelPart.visit(matrices, (pose, path, index, cube) -> {
          for (ModelPart.Polygon polygon : cube.polygons) {
             for (ModelPart.Vertex vertex : polygon.vertices()) {
@@ -126,7 +125,7 @@ public final class StatuePartPicker {
          }
       });
       *///?} else {
-      /*// Polygons are private here; a cube's corners bound the same box, give or take its inflation.
+      /*
       modelPart.visit(matrices, (pose, path, index, cube) -> {
          for (int corner = 0; corner < 8; corner++) {
             bounds.accept(pose.pose().transformPosition(
@@ -139,7 +138,6 @@ public final class StatuePartPicker {
       *///?}
       bounds.storeInto(part, this.boxes);
    }
-
 
    private static final class Bounds implements java.util.function.Consumer<Vector3fc> {
       private float minX = Float.MAX_VALUE;
