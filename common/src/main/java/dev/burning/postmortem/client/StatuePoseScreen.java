@@ -179,7 +179,7 @@ public class StatuePoseScreen extends Screen {
    }
 
    //? if <1.21.9 {
-   /*// What 1.21.9's MouseButtonEvent carries, so the handlers below read the same on every version.
+   /*
    private record MouseButtonEvent(double x, double y, int button) {
    }
 
@@ -346,8 +346,7 @@ public class StatuePoseScreen extends Screen {
    }
 
    //? if <1.21.6 {
-   /*// Before 1.21.6 the GUI could only draw a live entity, not a render state, so this does what
-   // InventoryScreen.renderEntityInInventory does with the state the preview has already posed.
+   /*
    private void drawEntity(
       GuiGraphics context, StatueEntityRenderer.State state, float size, Vector3f translate,
       Quaternionf rotation, Quaternionf cameraAngle, int left, int top, int right, int bottom) {
@@ -358,8 +357,7 @@ public class StatuePoseScreen extends Screen {
       //? if >=1.20.5 {
       context.pose().scale(size, size, -size);
       //?} else {
-      /^// Before 1.20.5 a pose's scale also flips its normals here, which lights the preview from behind; vanilla scales
-      // the matrix alone, as this does.
+      /^
       context.pose().mulPoseMatrix(new org.joml.Matrix4f().scaling(size, size, -size));
       ^///?}
       context.pose().translate(translate.x, translate.y, translate.z);
