@@ -17,11 +17,11 @@ public record PoseSnapshot(
    public static final PoseSnapshot STANDING =
       new PoseSnapshot(Pose.STANDING, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, false);
 
-   public static PoseSnapshot of(LivingEntity entity, float limbAngle, float limbAmplitude) {
+   public static PoseSnapshot of(LivingEntity entity, float bodyYaw, float limbAngle, float limbAmplitude) {
       return new PoseSnapshot(
          entity.getPose(),
          entity.getXRot(),
-         entity.getVisualRotationYInDegrees(),
+         bodyYaw,
          entity.getYHeadRot(),
          limbAngle,
          limbAmplitude,

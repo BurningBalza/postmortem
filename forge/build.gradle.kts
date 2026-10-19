@@ -21,6 +21,10 @@ addCommonSources(node, sc.current.isActive, listOfNotNull(curios?.let { "curios"
 
 repositories {
     maven("https://maven.theillusivec4.top/") { name = "Curios" }
+    exclusiveContent {
+        forRepository { maven("https://api.modrinth.com/maven") { name = "Modrinth" } }
+        filter { includeGroup("maven.modrinth") }
+    }
 }
 
 legacyForge {
@@ -54,6 +58,12 @@ dependencies {
     // Compile-only: Curios is optional, and the bridge is only reached once it is found at runtime.
     if (curios != null) modCompileOnly("top.theillusivec4.curios:curios-forge:$curios:api")
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
+
+    // Other mods to try Postmortem with in the dev client, e.g. -Pdev.testMods=maven.modrinth:curios:<version id>,...
+    // Forge's dev client runs deobfuscated, so they must be remapped here; a jar dropped into mods/ would not load.
+    (findProperty("dev.testMods") as String?)?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }?.forEach {
+        modRuntimeOnly(it) { isTransitive = false }
+    }
 }
 
 java {
