@@ -12,8 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// Accessories drops its items at this same spot on Fabric; the lower priority puts this callback ahead of it, so what
-// the player wore in other mods' slots is still there for the memorial to keep.
 @Mixin(value = LivingEntity.class, priority = 500)
 public abstract class LivingEntityMixin {
    //? if >=1.21.2 {
@@ -31,10 +29,8 @@ public abstract class LivingEntityMixin {
       method = "dropAllDeathLoot",
       at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;dropEquipment()V"))
    private void postmortem$takeWorn(DamageSource source, CallbackInfo ci) {
-      // The death drop only runs on the server.
       ServerLevel world = (ServerLevel) ((LivingEntity) (Object) this).level();
    *///?}
-      // The same conditions as the capture in PlayerEntityMixin, which takes these from DeathCapture.
       if ((Object) this instanceof ServerPlayer player
          && !GraveMods.present()
          && !world.getGameRules().get(GameRules.KEEP_INVENTORY)) {

@@ -143,8 +143,6 @@ public class CosmeticStatueItem extends Item {
       return InteractionResult.SUCCESS;
    }
 
-   // On top of the clicked block's actual surface, so the statue stands on a slab, carpet or snow instead of
-   // floating a block up. Water has no surface to stand on, so on water it keeps to the top of the block.
    private static Vec3 standingSpot(Level world, BlockPos clicked) {
       VoxelShape shape = world.getBlockState(clicked).getCollisionShape(world, clicked);
       double x = clicked.getX() + 0.5;
@@ -158,7 +156,6 @@ public class CosmeticStatueItem extends Item {
       AABB box = PostmortemRegistry.COSMETIC_STATUE.get().getSpawnAABB(x, top, z);
       //?} else
       //AABB box = PostmortemRegistry.COSMETIC_STATUE.get().getAABB(x, top, z);
-      // Never lower than the clicked block's own floor.
       double fall = Entity.collideBoundingBox((Entity) null, new Vec3(0.0, clicked.getY() - top, 0.0), box, world, List.of()).y;
       return new Vec3(x, top + fall, z);
    }

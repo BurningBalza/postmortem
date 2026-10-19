@@ -9,8 +9,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 
-// Before 1.21.6 entities saved straight into a CompoundTag. This mirrors the part of 1.21.6's ValueOutput that
-// Postmortem uses, so the statues' save code is the same on every version.
 public final class ValueOutput {
    private final CompoundTag tag;
    private final DynamicOps<Tag> ops;

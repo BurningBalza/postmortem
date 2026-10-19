@@ -51,7 +51,6 @@ public class StatueCollectorItem extends Item {
    private InteractionResult useResult(Level world, Player player, InteractionHand hand) {
    *///?}
       ItemStack stack = player.getItemInHand(hand);
-      // Memorials are off while a grave mod handles deaths, so there is nothing to recall.
       if (GraveMods.present()) {
          return InteractionResult.PASS;
       }

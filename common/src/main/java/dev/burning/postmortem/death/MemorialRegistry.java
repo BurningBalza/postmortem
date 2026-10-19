@@ -23,11 +23,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.RegistryOps;
 *///?}
 
-/**
- * Holds the items of every memorial statue, keyed by the statue's UUID. The entity itself stores nothing, so a statue
- * lost to a clear-lag mod, /kill or a corrupted chunk leaves its items here to be recovered. An entry only goes away
- * when its items are handed back, spilled or deliberately deleted.
- */
 public final class MemorialRegistry extends SavedData {
    public record Entry(
       UUID owner, ResourceKey<Level> dimension, BlockPos pos, long createdAt, List<StoredStack> stacks, int experience) {
@@ -57,7 +52,6 @@ public final class MemorialRegistry extends SavedData {
       Codec.unboundedMap(UUIDUtil.STRING_CODEC, Entry.CODEC).fieldOf("Memorials").forGetter(registry -> registry.entries)
    ).apply(instance, MemorialRegistry::new));
 
-   // A null DataFixTypes is let through; there is no vanilla fixer for mod data anyway.
    //? if >=1.21.5 {
    private static final SavedDataType<MemorialRegistry> TYPE =
       //? if >=26.1 {
@@ -125,7 +119,6 @@ public final class MemorialRegistry extends SavedData {
       this.setDirty();
    }
 
-   /** Removes the entry and returns its stacks, or an empty list if there was none. */
    public List<StoredStack> take(UUID statue) {
       Entry entry = this.entries.remove(statue);
       if (entry == null) {
@@ -136,7 +129,6 @@ public final class MemorialRegistry extends SavedData {
       return entry.stacks();
    }
 
-   /** Takes the experience out of the entry, leaving its stacks; 0 if there was no entry. */
    public int takeExperience(UUID statue) {
       Entry entry = this.entries.get(statue);
       if (entry == null || entry.experience() <= 0) {

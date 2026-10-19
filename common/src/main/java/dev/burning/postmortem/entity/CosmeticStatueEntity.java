@@ -75,7 +75,6 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    public static final double EDIT_RANGE_SQUARED = 12.0 * 12.0;
 
-   // Like an armor stand: a player's hit only knocks it, and a second within this many ticks breaks it.
    private static final long BREAK_WINDOW_TICKS = 5L;
    private static final byte HIT_EVENT = 32;
 
@@ -177,10 +176,6 @@ public class CosmeticStatueEntity extends StatueEntity {
       return alignment < BEHIND_COSINE;
    }
 
-   /**
-    * Swaps the held item with one on the statue: takes it when the hand is empty, trades it for a single held item, or
-    * places one from a held stack when the spot is free.
-    */
    private InteractionResult swap(
       Player player, InteractionHand hand, ItemStack current, Consumer<ItemStack> setter, float pitch) {
       ItemStack held = player.getItemInHand(hand);
@@ -288,7 +283,6 @@ public class CosmeticStatueEntity extends StatueEntity {
       }
    }
 
-   /** Ticks since a player last knocked the statue, for the renderer's wobble. */
    public float sinceHit(float tickDelta) {
       return this.level().getGameTime() - this.lastHit + tickDelta;
    }
@@ -303,7 +297,6 @@ public class CosmeticStatueEntity extends StatueEntity {
          .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.STONE_HIT, SoundSource.NEUTRAL, 0.9F, 1.5F);
    }
 
-   // A creative player's break doesn't hand the statue back, as with armor stands; what it held still drops.
    private void breakApart(ServerLevel world, boolean dropStatue) {
       if (dropStatue) {
          Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));

@@ -24,20 +24,14 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 
-/**
- * A memorial's owner's skin in stone grey, made once per skin and kept for the session. The skin is redrawn in the slim
- * arm layout, since that is the model every statue is drawn with.
- */
 public final class GreyscaleSkins {
    private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
-   // Empty while the skin loads, and for good if it can't be.
    private static final Map<String, Optional<Identifier>> SKINS = new ConcurrentHashMap<>();
 
    private GreyscaleSkins() {
    }
 
-   /** The greyscale texture for this owner and textures property, or null until it is ready. */
    public static Identifier get(UUID owner, String textures) {
       String key = owner + ";" + textures;
       Optional<Identifier> skin = SKINS.get(key);
@@ -76,7 +70,6 @@ public final class GreyscaleSkins {
    private record Skin(String url, boolean slim) {
    }
 
-   // The textures property is base64 JSON; only skins served from Mojang's texture host are fetched, as vanilla does.
    private static Skin parse(String textures) {
       if (textures.isEmpty()) {
          return null;
@@ -149,8 +142,6 @@ public final class GreyscaleSkins {
       //return "slim".equals(DefaultPlayerSkin.getSkinModelName(owner));
    }
 
-   // Vanilla's skin processing (SkinTextureDownloader.processLegacySkin): old 64x32 skins get their left limbs
-   // mirrored from the right ones, and the base layer is made opaque.
    private static NativeImage processSkin(NativeImage image) {
       int width = image.getWidth();
       int height = image.getHeight();
@@ -209,10 +200,6 @@ public final class GreyscaleSkins {
       }
    }
 
-   /**
-    * Fits a wide skin's 4-pixel arms into the slim model's 3-pixel ones by dropping each arm's outermost column, for the
-    * arm and sleeve layers on both sides.
-    */
    private static NativeImage toSlimArms(NativeImage wide) {
       NativeImage slim = new NativeImage(64, 64, true);
       copy(wide, slim, 0, 0, 0, 0, 64, 64, false);
@@ -224,8 +211,6 @@ public final class GreyscaleSkins {
       return slim;
    }
 
-   // The arm's texture starts at (u, v): top and bottom above, then its four sides. On a right arm the outer column is
-   // the first of the front, top and bottom and the last of the back; a left arm is the mirror of that.
    private static void slimArm(NativeImage wide, NativeImage slim, int u, int v, boolean right) {
       int front = right ? 1 : 0;
       int back = right ? 0 : 1;
@@ -256,7 +241,6 @@ public final class GreyscaleSkins {
       return image;
    }
 
-   // Through a buffer, so a copy within one image can't read pixels it has already written.
    private static void copy(NativeImage from, NativeImage to, int x, int y, int toX, int toY, int width, int height, boolean mirror) {
       int[] pixels = new int[width * height];
       for (int dy = 0; dy < height; dy++) {

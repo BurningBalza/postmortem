@@ -40,12 +40,10 @@ public final class DeathCapture {
    private DeathCapture() {
    }
 
-   /** Items tagged {@code postmortem:kept_on_death} stay with the player instead of going into the statue. */
    public static boolean isKept(ItemStack stack) {
       return !stack.isEmpty() && stack.is(PostmortemRegistry.KEPT_ON_DEATH);
    }
 
-   /** Called by the loader when a player respawns, with {@code alive} false when the respawn follows a death. */
    public static void carryKeptItems(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
       if (!alive) {
          announceMemorial(newPlayer);
@@ -89,13 +87,8 @@ public final class DeathCapture {
       }
    }
 
-   // Items taken from other mods' slots just before the death drop, waiting for capture() to keep them.
    private static final Map<UUID, List<WornItem>> PENDING_WORN = new HashMap<>();
 
-   /**
-    * Takes what the player wore in Curios or Accessories slots, before those mods drop it. Runs ahead of the death
-    * drop because Accessories drops its items on Fabric just before vanilla's.
-    */
    public static void takeWorn(ServerPlayer player, DamageSource source) {
       List<WornItem> worn = new ArrayList<>();
       for (WornSlots mod : WornSlots.loaded()) {
@@ -142,7 +135,6 @@ public final class DeathCapture {
             continue;
          }
 
-         // Left in place; carryKeptItems moves it into the respawned player's inventory.
          if (isKept(stack)) {
             keepingAnything = true;
             continue;
@@ -152,7 +144,6 @@ public final class DeathCapture {
          taken.add(slot);
       }
 
-      // Trinkets are kept apart from other mods' slots, but the statue shows them alongside.
       List<WornItem> shown = new ArrayList<>(WornItem.copies(worn));
       for (TrinketsCompat.Equipped trinket : TrinketsCompat.takeAll(player)) {
          statue.storeTrinket(trinket.stack(), trinket.slot());
@@ -195,7 +186,6 @@ public final class DeathCapture {
             Postmortem.LOGGER.info("[postmortem] {} died carrying nothing; no statue placed", player.getName().getString());
          }
 
-         // Cancelling vanilla drops here keeps a lone kept item from hitting the floor.
          return keepingAnything;
       }
 
@@ -203,11 +193,9 @@ public final class DeathCapture {
          inventory.setItem(slot, ItemStack.EMPTY);
       }
 
-      // Stored only alongside items: experience alone never makes a memorial, and drops as it would without one.
       int experience = experienceToStore(player, world);
       statue.storeExperience(experience);
 
-      // Vanilla drops the experience right after the equipment; with none left, it drops no orbs.
       if (experience > 0) {
          player.experienceLevel = 0;
          player.experienceProgress = 0.0F;
@@ -231,7 +219,6 @@ public final class DeathCapture {
       //statue.moveTo(pos.x, pos.y, pos.z, pose.bodyYaw(), pose.pitch());
       statue.applyPose(pose);
       PehkuiCompat.copyScales(player, statue);
-      // Registered before spawning so the items are safe even if the entity never makes it into the world.
       statue.register(world);
       world.addFreshEntity(statue);
 
@@ -250,7 +237,6 @@ public final class DeathCapture {
       return true;
    }
 
-   // Where each dead player's memorial went, told to them when they respawn.
    private static final Map<UUID, GlobalPos> PENDING_ANNOUNCEMENTS = new HashMap<>();
 
    private static void announceMemorial(ServerPlayer player) {
@@ -278,7 +264,6 @@ public final class DeathCapture {
       return (int) Math.min(Integer.MAX_VALUE, totalExperience(player) * config.storedExperiencePercent() / 100L);
    }
 
-   // Worked out from the level and bar rather than Player.totalExperience, which commands that set levels leave behind.
    private static long totalExperience(Player player) {
       long level = Math.max(0, player.experienceLevel);
       double upToLevel;

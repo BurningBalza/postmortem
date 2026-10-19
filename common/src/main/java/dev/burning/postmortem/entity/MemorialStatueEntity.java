@@ -60,15 +60,12 @@ public class MemorialStatueEntity extends StatueEntity {
       ).apply(instance, StoredStack::new));
    }
 
-   // Only holds stacks until the statue is registered; after that they live in MemorialRegistry.
    private final List<StoredStack> pending = new ArrayList<>();
 
    private int pendingExperience;
 
-   // The owner's textures property, kept for drawing their skin; empty for a profile without one.
    private String skinTextures = "";
 
-   // What the client draws the skin from, set only while greyscale_skins is on: the owner's UUID, empty for none.
    private static final EntityDataAccessor<String> SKIN_OWNER =
       SynchedEntityData.defineId(MemorialStatueEntity.class, EntityDataSerializers.STRING);
    private static final EntityDataAccessor<String> SKIN_TEXTURES =
@@ -116,7 +113,6 @@ public class MemorialStatueEntity extends StatueEntity {
       builder.define(SKIN_TEXTURES, "");
    }
 
-   /** The owner whose skin this statue is drawn with, or null to draw it in stone. */
    public UUID getSkinOwner() {
       String owner = this.entityData.get(SKIN_OWNER);
       if (owner.isEmpty()) {
@@ -170,7 +166,6 @@ public class MemorialStatueEntity extends StatueEntity {
       this.pending.add(new StoredStack(NO_SLOT, stack, Optional.empty(), Optional.of(slot), Optional.empty()));
    }
 
-   /** Keeps an item worn in another mod's slot, to be handed back to that slot. */
    public void storeWorn(WornItem worn) {
       if (worn.stack().isEmpty()) {
          return;
@@ -183,7 +178,6 @@ public class MemorialStatueEntity extends StatueEntity {
       this.pendingExperience += Math.max(0, points);
    }
 
-   /** Moves the pending stacks into the registry. Call once the statue has its owner and position. */
    public void register(ServerLevel world) {
       MemorialRegistry.get(world.getServer()).put(this.getUUID(), new MemorialRegistry.Entry(
          this.ownerUuid, world.dimension(), this.blockPosition(), world.getGameTime(), this.pending, this.pendingExperience));
@@ -193,7 +187,6 @@ public class MemorialStatueEntity extends StatueEntity {
 
    @Override
    protected void releaseUnsupported(ServerLevel world, ItemStack stack) {
-      // A memorial only shows a copy; the real item is stored for return, or never left its owner.
    }
 
    @Override
@@ -201,7 +194,6 @@ public class MemorialStatueEntity extends StatueEntity {
       super.tick();
 
       if (this.level() instanceof ServerLevel world) {
-         // Checked every tick so turning the option on or off reaches statues already standing.
          boolean skin = PostmortemConfig.get().greyscaleSkins() && this.ownerUuid != null;
          this.entityData.set(SKIN_OWNER, skin ? this.ownerUuid.toString() : "");
          this.entityData.set(SKIN_TEXTURES, skin ? this.skinTextures : "");
@@ -227,7 +219,6 @@ public class MemorialStatueEntity extends StatueEntity {
          return;
       }
 
-      // A statue saved before the registry existed still carries its stacks.
       if (!this.pending.isEmpty() && this.ownerUuid != null) {
          this.register(world);
          if (PostmortemConfig.get().debug()) {
@@ -236,7 +227,6 @@ public class MemorialStatueEntity extends StatueEntity {
          return;
       }
 
-      // Its items were recovered while it was unloaded, so what is left is an empty shell.
       if (PostmortemConfig.get().debug()) {
          Postmortem.LOGGER.info("[postmortem] statue {} has no registry entry; crumbling it", this.getUUID());
       }
@@ -316,7 +306,6 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    public int giveTo(Player player) {
-      // Before the stacks: taking those removes the registry entry the experience is kept in.
       int experience = this.takeExperience();
       int returned = restore(player, this.takeContents());
       if (experience > 0) {
@@ -335,14 +324,12 @@ public class MemorialStatueEntity extends StatueEntity {
       return returned;
    }
 
-   /** Deletes the statue along with the items it holds, returning how many stacks were destroyed. */
    public int destroy() {
       int destroyed = this.takeContents().size();
       this.discard();
       return destroyed;
    }
 
-   /** Puts stacks back in the slots they came from where possible; shared by statues and orphaned registry entries. */
    public static int restore(Player player, List<StoredStack> stacks) {
       Inventory inventory = player.getInventory();
       List<ItemStack> displaced = new ArrayList<>();

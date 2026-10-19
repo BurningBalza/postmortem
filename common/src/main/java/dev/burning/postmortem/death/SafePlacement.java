@@ -21,11 +21,6 @@ public final class SafePlacement {
    private SafePlacement() {
    }
 
-   /**
-    * Where a player's memorial goes: where they died, dropped straight down if they died in the air. Only if that
-    * leaves it in lava, over the void or inside blocks is a safe spot nearby searched for instead.
-    */
-   // How far a seated player's feet hang below the seat (Player.DEFAULT_VEHICLE_ATTACHMENT; 0.35 before 1.20.5).
    private static final double SEAT_DEPTH = 0.6;
 
    public static Vec3 findFor(Level world, Entity statue, Entity player) {
@@ -37,14 +32,11 @@ public final class SafePlacement {
    }
 
    private static Vec3 whereDied(Level world, Entity statue, Entity player) {
-      // The statue's box, not the player's: someone who died sneaking or crawling is shorter than their statue.
       AABB box = boxAt(statue, player.getX(), player.getY(), player.getZ());
       if (box.minY <= bottom(world) || !world.getWorldBorder().isWithinBounds(box)) {
          return null;
       }
 
-      // Still riding when this runs. Something that stays put, a seat, minecart or boat, keeps the statue sitting where
-      // the player sat; its legs hang into the seat, so only what's above the seat has to be clear.
       if (player.isPassenger() && !(player.getVehicle() instanceof LivingEntity)) {
          AABB aboveSeat = box.setMinY(box.minY + SEAT_DEPTH);
          return inBlocks(world, statue, aboveSeat) || inLava(world, aboveSeat) ? null : player.position();
@@ -54,7 +46,6 @@ public final class SafePlacement {
          return null;
       }
 
-      // In water the statue stays where the player was; it doesn't sink.
       Vec3 spot = player.isInWater() ? player.position() : drop(world, statue, box);
       if (spot == null) {
          return null;
@@ -62,8 +53,6 @@ public final class SafePlacement {
       return inLava(world, box.move(0.0, spot.y - box.minY, 0.0)) ? null : spot;
    }
 
-   // Straight down from where the player was until something holds the statue up: a block of any shape, or the
-   // surface of water or lava. Null if nothing does before the bottom of the world.
    private static Vec3 drop(Level world, Entity statue, AABB box) {
       int bottom = bottom(world);
       double floor = box.minY + Entity.collideBoundingBox(
@@ -89,7 +78,6 @@ public final class SafePlacement {
       return world.getBlockCollisions(statue, box.deflate(1.0E-3)).iterator().hasNext();
    }
 
-   // Standing on lava's surface counts as in it.
    private static boolean inLava(Level world, AABB box) {
       return world.getBlockStates(box.expandTowards(0.0, -0.5, 0.0).deflate(1.0E-3))
          .anyMatch(state -> state.getFluidState().is(FluidTags.LAVA));

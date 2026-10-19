@@ -48,7 +48,6 @@ public record PostmortemConfig(
    public static final int MIN_PLACEMENT_VOID_STEP = 1;
    public static final int MAX_PLACEMENT_VOID_STEP = 64;
 
-   // -1 keeps what vanilla would have dropped (7 points a level, at most 100); 0-100 is that share of all of it.
    public static final int VANILLA_EXPERIENCE = -1;
    public static final int MAX_STORED_EXPERIENCE_PERCENT = 100;
 
@@ -130,7 +129,6 @@ public record PostmortemConfig(
       int horizontal = Mth.clamp(this.placementHorizontalSearch, 0, MAX_PLACEMENT_HORIZONTAL_SEARCH);
       int vertical = Mth.clamp(this.placementVerticalSearch, 0, MAX_PLACEMENT_VERTICAL_SEARCH);
       int voidSearch = Mth.clamp(this.placementVoidSearch, 0, MAX_PLACEMENT_VOID_SEARCH);
-      // A step of zero would make the void ring search loop forever.
       int voidStep = Mth.clamp(this.placementVoidStep, MIN_PLACEMENT_VOID_STEP, MAX_PLACEMENT_VOID_STEP);
       int experiencePercent = Mth.clamp(this.storedExperiencePercent, VANILLA_EXPERIENCE, MAX_STORED_EXPERIENCE_PERCENT);
       return radius == this.collectRadius

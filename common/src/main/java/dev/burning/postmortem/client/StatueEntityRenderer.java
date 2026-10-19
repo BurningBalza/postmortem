@@ -68,8 +68,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
    //? if >=1.21.2 {
    public static class State extends HumanoidRenderState {
    //?} else {
-   /*// Before 1.21.2 renderers drew straight from the entity. These are the HumanoidRenderState fields the statue code
-   // uses, filled from the entity each frame, so the model and layers read a state on every version.
+   /*
    public static class State {
       public Pose pose = Pose.STANDING;
       public float bodyRot, yRot, xRot, walkAnimationPos, walkAnimationSpeed, attackTime, swimAmount, deathTime, ageInTicks;
@@ -84,13 +83,10 @@ public class StatueEntityRenderer<T extends StatueEntity>
    *///?}
       public StatueEntity statue;
 
-      // Ticks since a player knocked the statue; it wobbles for a moment after, like an armor stand.
       public float sinceHit = Float.MAX_VALUE;
 
-      // Set on the pose screen's preview, the only drawing of a statue that shows its part highlight.
       public boolean preview;
 
-      // Copies of what the statue wore in other mods' slots; see StatueWornLayer.
       public java.util.List<dev.burning.postmortem.compat.WornItem> worn = java.util.List.of();
 
       public final ItemDrawState backslotItemState = new ItemDrawState();
@@ -101,11 +97,10 @@ public class StatueEntityRenderer<T extends StatueEntity>
 
       public StatueVariant variant = StatueVariant.DEFAULT;
 
-      // The owner's skin in grey, drawn instead of stone when the server has greyscale_skins on; null otherwise.
       public Identifier skin;
 
       //? if <1.21.4 {
-      /*// Render states only carry arm poses from 1.21.4; StatueEntityModel hands these to HumanoidModel before that.
+      /*
       public HumanoidModel.ArmPose rightArmPose = HumanoidModel.ArmPose.EMPTY;
       public HumanoidModel.ArmPose leftArmPose = HumanoidModel.ArmPose.EMPTY;
       *///?}
@@ -160,7 +155,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
       this.addLayer(new StatueHighlightLayer(this));
    }
 
-   /** A renderer whose statue also has glowing eyes. */
    public StatueEntityRenderer(
       EntityRendererProvider.Context context, Identifier texture, Identifier eyesTexture) {
       this(context, texture);
@@ -171,7 +165,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
             return eyes;
          }
 
-         // The glowing eyes are carved for the stone face; over a skin they'd sit wrong.
          @Override
          //? if >=1.21.9 {
          public void submit(
@@ -207,18 +200,16 @@ public class StatueEntityRenderer<T extends StatueEntity>
    public void extractRenderState(T entity, State state, float tickDelta) {
       super.extractRenderState(entity, state, tickDelta);
    //?} else {
-   /*// The state this frame is drawn from; the model holds it while vanilla's render runs, and the layers read it there.
+   /*
    private final State frame = new State();
    private State preview;
 
-   /^* What 1.21.2's createRenderState(entity, partialTick) does. ^/
    public State createRenderState(StatueEntity entity, float tickDelta) {
       State state = new State();
       this.extractRenderState(entity, state, tickDelta);
       return state;
    }
 
-   /^* Draws the statue from a state the caller has posed, rather than from the entity; the pose screen's preview. ^/
    public void renderPreview(State state, PoseStack matrices, MultiBufferSource buffers, int light) {
       this.preview = state;
       try {
@@ -238,7 +229,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
       }
       this.model.current = state;
 
-      // Vanilla scales by the entity's own scale; the preview's state asks for its own.
       float rescale = state.scale / entity.getScale();
       matrices.pushPose();
       matrices.scale(rescale, rescale, rescale);
@@ -274,7 +264,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
    }
 
    public void extractRenderState(StatueEntity entity, State state, float tickDelta) {
-      // What LivingEntityRenderer's own extraction fills in from 1.21.2.
       state.boundingBoxWidth = entity.getBbWidth();
       state.boundingBoxHeight = entity.getBbHeight();
       state.scale = entity.getScale();
@@ -295,7 +284,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
       *///?}
       Pose pose = entity.getPose();
       state.pose = pose;
-      // The statue's own yaw is its body's; the head is kept as a turn from it (see StatueEntity#getHeadTurn).
       state.bodyRot = entity.getYRot();
       state.yRot = entity.getHeadTurn();
       state.xRot = entity.getXRot();
@@ -336,7 +324,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
       }
    }
 
-   // Only a plain face is drawn with the skin; a carved one keeps its stone texture.
    private static Identifier skinFor(StatueEntity entity) {
       if (!(entity instanceof MemorialStatueEntity memorial) || entity.getVariant() != StatueVariant.DEFAULT) {
          return null;
