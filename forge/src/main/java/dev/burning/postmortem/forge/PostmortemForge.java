@@ -37,7 +37,6 @@ public final class PostmortemForge {
       MinecraftForge.EVENT_BUS.addListener(PostmortemForge::carryKeptItems);
       MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> PostmortemCommand.register(event.getDispatcher()));
 
-      // Forge 1.20.1's @Mod has no dist of its own, so the client half is started from here.
       if (FMLEnvironment.dist == Dist.CLIENT) {
          PostmortemForgeClient.init(modBus);
       }

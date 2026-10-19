@@ -23,15 +23,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * Does for a statue's trinket copies what Trinkets Updated's layer does for an entity's equipped trinkets while the
- * render state is filled: each item's code renderer is queued, or else its data-driven render elements are applied.
- * Trinkets' layer on the statue's renderer then draws them, armor and wing overrides included. The statue has no
- * trinket slots of its own, so each item sits in a {@link StatueTrinketInventory} standing in for the player's slot.
- */
 final class TrinketsClientBridge {
-   // Code renderers, made from the same factories Trinkets' layer uses. A resource reload hands renderers a new
-   // context, and the cache starts over with it.
    private static final Map<Item, Optional<TrinketRenderer>> CODE_RENDERERS = new HashMap<>();
    private static EntityRendererProvider.Context cachedFor;
 
@@ -44,7 +36,6 @@ final class TrinketsClientBridge {
          return;
       }
 
-      // Trinkets' own extraction has just set these for the statue, which wears nothing of its own; ours are added.
       List<TrinketEntityRenderState.CodeRenderCall> code = new ArrayList<>(trinketState.trinkets$getCodeRenderers());
       trinketState.trinkets$setCodeRenderers(code);
       trinketState.trinkets$setPartAttachedRenderers(new ArrayList<>(trinketState.trinkets$getPartAttachedRenderers()));
@@ -55,7 +46,6 @@ final class TrinketsClientBridge {
       for (WornItem item : shown) {
          SlotType type = slotType(slots, item.slot());
          if (type == null) {
-            // The slot is gone, e.g. the mod that added it was removed.
             continue;
          }
 
