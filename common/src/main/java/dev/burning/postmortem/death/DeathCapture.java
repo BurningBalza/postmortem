@@ -145,11 +145,14 @@ public final class DeathCapture {
          taken.add(slot);
       }
 
+      // Trinkets are kept apart from other mods' slots, but the statue shows them alongside.
+      List<WornItem> shown = new ArrayList<>(WornItem.copies(worn));
       for (TrinketsCompat.Equipped trinket : TrinketsCompat.takeAll(player)) {
          statue.storeTrinket(trinket.stack(), trinket.slot());
+         shown.add(trinket.shown());
       }
 
-      statue.setWorn(WornItem.copies(worn));
+      statue.setWorn(shown);
       for (WornItem item : worn) {
          statue.storeWorn(item);
       }
