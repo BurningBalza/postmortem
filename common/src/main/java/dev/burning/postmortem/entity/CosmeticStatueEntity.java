@@ -75,6 +75,12 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    public static final double EDIT_RANGE_SQUARED = 12.0 * 12.0;
 
+   // Like an armor stand: a player's hit only knocks it, and a second within this many ticks breaks it.
+   private static final long BREAK_WINDOW_TICKS = 5L;
+   private static final byte HIT_EVENT = 32;
+
+   private long lastHit;
+
    @Override
    //? if >=26.1 {
    public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
@@ -239,18 +245,52 @@ public class CosmeticStatueEntity extends StatueEntity {
          return false;
       }
 
-      //? if >=1.20.5 {
-      if (source.is(DamageTypeTags.IS_PLAYER_ATTACK)
-      //?} else
-      //if (source.is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)
-         || source.is(DamageTypeTags.IS_EXPLOSION)
+      if (source.is(DamageTypeTags.IS_EXPLOSION)
          || source.is(DamageTypeTags.IS_PROJECTILE)
          || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-         this.breakApart(world);
+         this.breakApart(world, true);
          return true;
       }
 
-      return false;
+      //? if >=1.20.5 {
+      if (!source.is(DamageTypeTags.IS_PLAYER_ATTACK)) {
+      //?} else
+      //if (!source.is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)) {
+         return false;
+      }
+
+      if (source.getEntity() instanceof Player player && !player.getAbilities().mayBuild) {
+         return false;
+      }
+
+      if (source.isCreativePlayer()) {
+         this.breakApart(world, false);
+         return true;
+      }
+
+      long time = world.getGameTime();
+      if (time - this.lastHit > BREAK_WINDOW_TICKS) {
+         this.lastHit = time;
+         world.broadcastEntityEvent(this, HIT_EVENT);
+         world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.STONE_HIT, SoundSource.NEUTRAL, 0.6F, 1.0F);
+      } else {
+         this.breakApart(world, true);
+      }
+      return true;
+   }
+
+   @Override
+   public void handleEntityEvent(byte id) {
+      if (id == HIT_EVENT) {
+         this.lastHit = this.level().getGameTime();
+      } else {
+         super.handleEntityEvent(id);
+      }
+   }
+
+   /** Ticks since a player last knocked the statue, for the renderer's wobble. */
+   public float sinceHit(float tickDelta) {
+      return this.level().getGameTime() - this.lastHit + tickDelta;
    }
 
    private void openPoseMenu(Player player) {
@@ -263,8 +303,11 @@ public class CosmeticStatueEntity extends StatueEntity {
          .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.STONE_HIT, SoundSource.NEUTRAL, 0.9F, 1.5F);
    }
 
-   private void breakApart(ServerLevel world) {
-      Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));
+   // A creative player's break doesn't hand the statue back, as with armor stands; what it held still drops.
+   private void breakApart(ServerLevel world, boolean dropStatue) {
+      if (dropStatue) {
+         Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));
+      }
 
       for (EquipmentSlot slot : EquipmentSlot.values()) {
          if (this.canUseSlot(slot)) {

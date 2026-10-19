@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -206,11 +205,11 @@ public final class DeathCapture {
 
       PoseSnapshot pose = ((PoseSnapshot.Holder) player).postmortem$getLastLivingPose();
 
-      BlockPos pos = SafePlacement.findFor(world, statue, player.blockPosition());
+      Vec3 pos = SafePlacement.findFor(world, statue, player);
       //? if >=1.21.5 {
-      statue.snapTo(Vec3.atBottomCenterOf(pos), pose.bodyYaw(), pose.pitch());
+      statue.snapTo(pos, pose.bodyYaw(), pose.pitch());
       //?} else
-      //statue.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, pose.bodyYaw(), pose.pitch());
+      //statue.moveTo(pos.x, pos.y, pos.z, pose.bodyYaw(), pose.pitch());
       statue.applyPose(pose);
       PehkuiCompat.copyScales(player, statue);
       // Registered before spawning so the items are safe even if the entity never makes it into the world.
@@ -225,7 +224,7 @@ public final class DeathCapture {
       world.playSound(null, statue.getX(), statue.getY(), statue.getZ(), SoundEvents.STONE_PLACE, SoundSource.NEUTRAL, 1.0F, 0.7F);
 
       if (PostmortemConfig.get().debug()) {
-         Postmortem.LOGGER.info("[postmortem] {} died at {}; statue placed at {}", player.getName().getString(), player.blockPosition(), pos);
+         Postmortem.LOGGER.info("[postmortem] {} died at {}; statue placed at {}", player.getName().getString(), player.position(), pos);
       }
 
       return true;

@@ -1,6 +1,7 @@
 package dev.burning.postmortem.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
 import dev.burning.postmortem.entity.StatueEntity;
@@ -30,6 +31,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
@@ -79,6 +81,9 @@ public class StatueEntityRenderer<T extends StatueEntity>
       public ItemStack feetEquipment = ItemStack.EMPTY;
    *///?}
       public StatueEntity statue;
+
+      // Ticks since a player knocked the statue; it wobbles for a moment after, like an armor stand.
+      public float sinceHit = Float.MAX_VALUE;
 
       // Set on the pose screen's preview, the only drawing of a statue that shows its part highlight.
       public boolean preview;
@@ -221,6 +226,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
    /^protected void setupRotations(StatueEntity entity, PoseStack matrices, float bob, float bodyRot, float tickDelta) {
       super.setupRotations(entity, matrices, bob, this.model.current.bodyRot, tickDelta);
    ^///?}
+      wobble(matrices, this.model.current.sinceHit);
    }
 
    @Override
@@ -246,6 +252,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
    *///?}
 
       state.statue = entity;
+      state.sinceHit = entity instanceof CosmeticStatueEntity cosmetic ? cosmetic.sinceHit(tickDelta) : Float.MAX_VALUE;
       //? if >=1.21.4 {
       HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta, this.itemModelManager);
       //?} elif >=1.21.2 {
@@ -329,6 +336,20 @@ public class StatueEntityRenderer<T extends StatueEntity>
       //?}
 
       return HumanoidModel.ArmPose.ITEM;
+   }
+
+   //? if >=1.21.2 {
+   @Override
+   protected void setupRotations(State state, PoseStack matrices, float bodyRot, float scale) {
+      super.setupRotations(state, matrices, bodyRot, scale);
+      wobble(matrices, state.sinceHit);
+   }
+   //?}
+
+   private static void wobble(PoseStack matrices, float sinceHit) {
+      if (sinceHit < 5.0F) {
+         matrices.rotate(Axis.YP.rotationDegrees(Mth.sin(sinceHit / 1.5F * (float) Math.PI) * 3.0F));
+      }
    }
 
    @Override
