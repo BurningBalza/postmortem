@@ -59,6 +59,8 @@ public class StatueEntityRenderer<T extends StatueEntity>
 
    private final Identifier texture;
 
+   private final EntityRendererProvider.Context context;
+
    //? if >=1.21.2 {
    public static class State extends HumanoidRenderState {
    //?} else {
@@ -78,6 +80,9 @@ public class StatueEntityRenderer<T extends StatueEntity>
    *///?}
       public StatueEntity statue;
 
+      // Set on the pose screen's preview, the only drawing of a statue that shows its part highlight.
+      public boolean preview;
+
       // Copies of what the statue wore in other mods' slots; see StatueWornLayer.
       public java.util.List<dev.burning.postmortem.compat.WornItem> worn = java.util.List.of();
 
@@ -96,6 +101,13 @@ public class StatueEntityRenderer<T extends StatueEntity>
       *///?}
    }
 
+   //? if >=1.21.4 {
+   ItemModelResolver itemModels() {
+   //?} else
+   //ItemRenderer itemModels() {
+      return this.itemModelManager;
+   }
+
    public StatueEntityRenderer(EntityRendererProvider.Context context, Identifier texture) {
       super(context, new StatueEntityModel(context.bakeLayer(ModelLayers.PLAYER_SLIM)), 0.0F);
       //? if >=1.21.4 {
@@ -103,6 +115,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       //?} else
       //this.itemModelManager = context.getItemRenderer();
       this.texture = texture;
+      this.context = context;
       //? if >=1.21.9 {
       this.addLayer(new HumanoidArmorLayer<>(
          this,
@@ -246,8 +259,9 @@ public class StatueEntityRenderer<T extends StatueEntity>
       *///?}
       Pose pose = entity.getPose();
       state.pose = pose;
-      state.bodyRot = entity.getVisualRotationYInDegrees();
-      state.yRot = entity.getYHeadRot() - entity.getVisualRotationYInDegrees();
+      // The statue's own yaw is its body's; the head is kept as a turn from it (see StatueEntity#getHeadTurn).
+      state.bodyRot = entity.getYRot();
+      state.yRot = entity.getHeadTurn();
       state.xRot = entity.getXRot();
       state.walkAnimationPos = entity.getLimbAngle();
       state.walkAnimationSpeed = entity.getLimbAmplitude();
@@ -273,6 +287,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       state.limbPose = entity instanceof CosmeticStatueEntity cosmetic ? cosmetic.getLimbPose() : StatuePose.DEFAULT;
       state.variant = entity.getVariant();
       state.worn = entity.getWorn();
+      StatueWornLayer.extract(state, this.context);
       updateArmPoses(entity, state);
       ItemStack backslot = entity.getBackslotStack();
       if (backslot.isEmpty()) {

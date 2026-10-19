@@ -20,7 +20,8 @@ import net.minecraft.world.item.ItemStack;
  * keeps the old id as an alias on Fabric, so both ids are checked and the API is picked by which classes exist.
  */
 public final class TrinketsCompat {
-   private static final String MOD_ID = "trinkets";
+   /** The id a statue's copies of trinkets are shown under; see {@link WornItem#mod()}. */
+   public static final String MOD_ID = "trinkets";
    private static final String UPDATED_MOD_ID = "trinkets_updated";
 
    private static boolean resolved;
@@ -47,6 +48,7 @@ public final class TrinketsCompat {
    private static Method accessSet;
    private static Method getCosmeticItem;
    private static Method setCosmeticItem;
+   private static Method isVisible;
 
    /** Where a trinket was worn, remembered so it can be put back in the same slot. */
    public record TrinketSlot(String group, String name, int index, boolean cosmetic) {
@@ -58,7 +60,14 @@ public final class TrinketsCompat {
       ).apply(instance, TrinketSlot::new));
    }
 
-   public record Equipped(TrinketSlot slot, ItemStack stack) {
+   /** {@code visible} is the slot's own show/hide toggle; the original Trinkets has none, so it is always true there. */
+   public record Equipped(TrinketSlot slot, ItemStack stack, boolean visible) {
+      /** A copy for a statue to show, named the way Trinkets Updated names the slot. */
+      public WornItem shown() {
+         return new WornItem(
+            MOD_ID, this.slot.group() + "/" + this.slot.name(), this.slot.index(), this.slot.cosmetic(), this.visible,
+            this.stack.copy());
+      }
    }
 
    private TrinketsCompat() {
@@ -104,7 +113,7 @@ public final class TrinketsCompat {
          Object slotType = getSlotType.invoke(trinketInventory);
          taken.add(new Equipped(
             new TrinketSlot((String) getGroup.invoke(slotType), (String) getName.invoke(slotType), index, false),
-            stack.copy()));
+            stack.copy(), true));
          ((Container) trinketInventory).setItem(index, ItemStack.EMPTY);
       }
       return taken;
@@ -135,7 +144,7 @@ public final class TrinketsCompat {
 
          taken.add(new Equipped(
             new TrinketSlot((String) getGroup.invoke(slotType), (String) getName.invoke(slotType), index, cosmetic),
-            stack.copy()));
+            stack.copy(), (Boolean) isVisible.invoke(inventory, index)));
          accessSet.invoke(access, ItemStack.EMPTY);
       }
       return taken;
@@ -236,6 +245,7 @@ public final class TrinketsCompat {
             accessSet = access.getMethod("set", ItemStack.class);
             getCosmeticItem = trinketInventory.getMethod("getCosmeticItem", int.class);
             setCosmeticItem = trinketInventory.getMethod("setCosmeticItem", int.class, ItemStack.class);
+            isVisible = trinketInventory.getMethod("isVisible", int.class);
             getGroup = slotType.getMethod("group");
             getName = slotType.getMethod("name");
          } else {

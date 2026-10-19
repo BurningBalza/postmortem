@@ -169,7 +169,8 @@ public abstract class CompatRenderers {
             previous = (Entity) getStateEntity.invoke(this.state);
             setStateEntity.invoke(this.state, standIn);
 
-            submit.invoke(this.renderer, matrices, sink.raw(), light, this.state, 0.0F, 0.0F);
+            RenderSink back = sink.withOverlay(StatueHighlightLayer.overlayFor(source, StatuePart.BACK_ITEM));
+            submit.invoke(this.renderer, matrices, back.raw(), light, this.state, 0.0F, 0.0F);
             return true;
          } catch (ReflectiveOperationException | RuntimeException e) {
             available = false;
@@ -288,8 +289,12 @@ public abstract class CompatRenderers {
             standIn.setItemSlot(backSlot, statue.getBackslotStack());
             standIn.setItemSlot(beltSlot, statue.getBeltslotStack());
 
-            this.submitIsolated(submitBack, this.backRenderer, matrices, sink, light, source.limbPose.get(StatuePart.BACK_ITEM));
-            this.submitIsolated(submitBelt, this.beltRenderer, matrices, sink, light, source.limbPose.get(StatuePart.BELT_ITEM));
+            this.submitIsolated(submitBack, this.backRenderer, matrices,
+               sink.withOverlay(StatueHighlightLayer.overlayFor(source, StatuePart.BACK_ITEM)), light,
+               source.limbPose.get(StatuePart.BACK_ITEM));
+            this.submitIsolated(submitBelt, this.beltRenderer, matrices,
+               sink.withOverlay(StatueHighlightLayer.overlayFor(source, StatuePart.BELT_ITEM)), light,
+               source.limbPose.get(StatuePart.BELT_ITEM));
             return true;
          } catch (ReflectiveOperationException | RuntimeException e) {
             available = false;
