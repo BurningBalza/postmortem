@@ -6,6 +6,7 @@ import dev.burning.postmortem.compat.WornItem;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -14,6 +15,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -49,6 +51,11 @@ public abstract class StatueEntity extends LivingEntity {
    private static final EntityDataAccessor<Float> HAND_SWING =
       SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.FLOAT);
    private static final EntityDataAccessor<Float> LEANING =
+      SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.FLOAT);
+
+   // The head's turn from the body, in degrees. Vanilla does not keep a living entity's head yaw (loading it, or a
+   // client receiving it, sets the head to the body), so a statue keeps its own and draws from it.
+   private static final EntityDataAccessor<Float> HEAD_TURN =
       SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.FLOAT);
 
    private static final EntityDataAccessor<ItemStack> BACKSLOT =
@@ -138,6 +145,7 @@ public abstract class StatueEntity extends LivingEntity {
       builder.define(LIMB_AMPLITUDE, 0.0F);
       builder.define(HAND_SWING, 0.0F);
       builder.define(LEANING, 0.0F);
+      builder.define(HEAD_TURN, 0.0F);
       builder.define(BACKSLOT, ItemStack.EMPTY);
       builder.define(BELTSLOT, ItemStack.EMPTY);
       builder.define(VARIANT, StatueVariant.DEFAULT.ordinal());
@@ -259,12 +267,22 @@ public abstract class StatueEntity extends LivingEntity {
       Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), stack.copy());
    }
 
+   @Override
+   public void recreateFromPacket(ClientboundAddEntityPacket packet) {
+      super.recreateFromPacket(packet);
+      // Vanilla turns a living entity's body to face where its head does when it arrives on a client. A statue keeps
+      // the body where it was, which is its own yaw - for a memorial, the way the player's body faced.
+      this.setYBodyRot(this.getYRot());
+      this.yBodyRotO = this.yBodyRot;
+   }
+
    public void applyPose(PoseSnapshot snapshot) {
       this.setPose(snapshot.pose());
       this.setXRot(snapshot.pitch());
       this.setYRot(snapshot.bodyYaw());
       this.setYHeadRot(snapshot.headYaw());
       this.setYBodyRot(snapshot.bodyYaw());
+      this.setHeadTurn(snapshot.headYaw() - snapshot.bodyYaw());
       this.setLimbAngle(snapshot.limbAngle());
       this.setLimbAmplitude(snapshot.limbAmplitude());
       this.setHandSwing(snapshot.handSwing());
@@ -337,6 +355,14 @@ public abstract class StatueEntity extends LivingEntity {
       this.entityData.set(SEATED, value);
    }
 
+   public float getHeadTurn() {
+      return this.entityData.get(HEAD_TURN);
+   }
+
+   public void setHeadTurn(float degrees) {
+      this.entityData.set(HEAD_TURN, Mth.wrapDegrees(degrees));
+   }
+
    public float getLeaning() {
       return this.entityData.get(LEANING);
    }
@@ -362,6 +388,7 @@ public abstract class StatueEntity extends LivingEntity {
       view.putFloat("LimbAmplitude", this.getLimbAmplitude());
       view.putFloat("HandSwing", this.getHandSwing());
       view.putFloat("Leaning", this.getLeaning());
+      view.putFloat("HeadTurn", this.getHeadTurn());
       if (!this.getBackslotStack().isEmpty()) {
          view.store("Backslot", ItemStack.CODEC, this.getBackslotStack());
       }
@@ -403,6 +430,7 @@ public abstract class StatueEntity extends LivingEntity {
       this.setLimbAmplitude(view.getFloatOr("LimbAmplitude", 0.0F));
       this.setHandSwing(view.getFloatOr("HandSwing", 0.0F));
       this.setLeaning(view.getFloatOr("Leaning", 0.0F));
+      this.setHeadTurn(view.getFloatOr("HeadTurn", 0.0F));
       this.setBackslotStack(view.read("Backslot", ItemStack.CODEC).orElse(ItemStack.EMPTY));
       this.setBeltslotStack(view.read("Beltslot", ItemStack.CODEC).orElse(ItemStack.EMPTY));
       this.setWorn(view.read("Worn", WornItem.CODEC.listOf()).orElse(java.util.List.of()));
