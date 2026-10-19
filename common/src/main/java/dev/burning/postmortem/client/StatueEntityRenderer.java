@@ -1,8 +1,10 @@
 package dev.burning.postmortem.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
+import dev.burning.postmortem.entity.MemorialStatueEntity;
 import dev.burning.postmortem.entity.StatueEntity;
 import dev.burning.postmortem.entity.StatuePose;
 import dev.burning.postmortem.entity.StatueVariant;
@@ -30,12 +32,14 @@ import net.minecraft.client.renderer.RenderType;
 //import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import java.util.UUID;
 
 public class StatueEntityRenderer<T extends StatueEntity>
    //? if >=1.21.2 {
@@ -64,8 +68,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
    //? if >=1.21.2 {
    public static class State extends HumanoidRenderState {
    //?} else {
-   /*// Before 1.21.2 renderers drew straight from the entity. These are the HumanoidRenderState fields the statue code
-   // uses, filled from the entity each frame, so the model and layers read a state on every version.
+   /*
    public static class State {
       public Pose pose = Pose.STANDING;
       public float bodyRot, yRot, xRot, walkAnimationPos, walkAnimationSpeed, attackTime, swimAmount, deathTime, ageInTicks;
@@ -80,10 +83,10 @@ public class StatueEntityRenderer<T extends StatueEntity>
    *///?}
       public StatueEntity statue;
 
-      // Set on the pose screen's preview, the only drawing of a statue that shows its part highlight.
+      public float sinceHit = Float.MAX_VALUE;
+
       public boolean preview;
 
-      // Copies of what the statue wore in other mods' slots; see StatueWornLayer.
       public java.util.List<dev.burning.postmortem.compat.WornItem> worn = java.util.List.of();
 
       public final ItemDrawState backslotItemState = new ItemDrawState();
@@ -94,8 +97,10 @@ public class StatueEntityRenderer<T extends StatueEntity>
 
       public StatueVariant variant = StatueVariant.DEFAULT;
 
+      public ResourceLocation skin;
+
       //? if <1.21.4 {
-      /*// Render states only carry arm poses from 1.21.4; StatueEntityModel hands these to HumanoidModel before that.
+      /*
       public HumanoidModel.ArmPose rightArmPose = HumanoidModel.ArmPose.EMPTY;
       public HumanoidModel.ArmPose leftArmPose = HumanoidModel.ArmPose.EMPTY;
       *///?}
@@ -150,7 +155,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
       this.addLayer(new StatueHighlightLayer(this));
    }
 
-   /** A renderer whose statue also has glowing eyes. */
    public StatueEntityRenderer(
       EntityRendererProvider.Context context, ResourceLocation texture, ResourceLocation eyesTexture) {
       this(context, texture);
@@ -159,6 +163,29 @@ public class StatueEntityRenderer<T extends StatueEntity>
          @Override
          public RenderType renderType() {
             return eyes;
+         }
+
+         @Override
+         //? if >=1.21.9 {
+         /*public void submit(
+            PoseStack matrices, net.minecraft.client.renderer.SubmitNodeCollector queue, int light, State state, float yRot, float xRot) {
+            if (state.skin == null) {
+               super.submit(matrices, queue, light, state, yRot, xRot);
+            }
+         *///?} elif >=1.21.2 {
+         public void render(
+            PoseStack matrices, net.minecraft.client.renderer.MultiBufferSource buffers, int light, State state, float yRot, float xRot) {
+            if (state.skin == null) {
+               super.render(matrices, buffers, light, state, yRot, xRot);
+            }
+         //?} else {
+         /*public void render(
+            PoseStack matrices, net.minecraft.client.renderer.MultiBufferSource buffers, int light, StatueEntity entity,
+            float limbAngle, float limbDistance, float tickDelta, float age, float yRot, float xRot) {
+            if (skinFor(entity) == null) {
+               super.render(matrices, buffers, light, entity, limbAngle, limbDistance, tickDelta, age, yRot, xRot);
+            }
+         *///?}
          }
       });
    }
@@ -173,18 +200,16 @@ public class StatueEntityRenderer<T extends StatueEntity>
    public void extractRenderState(T entity, State state, float tickDelta) {
       super.extractRenderState(entity, state, tickDelta);
    //?} else {
-   /*// The state this frame is drawn from; the model holds it while vanilla's render runs, and the layers read it there.
+   /*
    private final State frame = new State();
    private State preview;
 
-   /^* What 1.21.2's createRenderState(entity, partialTick) does. ^/
    public State createRenderState(StatueEntity entity, float tickDelta) {
       State state = new State();
       this.extractRenderState(entity, state, tickDelta);
       return state;
    }
 
-   /^* Draws the statue from a state the caller has posed, rather than from the entity; the pose screen's preview. ^/
    public void renderPreview(State state, PoseStack matrices, MultiBufferSource buffers, int light) {
       this.preview = state;
       try {
@@ -204,7 +229,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
       }
       this.model.current = state;
 
-      // Vanilla scales by the entity's own scale; the preview's state asks for its own.
       float rescale = state.scale / entity.getScale();
       matrices.pushPose();
       matrices.scale(rescale, rescale, rescale);
@@ -221,6 +245,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
    /^protected void setupRotations(StatueEntity entity, PoseStack matrices, float bob, float bodyRot, float tickDelta) {
       super.setupRotations(entity, matrices, bob, this.model.current.bodyRot, tickDelta);
    ^///?}
+      wobble(matrices, this.model.current.sinceHit);
    }
 
    @Override
@@ -239,13 +264,13 @@ public class StatueEntityRenderer<T extends StatueEntity>
    }
 
    public void extractRenderState(StatueEntity entity, State state, float tickDelta) {
-      // What LivingEntityRenderer's own extraction fills in from 1.21.2.
       state.boundingBoxWidth = entity.getBbWidth();
       state.boundingBoxHeight = entity.getBbHeight();
       state.scale = entity.getScale();
    *///?}
 
       state.statue = entity;
+      state.sinceHit = entity instanceof CosmeticStatueEntity cosmetic ? cosmetic.sinceHit(tickDelta) : Float.MAX_VALUE;
       //? if >=1.21.4 {
       HumanoidMobRenderer.extractHumanoidRenderState(entity, state, tickDelta, this.itemModelManager);
       //?} elif >=1.21.2 {
@@ -259,7 +284,6 @@ public class StatueEntityRenderer<T extends StatueEntity>
       *///?}
       Pose pose = entity.getPose();
       state.pose = pose;
-      // The statue's own yaw is its body's; the head is kept as a turn from it (see StatueEntity#getHeadTurn).
       state.bodyRot = entity.getYRot();
       state.yRot = entity.getHeadTurn();
       state.xRot = entity.getXRot();
@@ -286,6 +310,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       state.isFullyFrozen = false;
       state.limbPose = entity instanceof CosmeticStatueEntity cosmetic ? cosmetic.getLimbPose() : StatuePose.DEFAULT;
       state.variant = entity.getVariant();
+      state.skin = skinFor(entity);
       state.worn = entity.getWorn();
       StatueWornLayer.extract(state, this.context);
       updateArmPoses(entity, state);
@@ -297,6 +322,15 @@ public class StatueEntityRenderer<T extends StatueEntity>
          state.backslotFit = StatueBackItemLayer.Fit.forItem(backslot);
          state.backslotItemState.update(this.itemModelManager, backslot, state.backslotFit.displayContext(), entity);
       }
+   }
+
+   private static ResourceLocation skinFor(StatueEntity entity) {
+      if (!(entity instanceof MemorialStatueEntity memorial) || entity.getVariant() != StatueVariant.DEFAULT) {
+         return null;
+      }
+
+      UUID owner = memorial.getSkinOwner();
+      return owner != null ? GreyscaleSkins.get(owner, memorial.getSkinTextures()) : null;
    }
 
    private static void updateArmPoses(StatueEntity entity, State state) {
@@ -331,6 +365,20 @@ public class StatueEntityRenderer<T extends StatueEntity>
       return HumanoidModel.ArmPose.ITEM;
    }
 
+   //? if >=1.21.2 {
+   @Override
+   protected void setupRotations(State state, PoseStack matrices, float bodyRot, float scale) {
+      super.setupRotations(state, matrices, bodyRot, scale);
+      wobble(matrices, state.sinceHit);
+   }
+   //?}
+
+   private static void wobble(PoseStack matrices, float sinceHit) {
+      if (sinceHit < 5.0F) {
+         matrices.mulPose(Axis.YP.rotationDegrees(Mth.sin(sinceHit / 1.5F * (float) Math.PI) * 3.0F));
+      }
+   }
+
    @Override
    //? if >=1.21.2 {
    protected void scale(State state, PoseStack matrices) {
@@ -354,10 +402,15 @@ public class StatueEntityRenderer<T extends StatueEntity>
    //? if >=1.21.2 {
    public ResourceLocation getTextureLocation(State state) {
       ResourceLocation carved = state.variant.texture();
+      ResourceLocation skin = state.skin;
    //?} else {
    /*public ResourceLocation getTextureLocation(StatueEntity entity) {
       ResourceLocation carved = entity.getVariant().texture();
+      ResourceLocation skin = skinFor(entity);
    *///?}
+      if (skin != null) {
+         return skin;
+      }
       return carved != null ? carved : this.texture;
    }
 }

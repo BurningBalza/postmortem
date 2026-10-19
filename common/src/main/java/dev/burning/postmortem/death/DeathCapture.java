@@ -18,7 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -37,13 +40,15 @@ public final class DeathCapture {
    private DeathCapture() {
    }
 
-   /** Items tagged {@code postmortem:kept_on_death} stay with the player instead of going into the statue. */
    public static boolean isKept(ItemStack stack) {
       return !stack.isEmpty() && stack.is(PostmortemRegistry.KEPT_ON_DEATH);
    }
 
-   /** Called by the loader when a player respawns, with {@code alive} false when the respawn follows a death. */
    public static void carryKeptItems(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
+      if (!alive) {
+         announceMemorial(newPlayer);
+      }
+
       if (alive
          || GraveMods.present()
          || oldPlayer.isSpectator()
@@ -82,13 +87,8 @@ public final class DeathCapture {
       }
    }
 
-   // Items taken from other mods' slots just before the death drop, waiting for capture() to keep them.
    private static final Map<UUID, List<WornItem>> PENDING_WORN = new HashMap<>();
 
-   /**
-    * Takes what the player wore in Curios or Accessories slots, before those mods drop it. Runs ahead of the death
-    * drop because Accessories drops its items on Fabric just before vanilla's.
-    */
    public static void takeWorn(ServerPlayer player, DamageSource source) {
       List<WornItem> worn = new ArrayList<>();
       for (WornSlots mod : WornSlots.loaded()) {
@@ -135,7 +135,6 @@ public final class DeathCapture {
             continue;
          }
 
-         // Left in place; carryKeptItems moves it into the respawned player's inventory.
          if (isKept(stack)) {
             keepingAnything = true;
             continue;
@@ -145,7 +144,6 @@ public final class DeathCapture {
          taken.add(slot);
       }
 
-      // Trinkets are kept apart from other mods' slots, but the statue shows them alongside.
       List<WornItem> shown = new ArrayList<>(WornItem.copies(worn));
       for (TrinketsCompat.Equipped trinket : TrinketsCompat.takeAll(player)) {
          statue.storeTrinket(trinket.stack(), trinket.slot());
@@ -188,12 +186,20 @@ public final class DeathCapture {
             Postmortem.LOGGER.info("[postmortem] {} died carrying nothing; no statue placed", player.getName().getString());
          }
 
-         // Cancelling vanilla drops here keeps a lone kept item from hitting the floor.
          return keepingAnything;
       }
 
       for (int slot : taken) {
          inventory.setItem(slot, ItemStack.EMPTY);
+      }
+
+      int experience = experienceToStore(player, world);
+      statue.storeExperience(experience);
+
+      if (experience > 0) {
+         player.experienceLevel = 0;
+         player.experienceProgress = 0.0F;
+         player.totalExperience = 0;
       }
 
       if (backslotIsLoot) {
@@ -206,14 +212,13 @@ public final class DeathCapture {
 
       PoseSnapshot pose = ((PoseSnapshot.Holder) player).postmortem$getLastLivingPose();
 
-      BlockPos pos = SafePlacement.findFor(world, statue, player.blockPosition());
+      Vec3 pos = SafePlacement.findFor(world, statue, player);
       //? if >=1.21.5 {
-      statue.snapTo(Vec3.atBottomCenterOf(pos), pose.bodyYaw(), pose.pitch());
+      statue.snapTo(pos, pose.bodyYaw(), pose.pitch());
       //?} else
-      //statue.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, pose.bodyYaw(), pose.pitch());
+      //statue.moveTo(pos.x, pos.y, pos.z, pose.bodyYaw(), pose.pitch());
       statue.applyPose(pose);
       PehkuiCompat.copyScales(player, statue);
-      // Registered before spawning so the items are safe even if the entity never makes it into the world.
       statue.register(world);
       world.addFreshEntity(statue);
 
@@ -225,10 +230,52 @@ public final class DeathCapture {
       world.playSound(null, statue.getX(), statue.getY(), statue.getZ(), SoundEvents.STONE_PLACE, SoundSource.NEUTRAL, 1.0F, 0.7F);
 
       if (PostmortemConfig.get().debug()) {
-         Postmortem.LOGGER.info("[postmortem] {} died at {}; statue placed at {}", player.getName().getString(), player.blockPosition(), pos);
+         Postmortem.LOGGER.info("[postmortem] {} died at {}; statue placed at {}", player.getName().getString(), player.position(), pos);
       }
 
+      PENDING_ANNOUNCEMENTS.put(player.getUUID(), GlobalPos.of(world.dimension(), statue.blockPosition()));
       return true;
+   }
+
+   private static final Map<UUID, GlobalPos> PENDING_ANNOUNCEMENTS = new HashMap<>();
+
+   private static void announceMemorial(ServerPlayer player) {
+      GlobalPos memorial = PENDING_ANNOUNCEMENTS.remove(player.getUUID());
+      if (memorial == null || !PostmortemConfig.get().memorialLocationMessage()) {
+         return;
+      }
+
+      BlockPos pos = memorial.pos();
+      player.sendSystemMessage(Component.translatable(
+            "message.postmortem.memorial_location", pos.getX(), pos.getY(), pos.getZ(), memorial.dimension().location().toString())
+         .withStyle(ChatFormatting.GRAY));
+   }
+
+   private static int experienceToStore(Player player, ServerLevel world) {
+      PostmortemConfig config = PostmortemConfig.get();
+      if (!config.storeExperience() || player.isSpectator()) {
+         return 0;
+      }
+
+      if (config.storedExperiencePercent() == PostmortemConfig.VANILLA_EXPERIENCE) {
+         return Math.min(player.experienceLevel * 7, 100);
+      }
+
+      return (int) Math.min(Integer.MAX_VALUE, totalExperience(player) * config.storedExperiencePercent() / 100L);
+   }
+
+   private static long totalExperience(Player player) {
+      long level = Math.max(0, player.experienceLevel);
+      double upToLevel;
+      if (level <= 16) {
+         upToLevel = level * level + 6 * level;
+      } else if (level <= 31) {
+         upToLevel = 2.5 * level * level - 40.5 * level + 360;
+      } else {
+         upToLevel = 4.5 * level * level - 162.5 * level + 2220;
+      }
+
+      return (long) Math.min(Long.MAX_VALUE / 100, upToLevel + player.experienceProgress * player.getXpNeededForNextLevel());
    }
 
    private static EquipmentSlot displaySlotFor(int slot, int selectedSlot) {

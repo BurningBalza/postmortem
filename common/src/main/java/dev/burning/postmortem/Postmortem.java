@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Loader-independent setup. Each loader's entrypoint calls {@link #init()} and then wires its own events. */
 public final class Postmortem {
    public static final String MOD_ID = "postmortem";
    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -24,7 +23,6 @@ public final class Postmortem {
       //return new ResourceLocation(MOD_ID, path);
    }
 
-   /** Shows {@code message} above the hotbar. */
    public static void overlay(Player player, Component message) {
       //? if >=26.1 {
       /*player.sendOverlayMessage(message);
@@ -35,7 +33,6 @@ public final class Postmortem {
    public static void init() {
       PostmortemConfig.load();
       PostmortemRegistry.init();
-      // Checked now so the log says up front whether another mod handles deaths, and which slot mods are bridged.
       GraveMods.present();
       WornSlots.loaded();
       TrinketsCompat.present();
