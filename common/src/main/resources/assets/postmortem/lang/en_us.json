@@ -55,5 +55,5 @@
 	"message.postmortem.variant": "Carved a %s face.",
 	"message.postmortem.statue_waxed": "This statue is sealed with wax.",
 	"message.postmortem.no_statue_in_range": "No remains of yours are nearby.",
-	"message.postmortem.collected": "Recovered %s stack(s) from your remains."
+	"message.postmortem.memorial_location": "Your remains rest at %s, %s, %s in %s."
 }
