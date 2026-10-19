@@ -9,6 +9,7 @@ plugins {
 sourceSets {
     create("curios")
     create("accessories")
+    create("trinkets")
 }
 
 tasks.named { it.startsWith("compile") || it.startsWith("process") || it.endsWith("classes", ignoreCase = true) || it == "jar" }

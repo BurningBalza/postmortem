@@ -165,7 +165,7 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
          }
       }
 
-      sink.item(state.backslotItemState, matrices, light);
+      sink.item(state.backslotItemState, matrices, light, StatueHighlightLayer.overlayFor(state, StatuePart.BACK_ITEM));
       matrices.popPose();
    }
 }
