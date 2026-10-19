@@ -18,6 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -43,6 +47,10 @@ public final class DeathCapture {
 
    /** Called by the loader when a player respawns, with {@code alive} false when the respawn follows a death. */
    public static void carryKeptItems(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
+      if (!alive) {
+         announceMemorial(newPlayer);
+      }
+
       if (alive
          || GraveMods.present()
          || oldPlayer.isSpectator()
@@ -195,6 +203,17 @@ public final class DeathCapture {
          inventory.setItem(slot, ItemStack.EMPTY);
       }
 
+      // Stored only alongside items: experience alone never makes a memorial, and drops as it would without one.
+      int experience = experienceToStore(player, world);
+      statue.storeExperience(experience);
+
+      // Vanilla drops the experience right after the equipment; with none left, it drops no orbs.
+      if (experience > 0) {
+         player.experienceLevel = 0;
+         player.experienceProgress = 0.0F;
+         player.totalExperience = 0;
+      }
+
       if (backslotIsLoot) {
          BackslotCompat.clear(player);
       }
@@ -227,7 +246,51 @@ public final class DeathCapture {
          Postmortem.LOGGER.info("[postmortem] {} died at {}; statue placed at {}", player.getName().getString(), player.position(), pos);
       }
 
+      PENDING_ANNOUNCEMENTS.put(player.getUUID(), GlobalPos.of(world.dimension(), statue.blockPosition()));
       return true;
+   }
+
+   // Where each dead player's memorial went, told to them when they respawn.
+   private static final Map<UUID, GlobalPos> PENDING_ANNOUNCEMENTS = new HashMap<>();
+
+   private static void announceMemorial(ServerPlayer player) {
+      GlobalPos memorial = PENDING_ANNOUNCEMENTS.remove(player.getUUID());
+      if (memorial == null || !PostmortemConfig.get().memorialLocationMessage()) {
+         return;
+      }
+
+      BlockPos pos = memorial.pos();
+      player.sendSystemMessage(Component.translatable(
+            "message.postmortem.memorial_location", pos.getX(), pos.getY(), pos.getZ(), memorial.dimension().identifier().toString())
+         .withStyle(ChatFormatting.GRAY));
+   }
+
+   private static int experienceToStore(Player player, ServerLevel world) {
+      PostmortemConfig config = PostmortemConfig.get();
+      if (!config.storeExperience() || player.isSpectator()) {
+         return 0;
+      }
+
+      if (config.storedExperiencePercent() == PostmortemConfig.VANILLA_EXPERIENCE) {
+         return Math.min(player.experienceLevel * 7, 100);
+      }
+
+      return (int) Math.min(Integer.MAX_VALUE, totalExperience(player) * config.storedExperiencePercent() / 100L);
+   }
+
+   // Worked out from the level and bar rather than Player.totalExperience, which commands that set levels leave behind.
+   private static long totalExperience(Player player) {
+      long level = Math.max(0, player.experienceLevel);
+      double upToLevel;
+      if (level <= 16) {
+         upToLevel = level * level + 6 * level;
+      } else if (level <= 31) {
+         upToLevel = 2.5 * level * level - 40.5 * level + 360;
+      } else {
+         upToLevel = 4.5 * level * level - 162.5 * level + 2220;
+      }
+
+      return (long) Math.min(Long.MAX_VALUE / 100, upToLevel + player.experienceProgress * player.getXpNeededForNextLevel());
    }
 
    private static EquipmentSlot displaySlotFor(int slot, int selectedSlot) {

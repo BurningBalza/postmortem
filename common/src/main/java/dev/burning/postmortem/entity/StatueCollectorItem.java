@@ -70,14 +70,12 @@ public class StatueCollectorItem extends Item {
          return InteractionResult.FAIL;
       }
 
-      int returned = 0;
       for (MemorialStatueEntity statue : statues) {
-         returned += statue.giveTo(player);
+         statue.giveTo(player);
       }
 
       world.playSound(
          null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.6F, 1.6F);
-      Postmortem.overlay(player, Component.translatable("message.postmortem.collected", returned));
       //? if >=1.21.2 {
       player.getCooldowns().addCooldown(stack, 20);
       //?} else

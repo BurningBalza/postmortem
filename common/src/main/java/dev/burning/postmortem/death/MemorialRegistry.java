@@ -29,13 +29,15 @@ import net.minecraft.resources.RegistryOps;
  * when its items are handed back, spilled or deliberately deleted.
  */
 public final class MemorialRegistry extends SavedData {
-   public record Entry(UUID owner, ResourceKey<Level> dimension, BlockPos pos, long createdAt, List<StoredStack> stacks) {
+   public record Entry(
+      UUID owner, ResourceKey<Level> dimension, BlockPos pos, long createdAt, List<StoredStack> stacks, int experience) {
       public static final Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
          UUIDUtil.CODEC.fieldOf("Owner").forGetter(Entry::owner),
          Level.RESOURCE_KEY_CODEC.fieldOf("Dimension").forGetter(Entry::dimension),
          BlockPos.CODEC.fieldOf("Pos").forGetter(Entry::pos),
          Codec.LONG.fieldOf("CreatedAt").forGetter(Entry::createdAt),
-         StoredStack.CODEC.listOf().fieldOf("Stored").forGetter(Entry::stacks)
+         StoredStack.CODEC.listOf().fieldOf("Stored").forGetter(Entry::stacks),
+         Codec.INT.optionalFieldOf("Experience", 0).forGetter(Entry::experience)
       ).apply(instance, Entry::new));
 
       public Entry {
@@ -43,7 +45,11 @@ public final class MemorialRegistry extends SavedData {
       }
 
       public Entry movedTo(ResourceKey<Level> dimension, BlockPos pos) {
-         return new Entry(this.owner, dimension, pos, this.createdAt, this.stacks);
+         return new Entry(this.owner, dimension, pos, this.createdAt, this.stacks, this.experience);
+      }
+
+      public boolean isEmpty() {
+         return this.stacks.isEmpty() && this.experience <= 0;
       }
    }
 
@@ -128,6 +134,18 @@ public final class MemorialRegistry extends SavedData {
 
       this.setDirty();
       return entry.stacks();
+   }
+
+   /** Takes the experience out of the entry, leaving its stacks; 0 if there was no entry. */
+   public int takeExperience(UUID statue) {
+      Entry entry = this.entries.get(statue);
+      if (entry == null || entry.experience() <= 0) {
+         return 0;
+      }
+
+      this.entries.put(statue, new Entry(entry.owner(), entry.dimension(), entry.pos(), entry.createdAt(), entry.stacks(), 0));
+      this.setDirty();
+      return entry.experience();
    }
 
    public Map<UUID, Entry> ownedBy(UUID owner) {

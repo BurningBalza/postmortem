@@ -115,9 +115,15 @@ public final class PostmortemCommand {
       int returned = 0;
       for (Memorial memorial : found) {
          // An unloaded statue crumbles by itself the next time it loads and finds its entry gone.
-         returned += memorial.statue() != null
-            ? memorial.statue().giveTo(target)
-            : MemorialStatueEntity.restore(target, registry.take(memorial.id()));
+         if (memorial.statue() != null) {
+            returned += memorial.statue().giveTo(target);
+         } else {
+            int experience = registry.takeExperience(memorial.id());
+            returned += MemorialStatueEntity.restore(target, registry.take(memorial.id()));
+            if (experience > 0) {
+               target.giveExperiencePoints(experience);
+            }
+         }
       }
 
       int stacks = returned;

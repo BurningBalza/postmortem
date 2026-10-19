@@ -22,6 +22,10 @@ public record PostmortemConfig(
    int placementVerticalSearch,
    int placementVoidSearch,
    int placementVoidStep,
+   boolean storeExperience,
+   int storedExperiencePercent,
+   boolean memorialLocationMessage,
+   boolean greyscaleSkins,
    boolean debug) {
    public static final double DEFAULT_COLLECT_RADIUS = 8.0;
    public static final double MIN_COLLECT_RADIUS = 1.0;
@@ -44,6 +48,10 @@ public record PostmortemConfig(
    public static final int MIN_PLACEMENT_VOID_STEP = 1;
    public static final int MAX_PLACEMENT_VOID_STEP = 64;
 
+   // -1 keeps what vanilla would have dropped (7 points a level, at most 100); 0-100 is that share of all of it.
+   public static final int VANILLA_EXPERIENCE = -1;
+   public static final int MAX_STORED_EXPERIENCE_PERCENT = 100;
+
    public static final PostmortemConfig DEFAULT = new PostmortemConfig(
       DEFAULT_COLLECT_RADIUS,
       DEFAULT_BREAK_AFTER_MINUTES,
@@ -51,6 +59,10 @@ public record PostmortemConfig(
       DEFAULT_PLACEMENT_VERTICAL_SEARCH,
       DEFAULT_PLACEMENT_VOID_SEARCH,
       DEFAULT_PLACEMENT_VOID_STEP,
+      true,
+      VANILLA_EXPERIENCE,
+      true,
+      false,
       false);
    public static final Codec<PostmortemConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
       Codec.DOUBLE.optionalFieldOf("collect_radius", DEFAULT_COLLECT_RADIUS).forGetter(PostmortemConfig::collectRadius),
@@ -59,6 +71,10 @@ public record PostmortemConfig(
       Codec.INT.optionalFieldOf("placement_vertical_search", DEFAULT_PLACEMENT_VERTICAL_SEARCH).forGetter(PostmortemConfig::placementVerticalSearch),
       Codec.INT.optionalFieldOf("placement_void_search", DEFAULT_PLACEMENT_VOID_SEARCH).forGetter(PostmortemConfig::placementVoidSearch),
       Codec.INT.optionalFieldOf("placement_void_step", DEFAULT_PLACEMENT_VOID_STEP).forGetter(PostmortemConfig::placementVoidStep),
+      Codec.BOOL.optionalFieldOf("store_experience", true).forGetter(PostmortemConfig::storeExperience),
+      Codec.INT.optionalFieldOf("stored_experience_percent", VANILLA_EXPERIENCE).forGetter(PostmortemConfig::storedExperiencePercent),
+      Codec.BOOL.optionalFieldOf("memorial_location_message", true).forGetter(PostmortemConfig::memorialLocationMessage),
+      Codec.BOOL.optionalFieldOf("greyscale_skins", false).forGetter(PostmortemConfig::greyscaleSkins),
       Codec.BOOL.optionalFieldOf("debug", false).forGetter(PostmortemConfig::debug)
    ).apply(instance, PostmortemConfig::new));
 
@@ -69,6 +85,10 @@ public record PostmortemConfig(
       "placement_vertical_search",
       "placement_void_search",
       "placement_void_step",
+      "store_experience",
+      "stored_experience_percent",
+      "memorial_location_message",
+      "greyscale_skins",
       "debug");
 
    private static PostmortemConfig loaded = DEFAULT;
@@ -112,14 +132,18 @@ public record PostmortemConfig(
       int voidSearch = Mth.clamp(this.placementVoidSearch, 0, MAX_PLACEMENT_VOID_SEARCH);
       // A step of zero would make the void ring search loop forever.
       int voidStep = Mth.clamp(this.placementVoidStep, MIN_PLACEMENT_VOID_STEP, MAX_PLACEMENT_VOID_STEP);
+      int experiencePercent = Mth.clamp(this.storedExperiencePercent, VANILLA_EXPERIENCE, MAX_STORED_EXPERIENCE_PERCENT);
       return radius == this.collectRadius
             && minutes == this.breakAfterMinutes
             && horizontal == this.placementHorizontalSearch
             && vertical == this.placementVerticalSearch
             && voidSearch == this.placementVoidSearch
             && voidStep == this.placementVoidStep
+            && experiencePercent == this.storedExperiencePercent
          ? this
-         : new PostmortemConfig(radius, minutes, horizontal, vertical, voidSearch, voidStep, this.debug);
+         : new PostmortemConfig(
+            radius, minutes, horizontal, vertical, voidSearch, voidStep, this.storeExperience, experiencePercent,
+            this.memorialLocationMessage, this.greyscaleSkins, this.debug);
    }
 
    public long breakAfterTicks() {
@@ -137,6 +161,10 @@ public record PostmortemConfig(
          json.addProperty("placement_vertical_search", config.placementVerticalSearch());
          json.addProperty("placement_void_search", config.placementVoidSearch());
          json.addProperty("placement_void_step", config.placementVoidStep());
+         json.addProperty("store_experience", config.storeExperience());
+         json.addProperty("stored_experience_percent", config.storedExperiencePercent());
+         json.addProperty("memorial_location_message", config.memorialLocationMessage());
+         json.addProperty("greyscale_skins", config.greyscaleSkins());
          json.addProperty("debug", config.debug());
 
          Files.writeString(path, new GsonBuilder().setPrettyPrinting().create().toJson(json));

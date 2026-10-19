@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
+import dev.burning.postmortem.entity.MemorialStatueEntity;
 import dev.burning.postmortem.entity.StatueEntity;
 import dev.burning.postmortem.entity.StatuePose;
 import dev.burning.postmortem.entity.StatueVariant;
@@ -38,6 +39,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import java.util.UUID;
 
 public class StatueEntityRenderer<T extends StatueEntity>
    //? if >=1.21.2 {
@@ -98,6 +100,9 @@ public class StatueEntityRenderer<T extends StatueEntity>
       public StatuePose limbPose = StatuePose.DEFAULT;
 
       public StatueVariant variant = StatueVariant.DEFAULT;
+
+      // The owner's skin in grey, drawn instead of stone when the server has greyscale_skins on; null otherwise.
+      public Identifier skin;
 
       //? if <1.21.4 {
       /*// Render states only carry arm poses from 1.21.4; StatueEntityModel hands these to HumanoidModel before that.
@@ -164,6 +169,30 @@ public class StatueEntityRenderer<T extends StatueEntity>
          @Override
          public RenderType renderType() {
             return eyes;
+         }
+
+         // The glowing eyes are carved for the stone face; over a skin they'd sit wrong.
+         @Override
+         //? if >=1.21.9 {
+         public void submit(
+            PoseStack matrices, net.minecraft.client.renderer.SubmitNodeCollector queue, int light, State state, float yRot, float xRot) {
+            if (state.skin == null) {
+               super.submit(matrices, queue, light, state, yRot, xRot);
+            }
+         //?} elif >=1.21.2 {
+         /*public void render(
+            PoseStack matrices, net.minecraft.client.renderer.MultiBufferSource buffers, int light, State state, float yRot, float xRot) {
+            if (state.skin == null) {
+               super.render(matrices, buffers, light, state, yRot, xRot);
+            }
+         *///?} else {
+         /*public void render(
+            PoseStack matrices, net.minecraft.client.renderer.MultiBufferSource buffers, int light, StatueEntity entity,
+            float limbAngle, float limbDistance, float tickDelta, float age, float yRot, float xRot) {
+            if (skinFor(entity) == null) {
+               super.render(matrices, buffers, light, entity, limbAngle, limbDistance, tickDelta, age, yRot, xRot);
+            }
+         *///?}
          }
       });
    }
@@ -293,6 +322,7 @@ public class StatueEntityRenderer<T extends StatueEntity>
       state.isFullyFrozen = false;
       state.limbPose = entity instanceof CosmeticStatueEntity cosmetic ? cosmetic.getLimbPose() : StatuePose.DEFAULT;
       state.variant = entity.getVariant();
+      state.skin = skinFor(entity);
       state.worn = entity.getWorn();
       StatueWornLayer.extract(state, this.context);
       updateArmPoses(entity, state);
@@ -304,6 +334,16 @@ public class StatueEntityRenderer<T extends StatueEntity>
          state.backslotFit = StatueBackItemLayer.Fit.forItem(backslot);
          state.backslotItemState.update(this.itemModelManager, backslot, state.backslotFit.displayContext(), entity);
       }
+   }
+
+   // Only a plain face is drawn with the skin; a carved one keeps its stone texture.
+   private static Identifier skinFor(StatueEntity entity) {
+      if (!(entity instanceof MemorialStatueEntity memorial) || entity.getVariant() != StatueVariant.DEFAULT) {
+         return null;
+      }
+
+      UUID owner = memorial.getSkinOwner();
+      return owner != null ? GreyscaleSkins.get(owner, memorial.getSkinTextures()) : null;
    }
 
    private static void updateArmPoses(StatueEntity entity, State state) {
@@ -375,10 +415,15 @@ public class StatueEntityRenderer<T extends StatueEntity>
    //? if >=1.21.2 {
    public Identifier getTextureLocation(State state) {
       Identifier carved = state.variant.texture();
+      Identifier skin = state.skin;
    //?} else {
    /*public Identifier getTextureLocation(StatueEntity entity) {
       Identifier carved = entity.getVariant().texture();
+      Identifier skin = skinFor(entity);
    *///?}
+      if (skin != null) {
+         return skin;
+      }
       return carved != null ? carved : this.texture;
    }
 }
