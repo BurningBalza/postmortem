@@ -17,10 +17,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TridentItem;
 
-/**
- * Draws a statue's back (and belt) items. Combat Amenities' or Backslot's own renderers are used when present, so the
- * statue matches how players look; otherwise the item is placed by hand.
- */
 //? if >=1.21.2 {
 /*public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
 *///?} else

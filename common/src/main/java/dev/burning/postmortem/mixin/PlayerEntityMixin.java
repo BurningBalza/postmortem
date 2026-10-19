@@ -66,14 +66,9 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
          self, this.postmortem$bodyYaw, this.postmortem$limbProgress, Math.min(this.postmortem$limbSpeed, 1.0F));
    }
 
-   // A server never sees a player walk while ticking them (it sets their last position to the current one first), so
-   // its own body turn only ever follows the head, and the body it has can be well off what the player's screen shows.
-   // This is vanilla's body turn (LivingEntity.tick and tickHeadTurn, the same on every version) run on the steps
-   // tracked here instead.
    @Unique
    private void postmortem$turnBody(Player self) {
       if (self.level().isClientSide() || self.isPassenger() || Float.isNaN(this.postmortem$bodyYaw)) {
-         // A passenger's body follows its vehicle, which the server does track.
          this.postmortem$bodyYaw = self.yBodyRot;
          return;
       }
@@ -134,14 +129,13 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
    /*@Inject(method = "dropEquipment(Lnet/minecraft/server/level/ServerLevel;)V", at = @At("HEAD"), cancellable = true)
    private void postmortem$captureIntoStatue(ServerLevel world, CallbackInfo ci) {
    *///?} else {
-   // Before 1.21.2 the drop runs without being handed the level.
+   
    @Inject(method = "dropEquipment()V", at = @At("HEAD"), cancellable = true)
    private void postmortem$captureIntoStatue(CallbackInfo ci) {
       if (!(((Player)(Object)this).level() instanceof ServerLevel world)) {
          return;
       }
    //?}
-      // Another mod keeps players' items; leave the drop to it.
       if (GraveMods.present()) {
          return;
       }

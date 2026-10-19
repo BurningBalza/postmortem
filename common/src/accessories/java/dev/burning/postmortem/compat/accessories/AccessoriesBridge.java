@@ -24,7 +24,6 @@ import io.wispforest.accessories.api.DropRule;
 //? if >=1.21
 //import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 
-/** Reads and writes a player's Accessories slots. Only reached through {@link AccessoriesSlots} once it is loaded. */
 final class AccessoriesBridge {
    private AccessoriesBridge() {
    }
@@ -79,8 +78,6 @@ final class AccessoriesBridge {
       }
    }
 
-   // Accessories' own death rules: the slot's rule, else the item's. Kept items stay on the player, and destroyed or
-   // vanishing ones are left for Accessories to remove, as it would have.
    private static boolean drops(
       ServerPlayer player, DamageSource source, String name, AccessoriesContainer container, int index, ItemStack stack) {
 
