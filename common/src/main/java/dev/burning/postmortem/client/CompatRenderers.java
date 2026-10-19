@@ -31,16 +31,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-/^*
- * Drives other mods' player back-item renderers on a statue. Those renderers expect a player, so each bridge poses a
- * shared stand-in player and player model to match the statue, then hands them over.
- ^/
 public abstract class CompatRenderers {
    private static final GameProfile STAND_IN_PROFILE = new GameProfile(new UUID(0L, 0L), "PostmortemStatue");
 
    private static final int STAND_IN_ID = 1 << 30;
 
-   // Other mods' layers draw through RenderLayer's own method: submit from 1.21.9, render before it.
    //? if >=1.21.9 {
    /^private static final String SUBMIT = "submit";
    private static final Class<?>[] SUBMIT_SIGNATURE = {
@@ -71,7 +66,6 @@ public abstract class CompatRenderers {
       return () -> model;
    }
 
-   /^* Returns the stand-in player dressed in the statue's chest and legs, or null outside a world. ^/
    protected static Player dressStandIn(StatueEntity statue) {
       ClientLevel world = Minecraft.getInstance().level;
       if (world == null) {
@@ -88,7 +82,6 @@ public abstract class CompatRenderers {
       return standIn;
    }
 
-   /^* Copies the statue's pose and worn armour onto the stand-in model and render state. ^/
    protected void match(StatueEntityModel from, StatueEntityRenderer.State source) {
       this.model.head.loadPose(from.head.storePose());
       this.model.hat.loadPose(from.hat.storePose());
@@ -111,7 +104,6 @@ public abstract class CompatRenderers {
       PoseStack matrices, RenderSink sink, int light,
       StatueEntityRenderer.State source, StatueEntityModel sourceModel, StatueEntity statue);
 
-   /^* Backslot Mod's back-item renderer. ^/
    public static final class Backslot extends CompatRenderers {
       private static final String MOD_ID = "backslot";
       private static final String RENDERER = "net.medecoole.backslot.registry.BackslotFeatureRenderer";
@@ -217,7 +209,6 @@ public abstract class CompatRenderers {
       }
    }
 
-   /^* Combat Amenities' back and belt renderers. ^/
    public static final class Amenities extends CompatRenderers {
       private static final String MOD_ID = "combatamenities";
       private static final String BACK = "net.hollowed.combatamenities.renderer.BackSlotFeatureRenderer";
@@ -353,8 +344,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.burning.postmortem.entity.StatueEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
-// The bridges drive other mods' renderers through a player render state, which only exists from 1.21.2. Before it
-// there are no bridges yet: create() finds nothing, and StatueBackItemLayer places items itself.
 public abstract class CompatRenderers {
    public abstract boolean render(
       PoseStack matrices, RenderSink sink, int light,

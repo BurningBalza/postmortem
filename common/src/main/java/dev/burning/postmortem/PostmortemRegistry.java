@@ -34,11 +34,6 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.Item;
 
-/**
- * Everything Postmortem registers: entities, items, the kept-on-death tag, and the pose screen's packets. The
- * registered values are suppliers because NeoForge only fills them in during its registry event; the loader packages
- * register the attributes, creative tab entries and payloads themselves.
- */
 public final class PostmortemRegistry {
    private static final float STATUE_WIDTH = 0.6F;
    private static final float STATUE_HEIGHT = 1.8F;
@@ -117,13 +112,11 @@ public final class PostmortemRegistry {
       *///?}
    }
 
-   /** Loading this class registers its entries; the entity data serializer has no field, so it goes here. */
    public static void init() {
       Platform.INSTANCE.registerDataSerializer("statue_pose", StatuePose.TRACKED_HANDLER);
       Platform.INSTANCE.registerDataSerializer("worn_items", dev.burning.postmortem.compat.WornItem.LIST_SERIALIZER);
    }
 
-   /** Server handler for {@link SetPose}, called by each loader's payload receiver. */
    public static void applyPose(ServerPlayer player, SetPose payload) {
       if (!(player.level().getEntity(payload.entityId()) instanceof CosmeticStatueEntity statue)
          || player.distanceToSqr(statue) > CosmeticStatueEntity.EDIT_RANGE_SQUARED
@@ -131,7 +124,6 @@ public final class PostmortemRegistry {
          return;
       }
 
-      // Back and belt items are only posable when a mod provides those slots.
       statue.setLimbPose(payload.pose().clamped().retain(BackSlots::has));
 
       if (PostmortemConfig.get().debug()) {
@@ -143,7 +135,6 @@ public final class PostmortemRegistry {
       ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Postmortem.id(name));
       return Platform.INSTANCE.register(BuiltInRegistries.ENTITY_TYPE, name, () -> EntityType.Builder.of(factory, MobCategory.MISC)
          .sized(STATUE_WIDTH, STATUE_HEIGHT)
-         // Before 1.20.5 eye height is 85% of the height without being asked.
          //? if >=1.20.5
          .eyeHeight(STATUE_HEIGHT * 0.85F)
          .fireImmune()
@@ -156,7 +147,6 @@ public final class PostmortemRegistry {
 
    private static Supplier<Item> registerItem(String name, Function<Properties, Item> factory, Supplier<Properties> settings) {
       ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Postmortem.id(name));
-      // Items carry their own id from 1.21.2; before it the registry is the only place it lives.
       //? if >=1.21.2 {
       /*return Platform.INSTANCE.register(BuiltInRegistries.ITEM, name, () -> factory.apply(settings.get().setId(key)));
       *///?} else
