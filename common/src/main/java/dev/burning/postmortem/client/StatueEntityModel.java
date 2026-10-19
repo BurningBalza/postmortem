@@ -21,8 +21,7 @@ import org.joml.Vector3fc;
 *///?} else
 public class StatueEntityModel extends HumanoidModel<StatueEntity> {
    //? if <1.21.9 {
-   // translateToHand gets no render state here, so keep the one setupAnim last posed. Before 1.21.2 the renderer
-   // sets it before each draw, and the layers read it too.
+   
    StatueEntityRenderer.State current;
    //?}
 
@@ -41,7 +40,6 @@ public class StatueEntityModel extends HumanoidModel<StatueEntity> {
       this.setupAnim(this.current);
    }
 
-   /** 1.21.2's setupAnim(state): poses the model from the state rather than the live entity. */
    public void setupAnim(StatueEntityRenderer.State state) {
       this.attackTime = state.attackTime;
       this.riding = state.isPassenger;
