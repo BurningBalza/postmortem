@@ -19,8 +19,20 @@ public interface WornRenderer {
    /** Whether the mod is installed; checked once, before {@link #render}. */
    boolean present();
 
+   /** Whether this draws {@code item}; by default, the items worn in this mod's own slots. */
+   default boolean draws(WornItem item) {
+      return this.id().equals(item.mod());
+   }
+
    /** Draws one item; does nothing if the mod has no renderer for it. */
    void render(WornItem item, Context context);
+
+   /**
+    * For a mod that draws from the render state through its own layer rather than in {@link StatueWornLayer}: hands
+    * it the statue's shown items of this mod while the state is filled.
+    */
+   default void extract(List<WornItem> shown, StatueEntityRenderer.State state, EntityRendererProvider.Context rendererContext) {
+   }
 
    /**
     * Everything a mod's renderer may ask for. The renderer is the statue's own, so a mod that poses its model from the
@@ -46,7 +58,9 @@ public interface WornRenderer {
    final class Loaded {
       private static final List<String> RENDERERS = List.of(
          "dev.burning.postmortem.compat.curios.CuriosRenderer",
-         "dev.burning.postmortem.compat.accessories.AccessoriesRenderer");
+         "dev.burning.postmortem.compat.accessories.AccessoriesRenderer",
+         "dev.burning.postmortem.compat.trinkets.TrinketsRenderer",
+         "dev.burning.postmortem.client.TravelersBackpackRenderer");
 
       static final List<WornRenderer> ALL = load();
 
