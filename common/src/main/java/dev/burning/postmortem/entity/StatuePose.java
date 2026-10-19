@@ -12,13 +12,11 @@ import dev.burning.postmortem.legacy.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.util.StringRepresentable;
 
-/** A cosmetic statue's custom pose: a transform per part, with untouched parts left out. */
 public record StatuePose(Map<StatuePart, LimbTransform> parts) {
    private static final StatuePart[] PARTS = StatuePart.values();
 
    public static final StatuePose DEFAULT = new StatuePose(Map.of());
 
-   // Saved as one field per part, so poses written before the map existed still load.
    public static final Codec<StatuePose> CODEC = Codec.simpleMap(
          StatuePart.CODEC, LimbTransform.CODEC, StringRepresentable.keys(PARTS))
       .codec()
@@ -44,7 +42,6 @@ public record StatuePose(Map<StatuePart, LimbTransform> parts) {
    public static final EntityDataSerializer<StatuePose> TRACKED_HANDLER = EntityDataSerializer.simple(PACKET_CODEC::encode, PACKET_CODEC::decode);
 
    public StatuePose {
-      // Dropping untouched parts keeps equals() honest, which entity data sync relies on.
       Map<StatuePart, LimbTransform> kept = new EnumMap<>(StatuePart.class);
       parts.forEach((part, transform) -> {
          if (!transform.isNone()) {
@@ -69,7 +66,6 @@ public record StatuePose(Map<StatuePart, LimbTransform> parts) {
       return new StatuePose(parts);
    }
 
-   /** This pose without the parts {@code keep} rejects. */
    public StatuePose retain(java.util.function.Predicate<StatuePart> keep) {
       Map<StatuePart, LimbTransform> parts = new EnumMap<>(StatuePart.class);
       this.parts.forEach((part, transform) -> {

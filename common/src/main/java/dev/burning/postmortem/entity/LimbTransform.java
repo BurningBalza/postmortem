@@ -70,10 +70,6 @@ public record LimbTransform(LimbTransform.Rotation rotation, Vector3fc offset) {
             Mth.clamp(this.offset.z(), -MAX_OFFSET, MAX_OFFSET)));
    }
 
-   /**
-    * Pitch, yaw and roll in degrees. Encoded exactly like vanilla's {@code Rotations} (three floats), which changed
-    * shape between versions, so saved poses and packets stay compatible.
-    */
    public record Rotation(float x, float y, float z) {
       public static final Codec<Rotation> CODEC = Codec.FLOAT.listOf().comapFlatMap(
          list -> list.size() == 3

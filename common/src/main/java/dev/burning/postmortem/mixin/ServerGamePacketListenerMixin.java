@@ -17,7 +17,6 @@ public abstract class ServerGamePacketListenerMixin {
 
    @Inject(method = "handleInteract", at = @At("HEAD"), cancellable = true)
    private void postmortem$ownerUsesMemorial(ServerboundInteractPacket packet, CallbackInfo ci) {
-      // The packet first arrives on the network thread and is queued again for the server thread; act on the second.
       if (this.player.level().getServer().isSameThread() && OwnerAccess.handle(this.player, packet)) {
          ci.cancel();
       }

@@ -17,6 +17,9 @@ import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -26,6 +29,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -56,8 +60,16 @@ public class MemorialStatueEntity extends StatueEntity {
       ).apply(instance, StoredStack::new));
    }
 
-   // Only holds stacks until the statue is registered; after that they live in MemorialRegistry.
    private final List<StoredStack> pending = new ArrayList<>();
+
+   private int pendingExperience;
+
+   private String skinTextures = "";
+
+   private static final EntityDataAccessor<String> SKIN_OWNER =
+      SynchedEntityData.defineId(MemorialStatueEntity.class, EntityDataSerializers.STRING);
+   private static final EntityDataAccessor<String> SKIN_TEXTURES =
+      SynchedEntityData.defineId(MemorialStatueEntity.class, EntityDataSerializers.STRING);
 
    private UUID ownerUuid;
 
@@ -76,6 +88,46 @@ public class MemorialStatueEntity extends StatueEntity {
    public void setOwner(Player player) {
       this.ownerUuid = player.getUUID();
       this.setCustomName(Component.translatable("entity.postmortem.memorial_statue.named", player.getName()));
+      //? if >=1.21.9 {
+      /*this.skinTextures = player.getGameProfile().properties().get("textures").stream()
+      *///?} else
+      this.skinTextures = player.getGameProfile().getProperties().get("textures").stream()
+         .findFirst()
+         //? if >=1.20.2 {
+         .map(property -> property.value())
+         //?} else
+         //.map(property -> property.getValue())
+         .orElse("");
+   }
+
+   @Override
+   //? if >=1.20.5 {
+   /*protected void defineSynchedData(SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+   *///?} else {
+   protected void defineSynchedData() {
+      super.defineSynchedData();
+      SynchedEntityData builder = this.entityData;
+   //?}
+      builder.define(SKIN_OWNER, "");
+      builder.define(SKIN_TEXTURES, "");
+   }
+
+   public UUID getSkinOwner() {
+      String owner = this.entityData.get(SKIN_OWNER);
+      if (owner.isEmpty()) {
+         return null;
+      }
+
+      try {
+         return UUID.fromString(owner);
+      } catch (IllegalArgumentException e) {
+         return null;
+      }
+   }
+
+   public String getSkinTextures() {
+      return this.entityData.get(SKIN_TEXTURES);
    }
 
    public UUID getOwnerUuid() {
@@ -114,7 +166,6 @@ public class MemorialStatueEntity extends StatueEntity {
       this.pending.add(new StoredStack(NO_SLOT, stack, Optional.empty(), Optional.of(slot), Optional.empty()));
    }
 
-   /** Keeps an item worn in another mod's slot, to be handed back to that slot. */
    public void storeWorn(WornItem worn) {
       if (worn.stack().isEmpty()) {
          return;
@@ -123,16 +174,19 @@ public class MemorialStatueEntity extends StatueEntity {
       this.pending.add(new StoredStack(NO_SLOT, worn.stack(), Optional.empty(), Optional.empty(), Optional.of(worn.where())));
    }
 
-   /** Moves the pending stacks into the registry. Call once the statue has its owner and position. */
+   public void storeExperience(int points) {
+      this.pendingExperience += Math.max(0, points);
+   }
+
    public void register(ServerLevel world) {
       MemorialRegistry.get(world.getServer()).put(this.getUUID(), new MemorialRegistry.Entry(
-         this.ownerUuid, world.dimension(), this.blockPosition(), world.getGameTime(), this.pending));
+         this.ownerUuid, world.dimension(), this.blockPosition(), world.getGameTime(), this.pending, this.pendingExperience));
       this.pending.clear();
+      this.pendingExperience = 0;
    }
 
    @Override
    protected void releaseUnsupported(ServerLevel world, ItemStack stack) {
-      // A memorial only shows a copy; the real item is stored for return, or never left its owner.
    }
 
    @Override
@@ -140,6 +194,10 @@ public class MemorialStatueEntity extends StatueEntity {
       super.tick();
 
       if (this.level() instanceof ServerLevel world) {
+         boolean skin = PostmortemConfig.get().greyscaleSkins() && this.ownerUuid != null;
+         this.entityData.set(SKIN_OWNER, skin ? this.ownerUuid.toString() : "");
+         this.entityData.set(SKIN_TEXTURES, skin ? this.skinTextures : "");
+
          if (this.birthTime == UNKNOWN_BIRTH) {
             this.birthTime = world.getGameTime();
          }
@@ -161,7 +219,6 @@ public class MemorialStatueEntity extends StatueEntity {
          return;
       }
 
-      // A statue saved before the registry existed still carries its stacks.
       if (!this.pending.isEmpty() && this.ownerUuid != null) {
          this.register(world);
          if (PostmortemConfig.get().debug()) {
@@ -170,7 +227,6 @@ public class MemorialStatueEntity extends StatueEntity {
          return;
       }
 
-      // Its items were recovered while it was unloaded, so what is left is an empty shell.
       if (PostmortemConfig.get().debug()) {
          Postmortem.LOGGER.info("[postmortem] statue {} has no registry entry; crumbling it", this.getUUID());
       }
@@ -199,6 +255,27 @@ public class MemorialStatueEntity extends StatueEntity {
       return taken;
    }
 
+   private int takeExperience() {
+      int taken = this.pendingExperience;
+      this.pendingExperience = 0;
+      if (this.level() instanceof ServerLevel world) {
+         taken += MemorialRegistry.get(world.getServer()).takeExperience(this.getUUID());
+      }
+
+      return taken;
+   }
+
+   private int storedExperience() {
+      if (this.level() instanceof ServerLevel world) {
+         MemorialRegistry.Entry entry = MemorialRegistry.get(world.getServer()).get(this.getUUID());
+         if (entry != null) {
+            return entry.experience();
+         }
+      }
+
+      return this.pendingExperience;
+   }
+
    public long getStandingTicks() {
       if (this.birthTime == UNKNOWN_BIRTH) {
          return 0L;
@@ -221,7 +298,7 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    public boolean isEmpty() {
-      return this.contents().isEmpty();
+      return this.contents().isEmpty() && this.storedExperience() <= 0;
    }
 
    public int getStoredCount() {
@@ -229,7 +306,11 @@ public class MemorialStatueEntity extends StatueEntity {
    }
 
    public int giveTo(Player player) {
+      int experience = this.takeExperience();
       int returned = restore(player, this.takeContents());
+      if (experience > 0) {
+         player.giveExperiencePoints(experience);
+      }
 
       this.clearDisplay();
       this.level()
@@ -243,14 +324,12 @@ public class MemorialStatueEntity extends StatueEntity {
       return returned;
    }
 
-   /** Deletes the statue along with the items it holds, returning how many stacks were destroyed. */
    public int destroy() {
       int destroyed = this.takeContents().size();
       this.discard();
       return destroyed;
    }
 
-   /** Puts stacks back in the slots they came from where possible; shared by statues and orphaned registry entries. */
    public static int restore(Player player, List<StoredStack> stacks) {
       Inventory inventory = player.getInventory();
       List<ItemStack> displaced = new ArrayList<>();
@@ -378,6 +457,11 @@ public class MemorialStatueEntity extends StatueEntity {
    private void breakApart(ServerLevel world) {
       int spilled = 0;
 
+      int experience = this.takeExperience();
+      if (experience > 0) {
+         ExperienceOrb.award(world, this.position(), experience);
+      }
+
       for (StoredStack entry : this.takeContents()) {
          ItemStack stack = entry.stack();
          if (stack.isEmpty()) {
@@ -413,6 +497,9 @@ public class MemorialStatueEntity extends StatueEntity {
       if (this.ownerUuid != null) {
          view.store("Owner", UUIDUtil.CODEC, this.ownerUuid);
       }
+      if (!this.skinTextures.isEmpty()) {
+         view.putString("SkinTextures", this.skinTextures);
+      }
    }
 
    @Override
@@ -427,6 +514,7 @@ public class MemorialStatueEntity extends StatueEntity {
       this.pending.clear();
       view.read("Stored", StoredStack.CODEC.listOf()).ifPresent(this.pending::addAll);
       this.ownerUuid = view.read("Owner", UUIDUtil.CODEC).orElse(null);
+      this.skinTextures = view.getStringOr("SkinTextures", "");
       this.birthTime = view.getLongOr("BirthTime", this.level().getGameTime());
    }
 }
