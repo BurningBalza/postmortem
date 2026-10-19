@@ -93,7 +93,8 @@ public final class StatuePartPicker {
       return matrices;
    }
    private void putItem(StatuePart part, StatueEntityRenderer.State state, PoseStack matrices) {
-      if (!BackSlots.has(part)) {
+      // An item part can only be picked, and so posed, while there is an item in it.
+      if (!BackSlots.has(part) || StatueHighlightLayer.itemFor(state, part).isEmpty()) {
          return;
       }
 
