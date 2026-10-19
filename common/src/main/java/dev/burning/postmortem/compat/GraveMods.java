@@ -9,10 +9,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/**
- * Whether another mod already keeps players' items on death. When one is loaded Postmortem steps aside: deaths are left
- * to it, and only cosmetic statues remain. The ids live in {@code postmortem/grave_mods.txt}, which the build also reads.
- */
 public final class GraveMods {
    private static final String LIST = "/postmortem/grave_mods.txt";
 
@@ -22,7 +18,6 @@ public final class GraveMods {
    private GraveMods() {
    }
 
-   /** True when a grave mod is loaded, so memorial statues and the statue collector are off. */
    public static boolean present() {
       return resolve() != null;
    }

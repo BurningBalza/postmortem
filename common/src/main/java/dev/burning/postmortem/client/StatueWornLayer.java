@@ -17,18 +17,11 @@ import net.minecraft.world.item.Item;
 //? if <1.21.2
 import dev.burning.postmortem.entity.StatueEntity;
 
-/**
- * Draws what a statue wore in Curios, Accessories or Trinkets slots, through those mods' own renderers. A slot's
- * cosmetic item is drawn instead of the one under it, and slots the player had hidden stay hidden.
- */
 //? if >=1.21.2 {
 /*public class StatueWornLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
 *///?} else
 public class StatueWornLayer extends RenderLayer<StatueEntity, StatueEntityModel> {
-   // An item whose renderer throws is skipped from then on, rather than failing every frame. Statues have no
-   // inventory in these mods, and a renderer may expect one.
    private static final Set<Item> FAILED = new HashSet<>();
-   // Mods whose extract step failed, so the warning is logged once rather than every frame.
    private static final Set<String> FAILED_EXTRACT = new HashSet<>();
 
    private final StatueEntityRenderer<?> renderer;
@@ -83,8 +76,7 @@ public class StatueWornLayer extends RenderLayer<StatueEntity, StatueEntityModel
       WornRenderer.Context context = new WornRenderer.Context(
          state.statue, state, this.renderer, this.rendererContext, matrices, sink, light, limbAngle, limbDistance);
       //? if >=1.21.5 {
-      /*// Some renderers only draw on players (Utility Belt's belt throws otherwise). A statue stands in for one.
-      net.minecraft.world.entity.EntityType<?> ownType = state.entityType;
+      /*net.minecraft.world.entity.EntityType<?> ownType = state.entityType;
       //? if >=26.2 {
       /^state.entityType = net.minecraft.world.entity.EntityTypes.PLAYER;
       ^///?} else
@@ -105,7 +97,6 @@ public class StatueWornLayer extends RenderLayer<StatueEntity, StatueEntityModel
       *///?}
    }
 
-   /** Lets each mod that draws from the render state take its items; called once {@code state.worn} is set. */
    public static void extract(StatueEntityRenderer.State state, EntityRendererProvider.Context rendererContext) {
       if (state.statue == null || state.worn.isEmpty() || WornRenderer.loaded().isEmpty()) {
          return;
@@ -128,7 +119,6 @@ public class StatueWornLayer extends RenderLayer<StatueEntity, StatueEntityModel
       }
    }
 
-   /** What is drawn: visible slots only, and a cosmetic item in place of the one it covers. */
    private static List<WornItem> shown(List<WornItem> worn) {
       List<WornItem> shown = new ArrayList<>(worn.size());
       for (WornItem item : worn) {

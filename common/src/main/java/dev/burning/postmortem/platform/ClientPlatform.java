@@ -6,7 +6,6 @@ import java.util.ServiceLoader;
 *///?} else
 import dev.burning.postmortem.legacy.CustomPacketPayload;
 
-/** Client-only counterpart of {@link Platform}, kept separate so a dedicated server never loads client classes. */
 public interface ClientPlatform {
    ClientPlatform INSTANCE =
       ServiceLoader.load(ClientPlatform.class, ClientPlatform.class.getClassLoader()).findFirst().orElseThrow();

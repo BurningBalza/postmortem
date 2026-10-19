@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Entity;
 
-/** Loader-independent client pieces; each loader's client entrypoint registers these. */
 public final class PostmortemClient {
    private PostmortemClient() {
    }
@@ -20,7 +19,6 @@ public final class PostmortemClient {
       return new StatueEntityRenderer<>(context, StatueEntityRenderer.COSMETIC_TEXTURE);
    }
 
-   /** Client handler for {@code OpenPoseScreen}. */
    public static void openPoseScreen(Minecraft client, int entityId) {
       if (client.player == null) {
          return;

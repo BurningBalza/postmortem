@@ -23,19 +23,16 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.RegistryOps;
 //?}
 
-/**
- * Holds the items of every memorial statue, keyed by the statue's UUID. The entity itself stores nothing, so a statue
- * lost to a clear-lag mod, /kill or a corrupted chunk leaves its items here to be recovered. An entry only goes away
- * when its items are handed back, spilled or deliberately deleted.
- */
 public final class MemorialRegistry extends SavedData {
-   public record Entry(UUID owner, ResourceKey<Level> dimension, BlockPos pos, long createdAt, List<StoredStack> stacks) {
+   public record Entry(
+      UUID owner, ResourceKey<Level> dimension, BlockPos pos, long createdAt, List<StoredStack> stacks, int experience) {
       public static final Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
          UUIDUtil.CODEC.fieldOf("Owner").forGetter(Entry::owner),
          Level.RESOURCE_KEY_CODEC.fieldOf("Dimension").forGetter(Entry::dimension),
          BlockPos.CODEC.fieldOf("Pos").forGetter(Entry::pos),
          Codec.LONG.fieldOf("CreatedAt").forGetter(Entry::createdAt),
-         StoredStack.CODEC.listOf().fieldOf("Stored").forGetter(Entry::stacks)
+         StoredStack.CODEC.listOf().fieldOf("Stored").forGetter(Entry::stacks),
+         Codec.INT.optionalFieldOf("Experience", 0).forGetter(Entry::experience)
       ).apply(instance, Entry::new));
 
       public Entry {
@@ -43,7 +40,11 @@ public final class MemorialRegistry extends SavedData {
       }
 
       public Entry movedTo(ResourceKey<Level> dimension, BlockPos pos) {
-         return new Entry(this.owner, dimension, pos, this.createdAt, this.stacks);
+         return new Entry(this.owner, dimension, pos, this.createdAt, this.stacks, this.experience);
+      }
+
+      public boolean isEmpty() {
+         return this.stacks.isEmpty() && this.experience <= 0;
       }
    }
 
@@ -51,7 +52,6 @@ public final class MemorialRegistry extends SavedData {
       Codec.unboundedMap(UUIDUtil.STRING_CODEC, Entry.CODEC).fieldOf("Memorials").forGetter(registry -> registry.entries)
    ).apply(instance, MemorialRegistry::new));
 
-   // A null DataFixTypes is let through; there is no vanilla fixer for mod data anyway.
    //? if >=1.21.5 {
    /*private static final SavedDataType<MemorialRegistry> TYPE =
       //? if >=26.1 {
@@ -119,7 +119,6 @@ public final class MemorialRegistry extends SavedData {
       this.setDirty();
    }
 
-   /** Removes the entry and returns its stacks, or an empty list if there was none. */
    public List<StoredStack> take(UUID statue) {
       Entry entry = this.entries.remove(statue);
       if (entry == null) {
@@ -128,6 +127,17 @@ public final class MemorialRegistry extends SavedData {
 
       this.setDirty();
       return entry.stacks();
+   }
+
+   public int takeExperience(UUID statue) {
+      Entry entry = this.entries.get(statue);
+      if (entry == null || entry.experience() <= 0) {
+         return 0;
+      }
+
+      this.entries.put(statue, new Entry(entry.owner(), entry.dimension(), entry.pos(), entry.createdAt(), entry.stacks(), 0));
+      this.setDirty();
+      return entry.experience();
    }
 
    public Map<UUID, Entry> ownedBy(UUID owner) {

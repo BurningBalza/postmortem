@@ -10,7 +10,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-/** Curios' slots. Nothing here touches Curios itself; {@link CuriosBridge} does, once Curios is known to be loaded. */
 public final class CuriosSlots implements WornSlots {
    static final String MOD_ID = "curios";
 
