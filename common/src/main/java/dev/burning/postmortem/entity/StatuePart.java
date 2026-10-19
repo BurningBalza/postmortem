@@ -19,7 +19,6 @@ public enum StatuePart implements StringRepresentable {
 
    private final String id;
 
-   // The key each part is saved under in a statue's LimbPose compound.
    private final String saveKey;
 
    StatuePart(String id, String saveKey) {

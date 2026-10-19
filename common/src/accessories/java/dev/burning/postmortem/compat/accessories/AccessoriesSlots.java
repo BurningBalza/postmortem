@@ -10,7 +10,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-/** Accessories' slots. Accessories' own classes are only touched by {@link AccessoriesBridge}, once it is loaded. */
 public final class AccessoriesSlots implements WornSlots {
    static final String MOD_ID = "accessories";
 

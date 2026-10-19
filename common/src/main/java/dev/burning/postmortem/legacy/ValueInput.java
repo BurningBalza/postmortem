@@ -10,7 +10,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 
-// Read-side counterpart of ValueOutput: the part of 1.21.6's ValueInput that Postmortem uses, over a CompoundTag.
 public final class ValueInput {
    private final CompoundTag tag;
    private final DynamicOps<Tag> ops;
