@@ -20,13 +20,19 @@ val requiredJava = when {
 val curios = findProperty("deps.curios") as String?
 // Likewise Accessories, with common's accessories bridge.
 val accessories = findProperty("deps.accessories") as String?
+// Trinkets Updated (26.x), for drawing trinkets on statues; capturing them needs no compile dependency.
+val trinkets = findProperty("deps.trinkets") as String?
 
 // This branch's own src/ is the default source set; common/ is compiled in alongside it.
-addCommonSources(node, sc.current.isActive, listOfNotNull(curios?.let { "curios" }, accessories?.let { "accessories" }))
+addCommonSources(node, sc.current.isActive, listOfNotNull(curios?.let { "curios" }, accessories?.let { "accessories" }, trinkets?.let { "trinkets" }))
 
 repositories {
     maven("https://maven.theillusivec4.top/") { name = "Curios" }
     maven("https://maven.wispforest.io/releases/") { name = "Wisp Forest" }
+    exclusiveContent {
+        forRepository { maven("https://api.modrinth.com/maven") { name = "Modrinth" } }
+        filter { includeGroup("maven.modrinth") }
+    }
 }
 
 neoForge {
@@ -54,6 +60,7 @@ dependencies {
     // Compile-only: Curios is optional, and the bridge is only reached once it is found at runtime.
     if (curios != null) compileOnly("top.theillusivec4.curios:curios-neoforge:$curios:api")
     if (accessories != null) compileOnly("io.wispforest:accessories-neoforge:$accessories") { isTransitive = false }
+    if (trinkets != null) compileOnly("maven.modrinth:trinkets-updated:$trinkets") { isTransitive = false }
 }
 
 java {
