@@ -13,10 +13,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * One of the player's trinket slots, standing in on a statue for drawing: it holds the statue's copy of what was worn
- * there, at the same index, and is read-only. Renderers that look up the wearer get the statue.
- */
 final class StatueTrinketInventory implements TrinketInventory {
    private final SlotType slotType;
    private final LivingEntity statue;
@@ -34,7 +30,6 @@ final class StatueTrinketInventory implements TrinketInventory {
       (item.cosmetic() ? this.cosmetics : this.stacks).set(item.index(), item.stack());
    }
 
-   /** The access for the item this stands in for. */
    TrinketSlotAccess access() {
       return new TrinketSlotAccess(this, this.item.index(), this.item.cosmetic());
    }
@@ -91,11 +86,9 @@ final class StatueTrinketInventory implements TrinketInventory {
 
    @Override
    public boolean isVisible(int index) {
-      // Hidden slots were left out before this was made.
       return true;
    }
 
-   // Slot counts are fixed: the stand-in only has to reach the item's index.
    @Override
    public void updateSlotCount() {
    }

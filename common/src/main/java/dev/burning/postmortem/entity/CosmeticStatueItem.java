@@ -2,6 +2,7 @@ package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.PostmortemRegistry;
 import dev.burning.postmortem.compat.BackSlots;
+import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -13,6 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 //? if >=1.21.2
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
@@ -29,6 +31,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CosmeticStatueItem extends Item {
    public CosmeticStatueItem(Properties settings) {
@@ -89,16 +92,16 @@ public class CosmeticStatueItem extends Item {
       }
 
       Level world = context.getLevel();
-      BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
       BlockPlaceContext placement = new BlockPlaceContext(context);
       if (!placement.canPlace()) {
          return InteractionResult.FAIL;
       }
 
+      Vec3 pos = standingSpot(world, context.getClickedPos());
       //? if >=1.20.5 {
-      AABB spawnBox = PostmortemRegistry.COSMETIC_STATUE.get().getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+      AABB spawnBox = PostmortemRegistry.COSMETIC_STATUE.get().getSpawnAABB(pos.x, pos.y, pos.z);
       //?} else
-      //AABB spawnBox = PostmortemRegistry.COSMETIC_STATUE.get().getAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+      //AABB spawnBox = PostmortemRegistry.COSMETIC_STATUE.get().getAABB(pos.x, pos.y, pos.z);
       if (!world.getWorldBorder().isWithinBounds(spawnBox)) {
          return InteractionResult.FAIL;
       }
@@ -114,9 +117,9 @@ public class CosmeticStatueItem extends Item {
 
          float yaw = context.getRotation() + 180.0F;
          //? if >=1.21.5 {
-         /*statue.snapTo(Vec3.atBottomCenterOf(pos), yaw, 0.0F);
+         /*statue.snapTo(pos, yaw, 0.0F);
          *///?} else
-         statue.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, yaw, 0.0F);
+         statue.moveTo(pos.x, pos.y, pos.z, yaw, 0.0F);
          statue.setYHeadRot(yaw);
          statue.setYBodyRot(yaw);
 
@@ -138,5 +141,22 @@ public class CosmeticStatueItem extends Item {
       }
 
       return InteractionResult.SUCCESS;
+   }
+
+   private static Vec3 standingSpot(Level world, BlockPos clicked) {
+      VoxelShape shape = world.getBlockState(clicked).getCollisionShape(world, clicked);
+      double x = clicked.getX() + 0.5;
+      double z = clicked.getZ() + 0.5;
+      double top = clicked.getY() + (shape.isEmpty() ? 1.0 : Math.max(1.0, shape.max(Direction.Axis.Y)));
+      if (shape.isEmpty() && world.getFluidState(clicked).is(FluidTags.WATER)) {
+         return new Vec3(x, top, z);
+      }
+
+      //? if >=1.20.5 {
+      AABB box = PostmortemRegistry.COSMETIC_STATUE.get().getSpawnAABB(x, top, z);
+      //?} else
+      //AABB box = PostmortemRegistry.COSMETIC_STATUE.get().getAABB(x, top, z);
+      double fall = Entity.collideBoundingBox((Entity) null, new Vec3(0.0, clicked.getY() - top, 0.0), box, world, List.of()).y;
+      return new Vec3(x, top + fall, z);
    }
 }
