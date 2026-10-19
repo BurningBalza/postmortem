@@ -6,6 +6,7 @@ import dev.burning.postmortem.compat.GraveMods;
 import dev.burning.postmortem.death.DeathCapture;
 import dev.burning.postmortem.entity.PoseSnapshot;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gamerules.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,6 +39,15 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
    @Unique
    private float postmortem$limbProgress;
 
+   @Unique
+   private double postmortem$stepX;
+
+   @Unique
+   private double postmortem$stepZ;
+
+   @Unique
+   private float postmortem$bodyYaw = Float.NaN;
+
    @Override
    public PoseSnapshot postmortem$getLastLivingPose() {
       return this.postmortem$lastLivingPose;
@@ -51,8 +61,46 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
       }
 
       this.postmortem$trackLimbs(self);
+      this.postmortem$turnBody(self);
       this.postmortem$lastLivingPose = PoseSnapshot.of(
-         self, this.postmortem$limbProgress, Math.min(this.postmortem$limbSpeed, 1.0F));
+         self, this.postmortem$bodyYaw, this.postmortem$limbProgress, Math.min(this.postmortem$limbSpeed, 1.0F));
+   }
+
+   // A server never sees a player walk while ticking them (it sets their last position to the current one first), so
+   // its own body turn only ever follows the head, and the body it has can be well off what the player's screen shows.
+   // This is vanilla's body turn (LivingEntity.tick and tickHeadTurn, the same on every version) run on the steps
+   // tracked here instead.
+   @Unique
+   private void postmortem$turnBody(Player self) {
+      if (self.level().isClientSide() || self.isPassenger() || Float.isNaN(this.postmortem$bodyYaw)) {
+         // A passenger's body follows its vehicle, which the server does track.
+         this.postmortem$bodyYaw = self.yBodyRot;
+         return;
+      }
+
+      float target = this.postmortem$bodyYaw;
+      double dx = this.postmortem$stepX;
+      double dz = this.postmortem$stepZ;
+      if (dx * dx + dz * dz > 0.0025000002F) {
+         float walk = (float) Mth.atan2(dz, dx) * (180.0F / (float) Math.PI) - 90.0F;
+         float facing = Mth.abs(Mth.wrapDegrees(self.getYRot()) - walk);
+         target = 95.0F < facing && facing < 265.0F ? walk - 180.0F : walk;
+      }
+
+      //? if >=26.3 {
+      /*boolean swinging = self.getSwingAnimation(1.0F) > 0.0F;
+      *///?} else
+      boolean swinging = self.attackAnim > 0.0F;
+      if (swinging) {
+         target = self.getYRot();
+      }
+
+      this.postmortem$bodyYaw += Mth.wrapDegrees(target - this.postmortem$bodyYaw) * 0.3F;
+      float head = Mth.wrapDegrees(self.getYRot() - this.postmortem$bodyYaw);
+      float max = self.isBlocking() ? 15.0F : 50.0F;
+      if (Math.abs(head) > max) {
+         this.postmortem$bodyYaw += head - Math.signum(head) * max;
+      }
    }
 
    @Unique
@@ -66,6 +114,9 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
          this.postmortem$hasLastPosition = true;
          return;
       }
+
+      this.postmortem$stepX = dx;
+      this.postmortem$stepZ = dz;
 
       if (self.isPassenger()) {
          this.postmortem$limbSpeed = 0.0F;

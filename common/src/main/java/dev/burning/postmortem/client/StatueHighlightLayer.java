@@ -5,17 +5,16 @@ import com.mojang.math.Axis;
 import dev.burning.postmortem.compat.CombatAmenitiesCompat;
 import dev.burning.postmortem.entity.StatuePart;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
 //?} else
 //import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-//? if <1.21.2
-//import dev.burning.postmortem.entity.StatueEntity;
+import dev.burning.postmortem.entity.StatueEntity;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.renderer.rendertype.RenderType;
 //? if >=1.21.11
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -24,8 +23,9 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.entity.HumanoidArm;
 
 /**
- * Glows the part being edited in the pose screen. Also owns the selection state the screen writes to, and the anchor
- * points for item parts, which the screen's part picker shares.
+ * Glows the part being edited in the pose screen: a limb in the highlight colour, an item by drawing it again with a
+ * white flash over its own model. Also owns the selection state the screen writes to, and the anchor points for item
+ * parts, which the screen's part picker shares.
  */
 //? if >=1.21.2 {
 public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
@@ -35,7 +35,17 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
    private static final int SELECTED_GLOW = 0xFFFFBE45;
    private static final int HOVERED_TINT = 0x40FFA526;
 
+   // Items flash white with vanilla's overlay instead (the creeper's flash): how far toward white, 0 to 1.
+   private static final int SELECTED_ITEM_OVERLAY = OverlayTexture.pack(OverlayTexture.u(0.6F), OverlayTexture.v(false));
+   private static final int HOVERED_ITEM_OVERLAY = OverlayTexture.pack(OverlayTexture.u(0.25F), OverlayTexture.v(false));
+
+   //? if >=1.21.6 {
    private static final int GLOW_PASSES = 2;
+   //?} else {
+   /*// Before 1.21.6 the preview is drawn straight onto the screen rather than into its own picture first, and the same
+   // glow comes out far brighter there.
+   private static final int GLOW_PASSES = 1;
+   *///?}
 
    public static final float ITEM_RADIUS = 0.16F;
    private static final float HAND_SIDE = 1.0F / 16.0F;
@@ -53,17 +63,46 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
    private static final float BELT_ITEM_DOWN = 0.90F;
    private static final float BELT_ITEM_OUT = 0.10F;
 
-   private static final ModelPart ITEM_MARKER = bakeItemMarker();
-
    private static int highlightedId = -1;
    private static StatuePart selected;
    private static StatuePart hovered;
 
    private final StatueEntityRenderer<?> renderer;
+   private final ItemDrawState handItem = new ItemDrawState();
 
    public StatueHighlightLayer(StatueEntityRenderer<?> renderer) {
       super(renderer);
       this.renderer = renderer;
+   }
+
+   /** The item an item part holds; empty for body parts, and for item parts with nothing in them. */
+   public static ItemStack itemFor(StatueEntityRenderer.State state, StatuePart part) {
+      StatueEntity statue = state.statue;
+      if (statue == null) {
+         return ItemStack.EMPTY;
+      }
+      return switch (part) {
+         case RIGHT_HAND_ITEM -> statue.getItemBySlot(handSlot(state, HumanoidArm.RIGHT));
+         case LEFT_HAND_ITEM -> statue.getItemBySlot(handSlot(state, HumanoidArm.LEFT));
+         case BACK_ITEM -> statue.getBackslotStack();
+         case BELT_ITEM -> statue.getBeltslotStack();
+         default -> ItemStack.EMPTY;
+      };
+   }
+
+   /** The overlay an item part is drawn with: a flash while it is selected or hovered in the pose screen's preview. */
+   public static int overlayFor(StatueEntityRenderer.State state, StatuePart part) {
+      if (!state.preview || state.statue == null || state.statue.getId() != highlightedId) {
+         return OverlayTexture.NO_OVERLAY;
+      }
+      if (part == selected) {
+         return SELECTED_ITEM_OVERLAY;
+      }
+      return part == hovered ? HOVERED_ITEM_OVERLAY : OverlayTexture.NO_OVERLAY;
+   }
+
+   private static EquipmentSlot handSlot(StatueEntityRenderer.State state, HumanoidArm arm) {
+      return arm == state.mainArm ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
    }
 
    public static void set(int statueId, StatuePart selectedPart, StatuePart hoveredPart) {
@@ -111,7 +150,8 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       StatueEntityRenderer.State state = this.getParentModel().current;
    *///?}
 
-      if (state.statue == null || state.statue.getId() != highlightedId) {
+      // Only the pose screen's preview: the statue itself, in the world behind the screen, stays as it is.
+      if (!state.preview || state.statue == null || state.statue.getId() != highlightedId) {
          return;
       }
 
@@ -187,27 +227,32 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
          return;
       }
 
-      matrices.pushPose();
-      if (applyItemAnchor(matrices, this.getParentModel(), state, part)) {
-         submit(ITEM_MARKER, matrices, sink, type, colour);
+      // Back and belt items are drawn with their flash where they are drawn, by StatueBackItemLayer. A held item is
+      // drawn by vanilla's own layer, so it is drawn again here, where that layer puts it, with the flash.
+      HumanoidArm arm = part == StatuePart.RIGHT_HAND_ITEM ? HumanoidArm.RIGHT
+         : part == StatuePart.LEFT_HAND_ITEM ? HumanoidArm.LEFT
+         : null;
+      ItemStack held = arm == null ? ItemStack.EMPTY : itemFor(state, part);
+      if (held.isEmpty() || additive) {
+         return;
       }
+
+      this.handItem.update(
+         this.renderer.itemModels(), held,
+         arm == HumanoidArm.RIGHT ? ItemDisplayContext.THIRD_PERSON_RIGHT_HAND : ItemDisplayContext.THIRD_PERSON_LEFT_HAND,
+         state.statue);
+      if (this.handItem.isEmpty()) {
+         return;
+      }
+
+      matrices.pushPose();
+      hand(matrices, this.getParentModel(), state, arm);
+      sink.item(this.handItem, matrices, LightTexture.FULL_BRIGHT, overlayFor(state, part));
       matrices.popPose();
    }
 
    private static void submit(ModelPart part, PoseStack matrices, RenderSink sink, RenderType type, int colour) {
       sink.part(part, matrices, type, LightTexture.FULL_BRIGHT, colour);
-   }
-
-   private static ModelPart bakeItemMarker() {
-      float size = ITEM_RADIUS * 2.0F * 16.0F;
-      float origin = -size / 2.0F;
-
-      MeshDefinition mesh = new MeshDefinition();
-      mesh.getRoot().addOrReplaceChild(
-         "marker",
-         CubeListBuilder.create().texOffs(0, 0).addBox(origin, origin, origin, size, size, size),
-         PartPose.ZERO);
-      return LayerDefinition.create(mesh, 64, 64).bakeRoot().getChild("marker");
    }
 
    private ModelPart limbFor(StatuePart part) {
