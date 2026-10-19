@@ -33,7 +33,6 @@ public record PoseSnapshot(
          entity.isPassenger());
    }
 
-   /** Mixed into Player to remember the last pose it held while alive. */
    public interface Holder {
       PoseSnapshot postmortem$getLastLivingPose();
    }

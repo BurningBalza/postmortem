@@ -5,7 +5,6 @@ import dev.burning.postmortem.client.PostmortemClient;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 
-/** The client half; PostmortemForge starts it on a client. */
 final class PostmortemForgeClient {
    private PostmortemForgeClient() {
    }

@@ -59,7 +59,7 @@ public final class PostmortemFabric implements ModInitializer {
       ServerPlayNetworking.registerGlobalReceiver(
          PostmortemRegistry.SetPose.ID, (payload, context) -> PostmortemRegistry.applyPose(context.player(), payload));
       //?} else {
-      /*// Raw channels before 1.20.5: decoded on the network thread, applied on the server's.
+      /*
       ServerPlayNetworking.registerGlobalReceiver(PostmortemRegistry.SetPose.ID, (server, player, handler, buf, sender) -> {
          PostmortemRegistry.SetPose payload = PostmortemRegistry.SetPose.CODEC.decode(buf);
          server.execute(() -> PostmortemRegistry.applyPose(player, payload));
