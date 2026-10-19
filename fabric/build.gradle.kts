@@ -19,11 +19,17 @@ val requiredJava: JavaVersion = when {
 // This branch's own src/ is the default source set; common/ is compiled in alongside it.
 // Accessories' API for this node, if Accessories has a build for it; common's accessories bridge comes with it.
 val accessories = findProperty("deps.accessories") as String?
+// Trinkets Updated (26.x), for drawing trinkets on statues; capturing them needs no compile dependency.
+val trinkets = findProperty("deps.trinkets") as String?
 
-addCommonSources(node, sc.current.isActive, listOfNotNull(accessories?.let { "accessories" }))
+addCommonSources(node, sc.current.isActive, listOfNotNull(accessories?.let { "accessories" }, trinkets?.let { "trinkets" }))
 
 repositories {
     maven("https://maven.wispforest.io/releases/") { name = "Wisp Forest" }
+    exclusiveContent {
+        forRepository { maven("https://api.modrinth.com/maven") { name = "Modrinth" } }
+        filter { includeGroup("maven.modrinth") }
+    }
 }
 
 dependencies {
@@ -36,8 +42,9 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
     // Compile-only: Accessories is optional, and the bridge is only reached once it is found at runtime.
     if (accessories != null) modCompileOnly("io.wispforest:accessories-fabric:$accessories") { isTransitive = false }
+    if (trinkets != null) modCompileOnly("maven.modrinth:trinkets-updated:$trinkets") { isTransitive = false }
 
-    // Backslot, Trinkets, Combat Amenities and Pehkui are all optional at runtime and none is a compile dependency.
+    // Backslot, Combat Amenities, Pehkui and Trinkets (for capture) are all optional at runtime and none is a compile dependency.
     // Each is reached reflectively and stays dormant when absent, so that a missing mod is a
     // feature that does nothing rather than a mod that will not load.
     // See dev.burning.postmortem.compat for the guards.
