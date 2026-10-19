@@ -320,6 +320,7 @@ public class StatuePoseScreen extends Screen {
       *///?} elif >=1.21.2 {
       /*state.nameTag = null;
       *///?}
+      state.preview = true;
       state.bodyRot = this.previewYaw;
       state.yRot = 0.0F;
       state.xRot = 0.0F;
@@ -354,7 +355,13 @@ public class StatuePoseScreen extends Screen {
       context.enableScissor(left, top, right, bottom);
       context.pose().pushPose();
       context.pose().translate((left + right) / 2.0F, (top + bottom) / 2.0F, 50.0F);
-      context.pose().scale(size, size, -size);
+      //? if >=1.20.5 {
+      /*context.pose().scale(size, size, -size);
+      *///?} else {
+      // Before 1.20.5 a pose's scale also flips its normals here, which lights the preview from behind; vanilla scales
+      // the matrix alone, as this does.
+      context.pose().mulPoseMatrix(new org.joml.Matrix4f().scaling(size, size, -size));
+      //?}
       context.pose().translate(translate.x, translate.y, translate.z);
       context.pose().mulPose(rotation);
       context.flush();

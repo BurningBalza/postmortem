@@ -30,6 +30,7 @@
 		"backslot": "*",
 		"combatamenities": "*",
 		"pehkui": "*",
-		"trinkets": "*"
+		"trinkets": "*",
+		"trinkets_updated": "*"
 	}
 }
