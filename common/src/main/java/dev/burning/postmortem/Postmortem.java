@@ -1,6 +1,7 @@
 package dev.burning.postmortem;
 
 import dev.burning.postmortem.compat.GraveMods;
+import dev.burning.postmortem.compat.TrinketsCompat;
 import dev.burning.postmortem.compat.WornSlots;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -37,5 +38,6 @@ public final class Postmortem {
       // Checked now so the log says up front whether another mod handles deaths, and which slot mods are bridged.
       GraveMods.present();
       WornSlots.loaded();
+      TrinketsCompat.present();
    }
 }
