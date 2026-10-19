@@ -22,11 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.entity.HumanoidArm;
 
-/**
- * Glows the part being edited in the pose screen: a limb in the highlight colour, an item by drawing it again with a
- * white flash over its own model. Also owns the selection state the screen writes to, and the anchor points for item
- * parts, which the screen's part picker shares.
- */
 //? if >=1.21.2 {
 public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State, StatueEntityModel> {
 //?} else
@@ -35,15 +30,13 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
    private static final int SELECTED_GLOW = 0xFFFFBE45;
    private static final int HOVERED_TINT = 0x40FFA526;
 
-   // Items flash white with vanilla's overlay instead (the creeper's flash): how far toward white, 0 to 1.
    private static final int SELECTED_ITEM_OVERLAY = OverlayTexture.pack(OverlayTexture.u(0.6F), OverlayTexture.v(false));
    private static final int HOVERED_ITEM_OVERLAY = OverlayTexture.pack(OverlayTexture.u(0.25F), OverlayTexture.v(false));
 
    //? if >=1.21.6 {
    private static final int GLOW_PASSES = 2;
    //?} else {
-   /*// Before 1.21.6 the preview is drawn straight onto the screen rather than into its own picture first, and the same
-   // glow comes out far brighter there.
+   /*
    private static final int GLOW_PASSES = 1;
    *///?}
 
@@ -75,7 +68,6 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       this.renderer = renderer;
    }
 
-   /** The item an item part holds; empty for body parts, and for item parts with nothing in them. */
    public static ItemStack itemFor(StatueEntityRenderer.State state, StatuePart part) {
       StatueEntity statue = state.statue;
       if (statue == null) {
@@ -90,7 +82,6 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       };
    }
 
-   /** The overlay an item part is drawn with: a flash while it is selected or hovered in the pose screen's preview. */
    public static int overlayFor(StatueEntityRenderer.State state, StatuePart part) {
       if (!state.preview || state.statue == null || state.statue.getId() != highlightedId) {
          return OverlayTexture.NO_OVERLAY;
@@ -150,7 +141,6 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       StatueEntityRenderer.State state = this.getParentModel().current;
    *///?}
 
-      // Only the pose screen's preview: the statue itself, in the world behind the screen, stays as it is.
       if (!state.preview || state.statue == null || state.statue.getId() != highlightedId) {
          return;
       }
@@ -166,7 +156,6 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
       }
    }
 
-   /** Moves the matrix to where an item part sits. Returns false for body parts, which have no anchor. */
    public static boolean applyItemAnchor(
       PoseStack matrices, StatueEntityModel model, StatueEntityRenderer.State state, StatuePart part) {
 
@@ -227,8 +216,6 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntityRenderer.State
          return;
       }
 
-      // Back and belt items are drawn with their flash where they are drawn, by StatueBackItemLayer. A held item is
-      // drawn by vanilla's own layer, so it is drawn again here, where that layer puts it, with the flash.
       HumanoidArm arm = part == StatuePart.RIGHT_HAND_ITEM ? HumanoidArm.RIGHT
          : part == StatuePart.LEFT_HAND_ITEM ? HumanoidArm.LEFT
          : null;
