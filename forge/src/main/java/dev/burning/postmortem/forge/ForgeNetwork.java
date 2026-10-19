@@ -8,10 +8,6 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-/**
- * The pose screen's two payloads on one SimpleChannel. Each payload writes itself and is read back with its codec, as on
- * the other loaders; handlers run on the game thread.
- */
 final class ForgeNetwork {
    private static final String VERSION = "1";
 
@@ -22,7 +18,6 @@ final class ForgeNetwork {
    }
 
    static void register() {
-      // Only the client receives this, so the handler's client classes never load on a dedicated server.
       CHANNEL.messageBuilder(PostmortemRegistry.OpenPoseScreen.class, 0, NetworkDirection.PLAY_TO_CLIENT)
          .encoder(PostmortemRegistry.OpenPoseScreen::write)
          .decoder(buf -> PostmortemRegistry.OpenPoseScreen.CODEC.decode(buf))

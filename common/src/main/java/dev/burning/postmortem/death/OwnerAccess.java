@@ -9,18 +9,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Lets a memorial's owner use it wherever they are. Claim and protection mods block entity interaction inside the
- * server's interact handling, so an owner's click on their own memorial is answered before any of that runs.
- */
 public final class OwnerAccess {
-   // Vanilla's reach for entity interaction: 3 blocks plus its 3-block padding, measured from the eyes.
    private static final double REACH_SQUARED = 6.0 * 6.0;
 
    private OwnerAccess() {
    }
 
-   /** Handles the packet when it is the player using their own memorial; true when vanilla's handling should stop. */
    public static boolean handle(ServerPlayer player, ServerboundInteractPacket packet) {
       ServerLevel level = (ServerLevel) player.level();
       //? if >=26.1 {
@@ -40,7 +34,6 @@ public final class OwnerAccess {
       return true;
       *///?} else {
       player.setShiftKeyDown(packet.isUsingSecondaryAction());
-      // A right-click sends an interaction with the hit position, then a plain one; an attack is left to vanilla.
       boolean[] interaction = {false};
       packet.dispatch(new ServerboundInteractPacket.Handler() {
          @Override

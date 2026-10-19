@@ -6,10 +6,6 @@ import java.util.Map;
 import dev.burning.postmortem.platform.Platform;
 import net.minecraft.world.entity.Entity;
 
-/**
- * Copies Pehkui scales from a player onto their statue. Pehkui Rebuilt, the 26.x port, keeps the original mod id and
- * {@code virtuoel.pehkui.api} package, so this covers both.
- */
 public final class PehkuiCompat {
    private static final String MOD_ID = "pehkui";
 
@@ -35,7 +31,6 @@ public final class PehkuiCompat {
             Object target = getScaleData.invoke(type, to);
             fromScale.invoke(target, source);
 
-            // Some scale types do not persist by default; a statue has to keep its size across reloads.
             if (!(boolean) hasDefaultValues.invoke(target)) {
                setPersistence.invoke(target, Boolean.TRUE);
             }
