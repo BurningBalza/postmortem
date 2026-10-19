@@ -53,8 +53,6 @@ public abstract class StatueEntity extends LivingEntity {
    private static final EntityDataAccessor<Float> LEANING =
       SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.FLOAT);
 
-   // The head's turn from the body, in degrees. Vanilla does not keep a living entity's head yaw (loading it, or a
-   // client receiving it, sets the head to the body), so a statue keeps its own and draws from it.
    private static final EntityDataAccessor<Float> HEAD_TURN =
       SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.FLOAT);
 
@@ -73,14 +71,13 @@ public abstract class StatueEntity extends LivingEntity {
    private static final EntityDataAccessor<Boolean> WAXED =
       SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.BOOLEAN);
 
-   // What the statue shows in other mods' slots: copies, for drawing only.
    private static final EntityDataAccessor<java.util.List<WornItem>> WORN =
       SynchedEntityData.defineId(StatueEntity.class, WornItem.LIST_SERIALIZER);
 
    private boolean checkedBackSlots;
 
    //? if <1.21.5 {
-   /*// LivingEntity only stores equipment itself from 1.21.5; before that every entity kept its own, like ArmorStand.
+   /*
    //? if >=1.20.5 {
    private static final com.mojang.serialization.Codec<ItemStack> EQUIPMENT_CODEC = ItemStack.OPTIONAL_CODEC;
    //?} else
@@ -248,7 +245,6 @@ public abstract class StatueEntity extends LivingEntity {
    public void tick() {
       super.tick();
 
-      // A statue saved while a back-slot mod was installed keeps the item after the mod is removed; let it go.
       if (!this.checkedBackSlots && this.level() instanceof ServerLevel world) {
          this.checkedBackSlots = true;
          if (!BackSlots.back() && !this.getBackslotStack().isEmpty()) {
@@ -262,7 +258,6 @@ public abstract class StatueEntity extends LivingEntity {
       }
    }
 
-   /** Called with an item left in a back or belt slot no installed mod provides. A statue's own item drops. */
    protected void releaseUnsupported(ServerLevel world, ItemStack stack) {
       Containers.dropItemStack(world, this.getX(), this.getY(), this.getZ(), stack.copy());
    }
@@ -270,8 +265,6 @@ public abstract class StatueEntity extends LivingEntity {
    @Override
    public void recreateFromPacket(ClientboundAddEntityPacket packet) {
       super.recreateFromPacket(packet);
-      // Vanilla turns a living entity's body to face where its head does when it arrives on a client. A statue keeps
-      // the body where it was, which is its own yaw - for a memorial, the way the player's body faced.
       this.setYBodyRot(this.getYRot());
       this.yBodyRotO = this.yBodyRot;
    }
@@ -460,14 +453,11 @@ public abstract class StatueEntity extends LivingEntity {
       //?} elif >=1.20.5 {
       /*return slot != EquipmentSlot.BODY;
       *///?} else {
-      /*// Before 1.20.5 there are only hands and armour.
+      /*
       return true;
       *///?}
    }
 
-   // Same as vanilla, but without calling super: Enchancement's Veil hooks the
-   // return of Entity.shouldRender and culls any non-player wearing it past
-   // ~11-16 blocks. A statue in Veil armor should stay visible like any other.
    @Override
    public boolean shouldRender(double x, double y, double z) {
       return this.shouldRenderAtSqrDistance(this.distanceToSqr(x, y, z));
@@ -495,7 +485,6 @@ public abstract class StatueEntity extends LivingEntity {
       return true;
    }
 
-   // Also granted by the minecraft:can_breathe_under_water tag, which is all that works where this is final.
    //? if >=1.21.11 {
    /*@Override
    public boolean canBreatheUnderwater() {

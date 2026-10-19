@@ -5,8 +5,6 @@ package dev.burning.postmortem.legacy;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-// The part of 1.20.5's StreamCodec that Postmortem uses, for versions before it existed: packets and synced entity data
-// are written with the same codecs on every version.
 public interface StreamCodec<B, V> {
    V decode(B buf);
 

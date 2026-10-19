@@ -52,7 +52,7 @@ public final class FabricPlatform implements Platform {
       //? if >=1.20.5 {
       ServerPlayNetworking.send(player, payload);
       //?} else {
-      /*// Before 1.20.5 Fabric sends raw buffers on a channel; the payload writes itself into one.
+      /*
       net.minecraft.network.FriendlyByteBuf buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
       payload.write(buf);
       ServerPlayNetworking.send(player, payload.id(), buf);
