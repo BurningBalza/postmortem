@@ -4,7 +4,6 @@ import dev.burning.postmortem.client.WornRenderer;
 import dev.burning.postmortem.compat.WornItem;
 import dev.burning.postmortem.platform.Platform;
 
-/** Draws Curios items on statues. As with {@link CuriosSlots}, Curios' own classes are only in {@link CuriosClientBridge}. */
 public final class CuriosRenderer implements WornRenderer {
    @Override
    public String id() {

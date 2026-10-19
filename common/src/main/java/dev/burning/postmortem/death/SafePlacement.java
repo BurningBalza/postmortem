@@ -2,27 +2,97 @@ package dev.burning.postmortem.death;
 
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemConfig;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public final class SafePlacement {
    private SafePlacement() {
    }
 
-   public static BlockPos findFor(Level world, Entity statue, BlockPos deathPos) {
-      PostmortemConfig config = PostmortemConfig.get();
+   private static final double SEAT_DEPTH = 0.6;
+
+   public static Vec3 findFor(Level world, Entity statue, Entity player) {
+      Vec3 kept = whereDied(world, statue, player);
+      if (kept != null) {
+         return log("death position", kept);
+      }
+      return Vec3.atBottomCenterOf(search(world, statue, player.blockPosition()));
+   }
+
+   private static Vec3 whereDied(Level world, Entity statue, Entity player) {
+      AABB box = boxAt(statue, player.getX(), player.getY(), player.getZ());
+      if (box.minY <= bottom(world) || !world.getWorldBorder().isWithinBounds(box)) {
+         return null;
+      }
+
+      if (player.isPassenger() && !(player.getVehicle() instanceof LivingEntity)) {
+         AABB aboveSeat = box.setMinY(box.minY + SEAT_DEPTH);
+         return inBlocks(world, statue, aboveSeat) || inLava(world, aboveSeat) ? null : player.position();
+      }
+
+      if (inBlocks(world, statue, box)) {
+         return null;
+      }
+
+      Vec3 spot = player.isInWater() ? player.position() : drop(world, statue, box);
+      if (spot == null) {
+         return null;
+      }
+      return inLava(world, box.move(0.0, spot.y - box.minY, 0.0)) ? null : spot;
+   }
+
+   private static Vec3 drop(Level world, Entity statue, AABB box) {
+      int bottom = bottom(world);
+      double floor = box.minY + Entity.collideBoundingBox(
+         statue, new Vec3(0.0, bottom - box.minY, 0.0), box, world, List.of()).y;
+      if (floor <= bottom + 1.0E-7) {
+         return null;
+      }
+
+      Vec3 center = box.getCenter();
+      BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+      for (int y = Mth.floor(box.minY); y >= Mth.floor(floor); y--) {
+         pos.set(Mth.floor(center.x), y, Mth.floor(center.z));
+         FluidState fluid = world.getFluidState(pos);
+         if (!fluid.isEmpty()) {
+            floor = Math.max(floor, y + fluid.getHeight(world, pos));
+            break;
+         }
+      }
+      return new Vec3(center.x, floor, center.z);
+   }
+
+   private static boolean inBlocks(Level world, Entity statue, AABB box) {
+      return world.getBlockCollisions(statue, box.deflate(1.0E-3)).iterator().hasNext();
+   }
+
+   private static boolean inLava(Level world, AABB box) {
+      return world.getBlockStates(box.expandTowards(0.0, -0.5, 0.0).deflate(1.0E-3))
+         .anyMatch(state -> state.getFluidState().is(FluidTags.LAVA));
+   }
+
+   private static int bottom(Level world) {
       //? if >=1.21.2 {
-      /*int bottom = world.getMinY();
+      /*return world.getMinY();
       *///?} else
-      int bottom = world.getMinBuildHeight();
+      return world.getMinBuildHeight();
+   }
+
+   private static BlockPos search(Level world, Entity statue, BlockPos deathPos) {
+      PostmortemConfig config = PostmortemConfig.get();
+      int bottom = bottom(world);
       int minY = bottom + 1;
       int maxY = bottom + world.getHeight() - 2;
       BlockPos start = new BlockPos(deathPos.getX(), Mth.clamp(deathPos.getY(), minY, maxY), deathPos.getZ());
@@ -99,7 +169,7 @@ public final class SafePlacement {
       return null;
    }
 
-   private static BlockPos log(String tier, BlockPos pos) {
+   private static <T> T log(String tier, T pos) {
       if (PostmortemConfig.get().debug()) {
          Postmortem.LOGGER.info("[postmortem] placement via {} -> {}", tier, pos);
       }
@@ -165,11 +235,15 @@ public final class SafePlacement {
    }
 
    private static boolean fits(Level world, Entity statue, BlockPos pos) {
-      //? if >=1.20.5 {
-      AABB box = statue.getType().getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-      //?} else
-      //AABB box = statue.getType().getAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+      AABB box = boxAt(statue, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
       return world.getWorldBorder().isWithinBounds(box) && world.noCollision(statue, box);
+   }
+
+   private static AABB boxAt(Entity statue, double x, double y, double z) {
+      //? if >=1.20.5 {
+      return statue.getType().getSpawnAABB(x, y, z);
+      //?} else
+      //return statue.getType().getAABB(x, y, z);
    }
 
    private static boolean isIn(Level world, BlockPos pos, TagKey<Fluid> fluid) {

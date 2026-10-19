@@ -16,14 +16,9 @@ import io.wispforest.accessories.api.slot.SlotReference;
 import io.wispforest.accessories.api.client.AccessoryRenderState;
 *///?}
 
-/**
- * Hands a statue's Accessories items to the renderers Accessories items register. The statue's model and render state
- * stand in for the wearer's, so items follow the statue's pose.
- */
 final class AccessoriesClientBridge {
    //? if >=1.21.10 {
-   /*// The statue's copies are not in an Accessories inventory; with no containers to ask, every slot counts as shown.
-   private static final AccessoriesStorageLookup NO_STORAGE = java.util.Map::of;
+   /*private static final AccessoriesStorageLookup NO_STORAGE = java.util.Map::of;
    *///?}
 
    private AccessoriesClientBridge() {

@@ -22,7 +22,6 @@ import top.theillusivec4.curios.api.type.capability.ICurio.DropRule;
 //? if >=1.21
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 
-/** Reads and writes a player's Curios slots. Only reached through {@link CuriosSlots} once Curios is loaded. */
 final class CuriosBridge {
    private CuriosBridge() {
    }
@@ -83,8 +82,6 @@ final class CuriosBridge {
       }
    }
 
-   // Curios' own death rules: an item's rule, else its slot's. Kept items stay on the player, and destroyed or vanishing
-   // ones are left for Curios to remove, as it would have.
    private static boolean drops(SlotContext context, DamageSource source, ICurioStacksHandler handler, ItemStack stack) {
       //? if >=1.21.1 {
       DropRule rule = curioOf(stack) == null ? DropRule.DEFAULT : curioOf(stack).getDropRule(context, source, true);
