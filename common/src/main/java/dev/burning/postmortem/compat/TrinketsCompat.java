@@ -14,13 +14,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * Trinkets comes in two shapes: the original (mod id {@code trinkets}, {@code dev.emi.trinkets}, through 1.21.11) and
- * Trinkets Updated (mod id {@code trinkets_updated}, {@code eu.pb4.trinkets}, from 26.1, on NeoForge too). Updated only
- * keeps the old id as an alias on Fabric, so both ids are checked and the API is picked by which classes exist.
- */
 public final class TrinketsCompat {
-   /** The id a statue's copies of trinkets are shown under; see {@link WornItem#mod()}. */
    public static final String MOD_ID = "trinkets";
    private static final String UPDATED_MOD_ID = "trinkets_updated";
 
@@ -28,7 +22,6 @@ public final class TrinketsCompat {
    private static boolean available;
    private static boolean updated;
 
-   // The original API.
    private static Method getTrinketComponent;
    private static Method getInventory;
    private static Method getAllEquipped;
@@ -38,7 +31,6 @@ public final class TrinketsCompat {
    private static Method getGroup;
    private static Method getName;
 
-   // Trinkets Updated.
    private static Method getAttachment;
    private static Method forEach;
    private static Method getInventoryById;
@@ -50,7 +42,6 @@ public final class TrinketsCompat {
    private static Method setCosmeticItem;
    private static Method isVisible;
 
-   /** Where a trinket was worn, remembered so it can be put back in the same slot. */
    public record TrinketSlot(String group, String name, int index, boolean cosmetic) {
       public static final Codec<TrinketSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
          Codec.STRING.fieldOf("Group").forGetter(TrinketSlot::group),
@@ -60,9 +51,7 @@ public final class TrinketsCompat {
       ).apply(instance, TrinketSlot::new));
    }
 
-   /** {@code visible} is the slot's own show/hide toggle; the original Trinkets has none, so it is always true there. */
    public record Equipped(TrinketSlot slot, ItemStack stack, boolean visible) {
-      /** A copy for a statue to show, named the way Trinkets Updated names the slot. */
       public WornItem shown() {
          return new WornItem(
             MOD_ID, this.slot.group() + "/" + this.slot.name(), this.slot.index(), this.slot.cosmetic(), this.visible,
@@ -73,7 +62,6 @@ public final class TrinketsCompat {
    private TrinketsCompat() {
    }
 
-   /** Whether Trinkets, in either shape, is installed and its API matched. */
    public static boolean present() {
       return resolve();
    }
@@ -120,8 +108,6 @@ public final class TrinketsCompat {
    }
 
    private static List<Equipped> takeAllUpdated(Object attachment) throws ReflectiveOperationException {
-      // Gathered first and emptied after, so the slots aren't changed while Trinkets walks them. This walks cosmetic
-      // slots too, the same as Trinkets' own death drop.
       List<Object> accesses = new ArrayList<>();
       forEach.invoke(attachment, (BiConsumer<Object, ItemStack>) (access, stack) -> {
          if (stack != null && !stack.isEmpty()) {
@@ -171,7 +157,6 @@ public final class TrinketsCompat {
          }
 
          if (slot.cosmetic()) {
-            // Only Trinkets Updated has cosmetic slots; anywhere else the item goes back to the inventory.
             if (!updated || !((ItemStack) getCosmeticItem.invoke(inventory, index)).isEmpty()) {
                return false;
             }
@@ -192,17 +177,14 @@ public final class TrinketsCompat {
       }
    }
 
-   /** The inventory of the slot a trinket was taken from, or null when the player no longer has that slot. */
    private static Object inventory(Object component, TrinketSlot slot) throws ReflectiveOperationException {
       if (updated) {
-         // Trinkets Updated names a slot "<group>/<name>".
          return getInventoryById.invoke(component, slot.group() + "/" + slot.name());
       }
       Map<?, ?> groups = (Map<?, ?>) getInventory.invoke(component);
       return groups.get(slot.group()) instanceof Map<?, ?> slots ? slots.get(slot.name()) : null;
    }
 
-   /** The player's trinket holder, or null when it has none. */
    private static Object component(LivingEntity player) throws ReflectiveOperationException {
       if (updated) {
          return getAttachment.invoke(null, player);

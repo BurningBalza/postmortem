@@ -8,12 +8,7 @@ import dev.burning.postmortem.platform.Platform;
 import java.util.List;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
-/**
- * Draws trinkets on statues. Trinkets Updated gives every living entity's renderer its own layer, the statue's
- * included, so this only fills that layer's state; Trinkets' own classes are only in {@link TrinketsClientBridge}.
- */
 public final class TrinketsRenderer implements WornRenderer {
-   // Only Trinkets Updated has this layer; the original Trinkets' renderers are not bridged.
    private static final String UPDATED_MOD_ID = "trinkets_updated";
 
    @Override
@@ -28,7 +23,6 @@ public final class TrinketsRenderer implements WornRenderer {
 
    @Override
    public void render(WornItem item, Context context) {
-      // Trinkets' layer draws them, from what extract left in the state.
    }
 
    @Override

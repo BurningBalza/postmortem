@@ -18,7 +18,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public final class NeoForgePlatform implements Platform {
-   // One DeferredRegister per registry, in the order first used; attached to the mod bus by attach().
    private final Map<Registry<?>, DeferredRegister<?>> registers = new LinkedHashMap<>();
    private final DeferredRegister<EntityDataSerializer<?>> serializers =
       DeferredRegister.create(NeoForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, Postmortem.MOD_ID);

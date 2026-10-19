@@ -11,10 +11,6 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.BakedModel;
 *///?}
 
-/**
- * An item a statue layer draws itself, resolved while the render state is extracted: 1.21.4's ItemStackRenderState,
- * or before it the stack and its baked model. {@link RenderSink#item} draws it.
- */
 public final class ItemDrawState {
    //? if >=1.21.4 {
    final ItemStackRenderState state = new ItemStackRenderState();

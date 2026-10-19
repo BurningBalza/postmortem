@@ -29,10 +29,6 @@ public final class PostmortemCommand {
    private PostmortemCommand() {
    }
 
-   /**
-    * A memorial found through the registry. {@code statue} is null when the entity is in an unloaded chunk or has been
-    * lost; its items are still in the registry either way.
-    */
    private record Memorial(UUID id, MemorialRegistry.Entry entry, MemorialStatueEntity statue, Component name, String owner) {
       int storedCount() {
          return this.statue != null ? this.statue.getStoredCount() : this.entry.stacks().size();
@@ -103,7 +99,6 @@ public final class PostmortemCommand {
       return found.size();
    }
 
-   /** Gives the items to {@code receiver}, or to whoever ran the command when it is null. */
    private static int retrieve(CommandSourceStack source, List<Memorial> found, ServerPlayer receiver) throws CommandSyntaxException {
       if (found.isEmpty()) {
          source.sendSuccess(() -> Component.translatable("command.postmortem.none"), false);
@@ -114,10 +109,15 @@ public final class PostmortemCommand {
       MemorialRegistry registry = MemorialRegistry.get(source.getServer());
       int returned = 0;
       for (Memorial memorial : found) {
-         // An unloaded statue crumbles by itself the next time it loads and finds its entry gone.
-         returned += memorial.statue() != null
-            ? memorial.statue().giveTo(target)
-            : MemorialStatueEntity.restore(target, registry.take(memorial.id()));
+         if (memorial.statue() != null) {
+            returned += memorial.statue().giveTo(target);
+         } else {
+            int experience = registry.takeExperience(memorial.id());
+            returned += MemorialStatueEntity.restore(target, registry.take(memorial.id()));
+            if (experience > 0) {
+               target.giveExperiencePoints(experience);
+            }
+         }
       }
 
       int stacks = returned;
