@@ -42,7 +42,7 @@ public final class PostmortemNeoForge {
       NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> PostmortemCommand.register(event.getDispatcher()));
 
       //? if <1.20.5 {
-      /*// @Mod only takes a dist from 1.20.5, so the client half is started from here before that.
+      /*
       if (FMLEnvironment.dist == Dist.CLIENT) {
          new PostmortemNeoForgeClient(modBus);
       }
@@ -72,11 +72,10 @@ public final class PostmortemNeoForge {
    //? if >=1.20.5 {
    private static void registerPayloads(RegisterPayloadHandlersEvent event) {
       //? if >=1.21.11 {
-      // The client handler for OpenPoseScreen is attached in PostmortemNeoForgeClient.
       event.registrar("1")
          .playToClient(PostmortemRegistry.OpenPoseScreen.ID, PostmortemRegistry.OpenPoseScreen.CODEC)
       //?} else {
-      /*// Only the client receives this, so the handler's client classes never load on a dedicated server.
+      /*
       event.registrar("1")
          .playToClient(
             PostmortemRegistry.OpenPoseScreen.ID,
@@ -89,7 +88,7 @@ public final class PostmortemNeoForge {
             (payload, context) -> PostmortemRegistry.applyPose((ServerPlayer) context.player(), payload));
    }
    //?} else {
-   /*// Handlers run on the network thread here, so each hands its work to the game thread.
+   /*
    private static void registerPayloads(RegisterPayloadHandlerEvent event) {
       event.registrar(Postmortem.MOD_ID).versioned("1")
          .play(PostmortemRegistry.OpenPoseScreen.ID, buf -> PostmortemRegistry.OpenPoseScreen.CODEC.decode(buf), handler -> handler

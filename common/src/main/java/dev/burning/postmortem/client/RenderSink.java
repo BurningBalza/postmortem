@@ -17,10 +17,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 //?}
 
-/**
- * Where a statue layer draws: the submit queue from 1.21.9 on, or the buffer source before it. Layers hand their
- * drawing to this so the drawing code itself is the same on every version.
- */
 public final class RenderSink {
    //? if >=1.21.9 {
    /*private final SubmitNodeCollector queue;
@@ -29,7 +25,6 @@ public final class RenderSink {
       this.queue = queue;
    }
 
-   /^* The loader's own sink, for other mods' renderers that are called directly. ^/
    public SubmitNodeCollector raw() {
       return this.queue;
    }
@@ -45,12 +40,6 @@ public final class RenderSink {
       item.state.submit(matrices, this.queue, light, overlay, 0);
    }
 
-   /^*
-    * This sink with {@code overlay} on every item and model drawn through it, for other mods' renderers that draw an
-    * item with no overlay of their own. Their submissions are recognised by what they draw - an item display context,
-    * a model or a model part - and the overlay, always their second int, is swapped. Matching parameter types rather
-    * than method names keeps this working where Minecraft's names are obfuscated.
-    ^/
    public RenderSink withOverlay(int overlay) {
       return overlay == OverlayTexture.NO_OVERLAY ? this : new RenderSink(overlaid(SubmitNodeCollector.class, this.queue, overlay));
    }
@@ -75,7 +64,6 @@ public final class RenderSink {
          } catch (InvocationTargetException e) {
             throw e.getCause();
          }
-         // An ordered view of the queue draws into it too.
          if (method.getReturnType() == OrderedSubmitNodeCollector.class && result instanceof OrderedSubmitNodeCollector ordered) {
             return overlaid(OrderedSubmitNodeCollector.class, ordered, overlay);
          }
@@ -106,7 +94,7 @@ public final class RenderSink {
       //? if >=1.21 {
       part.render(matrices, this.buffers.getBuffer(type), light, OverlayTexture.NO_OVERLAY, colour);
       //?} else {
-      /*// Before 1.21 the tint is four floats rather than one ARGB int.
+      /*
       part.render(matrices, this.buffers.getBuffer(type), light, OverlayTexture.NO_OVERLAY,
          (colour >> 16 & 0xFF) / 255.0F, (colour >> 8 & 0xFF) / 255.0F, (colour & 0xFF) / 255.0F, (colour >>> 24) / 255.0F);
       *///?}
@@ -122,10 +110,6 @@ public final class RenderSink {
       //?}
    }
 
-   /**
-    * This sink with {@code overlay} on every vertex drawn through it, for other mods' renderers that draw an item with
-    * no overlay of their own. Those renderers only exist from 1.21.2 (see CompatRenderers).
-    */
    public RenderSink withOverlay(int overlay) {
       //? if >=1.21.2 {
       MultiBufferSource buffers = this.buffers;

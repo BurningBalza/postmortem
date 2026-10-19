@@ -8,11 +8,6 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 //? if <1.21.4
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
-/**
- * Hands a statue's Curios items to the renderers Curios items register for themselves. The statue's renderer stands in
- * for the wearer's: through 1.21.1 Curios renderers pose themselves from the wearer's live model, after that from its
- * render state, and the statue's state is a humanoid one either way.
- */
 final class CuriosClientBridge {
    private CuriosClientBridge() {
    }
