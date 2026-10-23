@@ -4,12 +4,15 @@ import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.legacy.CustomPacketPayload;
 import dev.burning.postmortem.platform.Platform;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -48,6 +51,11 @@ public final class ForgePlatform implements Platform {
    @Override
    public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
       ForgeNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), payload);
+   }
+
+   @Override
+   public Collection<ItemEntity> capturedDrops(Entity entity) {
+      return entity.captureDrops();
    }
 
    void attach(IEventBus modBus) {
