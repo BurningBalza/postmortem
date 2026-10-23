@@ -17,9 +17,6 @@ import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -66,11 +63,6 @@ public class MemorialStatueEntity extends StatueEntity {
 
    private String skinTextures = "";
 
-   private static final EntityDataAccessor<String> SKIN_OWNER =
-      SynchedEntityData.defineId(MemorialStatueEntity.class, EntityDataSerializers.STRING);
-   private static final EntityDataAccessor<String> SKIN_TEXTURES =
-      SynchedEntityData.defineId(MemorialStatueEntity.class, EntityDataSerializers.STRING);
-
    private UUID ownerUuid;
 
    private long birthTime = UNKNOWN_BIRTH;
@@ -88,46 +80,7 @@ public class MemorialStatueEntity extends StatueEntity {
    public void setOwner(Player player) {
       this.ownerUuid = player.getUUID();
       this.setCustomName(Component.translatable("entity.postmortem.memorial_statue.named", player.getName()));
-      //? if >=1.21.9 {
-      /*this.skinTextures = player.getGameProfile().properties().get("textures").stream()
-      *///?} else
-      this.skinTextures = player.getGameProfile().getProperties().get("textures").stream()
-         .findFirst()
-         //? if >=1.20.2 {
-         .map(property -> property.value())
-         //?} else
-         //.map(property -> property.getValue())
-         .orElse("");
-   }
-
-   @Override
-   //? if >=1.20.5 {
-   protected void defineSynchedData(SynchedEntityData.Builder builder) {
-      super.defineSynchedData(builder);
-   //?} else {
-   /*protected void defineSynchedData() {
-      super.defineSynchedData();
-      SynchedEntityData builder = this.entityData;
-   *///?}
-      builder.define(SKIN_OWNER, "");
-      builder.define(SKIN_TEXTURES, "");
-   }
-
-   public UUID getSkinOwner() {
-      String owner = this.entityData.get(SKIN_OWNER);
-      if (owner.isEmpty()) {
-         return null;
-      }
-
-      try {
-         return UUID.fromString(owner);
-      } catch (IllegalArgumentException e) {
-         return null;
-      }
-   }
-
-   public String getSkinTextures() {
-      return this.entityData.get(SKIN_TEXTURES);
+      this.skinTextures = texturesOf(player.getGameProfile());
    }
 
    public UUID getOwnerUuid() {
@@ -194,9 +147,7 @@ public class MemorialStatueEntity extends StatueEntity {
       super.tick();
 
       if (this.level() instanceof ServerLevel world) {
-         boolean skin = PostmortemConfig.get().greyscaleSkins() && this.ownerUuid != null;
-         this.entityData.set(SKIN_OWNER, skin ? this.ownerUuid.toString() : "");
-         this.entityData.set(SKIN_TEXTURES, skin ? this.skinTextures : "");
+         this.showSkin(PostmortemConfig.get().greyscaleSkins() ? this.ownerUuid : null, this.skinTextures);
 
          if (this.birthTime == UNKNOWN_BIRTH) {
             this.birthTime = world.getGameTime();
