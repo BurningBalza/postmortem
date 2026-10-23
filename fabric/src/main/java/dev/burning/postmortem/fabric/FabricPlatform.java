@@ -3,6 +3,7 @@ package dev.burning.postmortem.fabric;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.platform.Platform;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.function.Supplier;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 //? if >=26.1 {
@@ -19,6 +20,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 //import dev.burning.postmortem.legacy.CustomPacketPayload;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 
 public final class FabricPlatform implements Platform {
    @Override
@@ -57,5 +60,10 @@ public final class FabricPlatform implements Platform {
       payload.write(buf);
       ServerPlayNetworking.send(player, payload.id(), buf);
       *///?}
+   }
+
+   @Override
+   public Collection<ItemEntity> capturedDrops(Entity entity) {
+      return null;
    }
 }
