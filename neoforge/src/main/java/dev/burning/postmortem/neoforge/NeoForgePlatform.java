@@ -3,6 +3,7 @@ package dev.burning.postmortem.neoforge;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.platform.Platform;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -10,6 +11,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
@@ -51,6 +54,11 @@ public final class NeoForgePlatform implements Platform {
       /*PacketDistributor.sendToPlayer(player, payload);
       *///?} else
       PacketDistributor.PLAYER.with(player).send(payload);
+   }
+
+   @Override
+   public Collection<ItemEntity> capturedDrops(Entity entity) {
+      return entity.captureDrops();
    }
 
    void attach(IEventBus modBus) {
