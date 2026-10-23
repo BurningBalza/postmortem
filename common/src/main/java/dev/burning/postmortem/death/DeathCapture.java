@@ -6,6 +6,7 @@ import dev.burning.postmortem.PostmortemRegistry;
 import dev.burning.postmortem.compat.BackslotCompat;
 import dev.burning.postmortem.compat.CarrySlot;
 import dev.burning.postmortem.compat.CombatAmenitiesCompat;
+import dev.burning.postmortem.compat.CosmeticArmorCompat;
 import dev.burning.postmortem.compat.GraveMods;
 import dev.burning.postmortem.compat.PehkuiCompat;
 import dev.burning.postmortem.compat.TrinketsCompat;
@@ -13,10 +14,17 @@ import dev.burning.postmortem.compat.WornItem;
 import dev.burning.postmortem.compat.WornSlots;
 import dev.burning.postmortem.entity.MemorialStatueEntity;
 import dev.burning.postmortem.entity.PoseSnapshot;
+import dev.burning.postmortem.platform.Platform;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -30,9 +38,11 @@ import net.minecraft.world.damagesource.DamageSource;
 //? if >=1.21.2
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 
@@ -89,6 +99,8 @@ public final class DeathCapture {
 
    private static final Map<UUID, List<WornItem>> PENDING_WORN = new HashMap<>();
 
+   private static Capture active;
+
    public static void takeWorn(ServerPlayer player, DamageSource source) {
       List<WornItem> worn = new ArrayList<>();
       for (WornSlots mod : WornSlots.loaded()) {
@@ -99,7 +111,20 @@ public final class DeathCapture {
       }
    }
 
-   public static boolean capture(Player player, ServerLevel world) {
+   public static boolean isSoulbound(ItemStack stack) {
+      //? if >=1.21 {
+      return EnchantmentHelper.hasTag(stack, PostmortemRegistry.SOULBOUND);
+      //?} elif >=1.20.5 {
+      /*return stack.getEnchantments().keySet().stream().anyMatch(enchantment -> enchantment.is(PostmortemRegistry.SOULBOUND));
+      *///?} else {
+      /*return EnchantmentHelper.getEnchantments(stack).keySet().stream().anyMatch(enchantment ->
+         net.minecraft.core.registries.BuiltInRegistries.ENCHANTMENT.wrapAsHolder(enchantment).is(PostmortemRegistry.SOULBOUND));
+      *///?}
+   }
+
+   public static void begin(ServerPlayer player, ServerLevel world) {
+      active = null;
+
       List<WornItem> worn = PENDING_WORN.remove(player.getUUID());
       if (worn == null) {
          worn = List.of();
@@ -117,7 +142,7 @@ public final class DeathCapture {
             *///?} else
             player.drop(item.stack(), true);
          }
-         return false;
+         return;
       }
 
       statue.setOwner(player);
@@ -127,8 +152,7 @@ public final class DeathCapture {
       int selected = inventory.getSelectedSlot();
       //?} else
       //int selected = inventory.selected;
-      List<Integer> taken = new ArrayList<>();
-      boolean keepingAnything = false;
+      Capture capture = new Capture(player, world, statue, selected, Platform.INSTANCE.capturedDrops(player));
       for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
          ItemStack stack = inventory.getItem(slot);
          if (stack.isEmpty()) {
@@ -136,12 +160,12 @@ public final class DeathCapture {
          }
 
          if (isKept(stack)) {
-            keepingAnything = true;
+            capture.kept.add(new InventorySlot(slot, stack, stack));
+            inventory.setItem(slot, ItemStack.EMPTY);
             continue;
          }
 
-         statue.store(stack.copy(), slot, displaySlotFor(slot, selected));
-         taken.add(slot);
+         capture.unclaimed.add(new InventorySlot(slot, stack, stack.copy()));
       }
 
       List<WornItem> shown = new ArrayList<>(WornItem.copies(worn));
@@ -156,41 +180,95 @@ public final class DeathCapture {
       }
 
       ItemStack backslot = BackslotCompat.get(player);
-      boolean backslotIsLoot = !backslot.isEmpty() && BackslotCompat.dropsOnDeath();
       if (!backslot.isEmpty()) {
          statue.setBackslotStack(backslot);
-      }
-      if (backslotIsLoot) {
-         statue.storeCarried(backslot.copy(), CarrySlot.BACKSLOT);
+         if (BackslotCompat.dropsOnDeath()) {
+            statue.storeCarried(backslot.copy(), CarrySlot.BACKSLOT);
+            BackslotCompat.clear(player);
+         }
       }
 
-      boolean amenitiesIsLoot = false;
       if (CombatAmenitiesCompat.isPresent()) {
          ItemStack amenitiesBack = CombatAmenitiesCompat.getBack(player);
          if (!amenitiesBack.isEmpty()) {
             statue.setBackslotStack(amenitiesBack);
             statue.storeCarried(amenitiesBack.copy(), CarrySlot.AMENITIES_BACK);
-            amenitiesIsLoot = true;
          }
 
          ItemStack amenitiesBelt = CombatAmenitiesCompat.getBelt(player);
          statue.setBeltslotStack(amenitiesBelt);
          if (!amenitiesBelt.isEmpty()) {
             statue.storeCarried(amenitiesBelt.copy(), CarrySlot.AMENITIES_BELT);
-            amenitiesIsLoot = true;
+         }
+
+         if (!amenitiesBack.isEmpty() || !amenitiesBelt.isEmpty()) {
+            CombatAmenitiesCompat.clear(player);
          }
       }
+
+      if (CosmeticArmorCompat.isPresent()) {
+         capture.look.putAll(CosmeticArmorCompat.appearance(player));
+         if (CosmeticArmorCompat.dropsOnDeath()) {
+            for (int index = 0; index < 4; index++) {
+               statue.storeCarried(CosmeticArmorCompat.take(player, index), CarrySlot.cosmetic(index));
+            }
+         }
+      }
+
+      active = capture;
+   }
+
+   public static boolean claim(ItemEntity item, ServerLevel world) {
+      Capture capture = active;
+      if (capture == null || capture.world != world) {
+         return false;
+      }
+
+      if (world.getGameTime() != capture.tick) {
+         active = null;
+         return false;
+      }
+
+      return capture.claim(item.getItem());
+   }
+
+   public static void finish(ServerPlayer player, ServerLevel world) {
+      Capture capture = active;
+      if (capture == null || capture.player != player) {
+         return;
+      }
+      active = null;
+
+      Collection<ItemEntity> drops = Platform.INSTANCE.capturedDrops(player);
+      if (drops != null) {
+         for (Iterator<ItemEntity> it = drops.iterator(); it.hasNext(); ) {
+            ItemEntity drop = it.next();
+            if (!capture.earlierDrops.contains(drop) && capture.claim(drop.getItem())) {
+               it.remove();
+            }
+         }
+      }
+
+      Inventory inventory = player.getInventory();
+      for (InventorySlot kept : capture.kept) {
+         if (inventory.getItem(kept.slot()).isEmpty()) {
+            inventory.setItem(kept.slot(), kept.stack());
+         } else {
+            //? if >=26.3 {
+            /*inventory.placeItemBackInInventory(kept.stack(), net.minecraft.util.Prediction.SERVER_ONLY);
+            *///?} else
+            inventory.placeItemBackInInventory(kept.stack());
+         }
+      }
+
+      MemorialStatueEntity statue = capture.statue;
+      capture.look.forEach(statue::setItemSlot);
 
       if (statue.isEmpty()) {
          if (PostmortemConfig.get().debug()) {
             Postmortem.LOGGER.info("[postmortem] {} died carrying nothing; no statue placed", player.getName().getString());
          }
-
-         return keepingAnything;
-      }
-
-      for (int slot : taken) {
-         inventory.setItem(slot, ItemStack.EMPTY);
+         return;
       }
 
       int experience = experienceToStore(player, world);
@@ -200,14 +278,6 @@ public final class DeathCapture {
          player.experienceLevel = 0;
          player.experienceProgress = 0.0F;
          player.totalExperience = 0;
-      }
-
-      if (backslotIsLoot) {
-         BackslotCompat.clear(player);
-      }
-
-      if (amenitiesIsLoot) {
-         CombatAmenitiesCompat.clear(player);
       }
 
       PoseSnapshot pose = ((PoseSnapshot.Holder) player).postmortem$getLastLivingPose();
@@ -230,11 +300,71 @@ public final class DeathCapture {
       world.playSound(null, statue.getX(), statue.getY(), statue.getZ(), SoundEvents.STONE_PLACE, SoundSource.NEUTRAL, 1.0F, 0.7F);
 
       if (PostmortemConfig.get().debug()) {
-         Postmortem.LOGGER.info("[postmortem] {} died at {}; statue placed at {}", player.getName().getString(), player.position(), pos);
+         Postmortem.LOGGER.info("[postmortem] {} died at {}; statue placed at {}, {} stack(s) dropped by other mods went in too",
+            player.getName().getString(), player.position(), pos, capture.loose);
       }
 
       PENDING_ANNOUNCEMENTS.put(player.getUUID(), GlobalPos.of(world.dimension(), statue.blockPosition()));
-      return true;
+   }
+
+   private record InventorySlot(int slot, ItemStack stack, ItemStack copy) {
+   }
+
+   private static final class Capture {
+      private final ServerPlayer player;
+      private final ServerLevel world;
+      private final long tick;
+      private final MemorialStatueEntity statue;
+      private final int selected;
+      private final Set<ItemEntity> earlierDrops = Collections.newSetFromMap(new IdentityHashMap<>());
+      private final List<InventorySlot> unclaimed = new ArrayList<>();
+      private final List<InventorySlot> kept = new ArrayList<>();
+      private final Map<EquipmentSlot, ItemStack> look = new EnumMap<>(EquipmentSlot.class);
+      private int loose;
+
+      private Capture(ServerPlayer player, ServerLevel world, MemorialStatueEntity statue, int selected, Collection<ItemEntity> drops) {
+         this.player = player;
+         this.world = world;
+         this.tick = world.getGameTime();
+         this.statue = statue;
+         this.selected = selected;
+         if (drops != null) {
+            this.earlierDrops.addAll(drops);
+         }
+      }
+
+      private boolean claim(ItemStack stack) {
+         if (stack.isEmpty() || isSoulbound(stack)) {
+            return false;
+         }
+
+         int slot = this.takeSlot(stack);
+         if (slot == MemorialStatueEntity.NO_SLOT) {
+            this.loose++;
+         }
+         this.statue.store(stack.copy(), slot, slot == MemorialStatueEntity.NO_SLOT ? null : displaySlotFor(slot, this.selected));
+         return true;
+      }
+
+      private int takeSlot(ItemStack stack) {
+         for (Iterator<InventorySlot> it = this.unclaimed.iterator(); it.hasNext(); ) {
+            InventorySlot entry = it.next();
+            if (entry.stack() == stack) {
+               it.remove();
+               return entry.slot();
+            }
+         }
+
+         for (Iterator<InventorySlot> it = this.unclaimed.iterator(); it.hasNext(); ) {
+            InventorySlot entry = it.next();
+            if (ItemStack.matches(entry.copy(), stack)) {
+               it.remove();
+               return entry.slot();
+            }
+         }
+
+         return MemorialStatueEntity.NO_SLOT;
+      }
    }
 
    private static final Map<UUID, GlobalPos> PENDING_ANNOUNCEMENTS = new HashMap<>();

@@ -33,12 +33,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.Enchantment;
 
 public final class PostmortemRegistry {
    private static final float STATUE_WIDTH = 0.6F;
    private static final float STATUE_HEIGHT = 1.8F;
 
    public static final TagKey<Item> KEPT_ON_DEATH = TagKey.create(Registries.ITEM, Postmortem.id("kept_on_death"));
+   public static final TagKey<Enchantment> SOULBOUND = TagKey.create(Registries.ENCHANTMENT, Postmortem.id("soulbound"));
 
    public static final Supplier<EntityType<MemorialStatueEntity>> MEMORIAL_STATUE =
       registerEntity("memorial_statue", MemorialStatueEntity::new);

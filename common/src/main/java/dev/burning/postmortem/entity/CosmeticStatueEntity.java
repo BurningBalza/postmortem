@@ -1,19 +1,26 @@
 package dev.burning.postmortem.entity;
 
+import com.mojang.authlib.GameProfile;
+import dev.burning.postmortem.Postmortem;
+import dev.burning.postmortem.PostmortemConfig;
 import dev.burning.postmortem.PostmortemRegistry;
 import dev.burning.postmortem.compat.BackSlots;
+import java.util.UUID;
 import java.util.function.Consumer;
 import dev.burning.postmortem.platform.Platform;
 //? if >=1.20.5
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -80,6 +87,24 @@ public class CosmeticStatueEntity extends StatueEntity {
 
    private long lastHit;
 
+   private UUID skinOwner;
+
+   private String skinTextures = "";
+
+   private boolean skinScraped;
+
+   private String pendingSkinName;
+
+   @Override
+   public void tick() {
+      super.tick();
+
+      if (!this.level().isClientSide()) {
+         boolean shown = PostmortemConfig.get().namedStatueSkins() && !this.skinScraped;
+         this.showSkin(shown ? this.skinOwner : null, this.skinTextures);
+      }
+   }
+
    @Override
    //? if >=26.1 {
    public InteractionResult interact(Player player, InteractionHand hand, Vec3 hitPos) {
@@ -97,6 +122,11 @@ public class CosmeticStatueEntity extends StatueEntity {
       InteractionResult chiselling = this.tryVariantCycle(player, hand);
       if (chiselling != null) {
          return chiselling;
+      }
+
+      InteractionResult scraping = this.tryScrapingSkin(player, hand);
+      if (scraping != null) {
+         return scraping;
       }
 
       if (player.isShiftKeyDown()) {
@@ -149,6 +179,7 @@ public class CosmeticStatueEntity extends StatueEntity {
       }
 
       this.setCustomName(name);
+      this.lookUpSkin(name.getString());
       //? if >=1.20.5 {
       held.consume(1, player);
       //?} else {
@@ -158,6 +189,67 @@ public class CosmeticStatueEntity extends StatueEntity {
       *///?}
       this.level()
          .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.STONE_PLACE, SoundSource.NEUTRAL, 0.7F, 1.6F);
+      return InteractionResult.SUCCESS;
+   }
+
+   private void lookUpSkin(String name) {
+      this.skinOwner = null;
+      this.skinTextures = "";
+      this.skinScraped = false;
+      this.pendingSkinName = null;
+
+      if (!PostmortemConfig.get().namedStatueSkins()
+         || !ProfileLookup.isPlayerName(name)
+         || !(this.level() instanceof ServerLevel world)) {
+         return;
+      }
+
+      this.pendingSkinName = name;
+      MinecraftServer server = world.getServer();
+      ProfileLookup.byName(server, name).whenComplete((found, error) -> server.execute(() -> {
+         if (this.isRemoved() || !name.equals(this.pendingSkinName)) {
+            return;
+         }
+         this.pendingSkinName = null;
+
+         if (error != null || found == null || found.isEmpty()) {
+            if (PostmortemConfig.get().debug()) {
+               Postmortem.LOGGER.info("[postmortem] no player named {} for statue {}", name, this.getUUID(), error);
+            }
+            return;
+         }
+
+         GameProfile profile = found.get();
+         this.skinOwner = ProfileLookup.idOf(profile);
+         this.skinTextures = StatueEntity.texturesOf(profile);
+      }));
+   }
+
+   private InteractionResult tryScrapingSkin(Player player, InteractionHand hand) {
+      ItemStack held = player.getItemInHand(hand);
+      if (!player.isShiftKeyDown() || !held.is(ItemTags.AXES) || this.getSkinOwner() == null) {
+         return null;
+      }
+
+      if (this.isWaxed()) {
+         return this.refuseWaxed(player);
+      }
+
+      this.skinScraped = true;
+      this.showSkin(null, "");
+      //? if >=1.21.9 {
+      held.hurtAndBreak(1, player, hand);
+      //?} elif >=1.20.5 {
+      /*held.hurtAndBreak(1, player, net.minecraft.world.entity.LivingEntity.getSlotForHand(hand));
+      *///?} else
+      //held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
+      //? if >=26.3 {
+      /*this.level().playSound(
+         null, this.getX(), this.getY(), this.getZ(), SoundEvents.AXE_STRIP.value(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+      *///?} else {
+      this.level().playSound(
+         null, this.getX(), this.getY(), this.getZ(), SoundEvents.AXE_STRIP, SoundSource.NEUTRAL, 1.0F, 1.0F);
+      //?}
       return InteractionResult.SUCCESS;
    }
 
@@ -348,6 +440,16 @@ public class CosmeticStatueEntity extends StatueEntity {
       if (!pose.isDefault()) {
          view.store("LimbPose", StatuePose.CODEC, pose);
       }
+
+      if (this.skinOwner != null) {
+         view.store("SkinOwner", UUIDUtil.CODEC, this.skinOwner);
+      }
+      if (!this.skinTextures.isEmpty()) {
+         view.putString("SkinTextures", this.skinTextures);
+      }
+      if (this.skinScraped) {
+         view.putBoolean("SkinScraped", true);
+      }
    }
 
    @Override
@@ -360,6 +462,9 @@ public class CosmeticStatueEntity extends StatueEntity {
       ValueInput view = ValueInput.of(tag, this);
    *///?}
       this.setLimbPose(view.read("LimbPose", StatuePose.CODEC).orElse(StatuePose.DEFAULT));
+      this.skinOwner = view.read("SkinOwner", UUIDUtil.CODEC).orElse(null);
+      this.skinTextures = view.getStringOr("SkinTextures", "");
+      this.skinScraped = view.getBooleanOr("SkinScraped", false);
    }
 
    @Override
