@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "soulbound:soulbound", "required": false },
+    { "id": "ensorcellation:soulbound", "required": false },
+    { "id": "enigmaticlegacy:eternal_binding", "required": false }
+  ]
+}
