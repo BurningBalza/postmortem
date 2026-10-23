@@ -1,7 +1,7 @@
 package dev.burning.postmortem.entity;
 
 import dev.burning.postmortem.Postmortem;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
 public enum StatueVariant implements StringRepresentable {
@@ -13,14 +13,14 @@ public enum StatueVariant implements StringRepresentable {
    SCREAMING("screaming", "screaming_statue");
 
    private final String id;
-   private final ResourceLocation texture;
+   private final Identifier texture;
 
    StatueVariant(String id, String textureName) {
       this.id = id;
       this.texture = textureName == null ? null : Postmortem.id("textures/entity/" + textureName + ".png");
    }
 
-   public ResourceLocation texture() {
+   public Identifier texture() {
       return this.texture;
    }
 
