@@ -26,12 +26,13 @@ public record PostmortemConfig(
    int storedExperiencePercent,
    boolean memorialLocationMessage,
    boolean greyscaleSkins,
+   boolean namedStatueSkins,
    boolean debug) {
    public static final double DEFAULT_COLLECT_RADIUS = 8.0;
    public static final double MIN_COLLECT_RADIUS = 1.0;
    public static final double MAX_COLLECT_RADIUS = 64.0;
 
-   public static final int DEFAULT_BREAK_AFTER_MINUTES = 30;
+   public static final int DEFAULT_BREAK_AFTER_MINUTES = 5;
    public static final int NEVER_BREAKABLE = -1;
    public static final int MAX_BREAK_AFTER_MINUTES = 43200;
 
@@ -62,6 +63,7 @@ public record PostmortemConfig(
       VANILLA_EXPERIENCE,
       true,
       false,
+      true,
       false);
    public static final Codec<PostmortemConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
       Codec.DOUBLE.optionalFieldOf("collect_radius", DEFAULT_COLLECT_RADIUS).forGetter(PostmortemConfig::collectRadius),
@@ -74,6 +76,7 @@ public record PostmortemConfig(
       Codec.INT.optionalFieldOf("stored_experience_percent", VANILLA_EXPERIENCE).forGetter(PostmortemConfig::storedExperiencePercent),
       Codec.BOOL.optionalFieldOf("memorial_location_message", true).forGetter(PostmortemConfig::memorialLocationMessage),
       Codec.BOOL.optionalFieldOf("greyscale_skins", false).forGetter(PostmortemConfig::greyscaleSkins),
+      Codec.BOOL.optionalFieldOf("named_statue_skins", true).forGetter(PostmortemConfig::namedStatueSkins),
       Codec.BOOL.optionalFieldOf("debug", false).forGetter(PostmortemConfig::debug)
    ).apply(instance, PostmortemConfig::new));
 
@@ -88,6 +91,7 @@ public record PostmortemConfig(
       "stored_experience_percent",
       "memorial_location_message",
       "greyscale_skins",
+      "named_statue_skins",
       "debug");
 
    private static PostmortemConfig loaded = DEFAULT;
@@ -141,7 +145,7 @@ public record PostmortemConfig(
          ? this
          : new PostmortemConfig(
             radius, minutes, horizontal, vertical, voidSearch, voidStep, this.storeExperience, experiencePercent,
-            this.memorialLocationMessage, this.greyscaleSkins, this.debug);
+            this.memorialLocationMessage, this.greyscaleSkins, this.namedStatueSkins, this.debug);
    }
 
    public long breakAfterTicks() {
@@ -163,6 +167,7 @@ public record PostmortemConfig(
          json.addProperty("stored_experience_percent", config.storedExperiencePercent());
          json.addProperty("memorial_location_message", config.memorialLocationMessage());
          json.addProperty("greyscale_skins", config.greyscaleSkins());
+         json.addProperty("named_statue_skins", config.namedStatueSkins());
          json.addProperty("debug", config.debug());
 
          Files.writeString(path, new GsonBuilder().setPrettyPrinting().create().toJson(json));

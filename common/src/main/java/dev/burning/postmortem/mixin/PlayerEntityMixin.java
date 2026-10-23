@@ -1,16 +1,9 @@
 package dev.burning.postmortem.mixin;
 
-import dev.burning.postmortem.Postmortem;
-import dev.burning.postmortem.PostmortemConfig;
-import dev.burning.postmortem.compat.GraveMods;
-import dev.burning.postmortem.death.DeathCapture;
 import dev.burning.postmortem.entity.PoseSnapshot;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.gamerules.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,9 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = Player.class, priority = 1100)
 public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
-   @Shadow
-   protected abstract void destroyVanishingCursedItems();
-
    @Unique
    private PoseSnapshot postmortem$lastLivingPose = PoseSnapshot.STANDING;
 
@@ -123,36 +113,5 @@ public abstract class PlayerEntityMixin implements PoseSnapshot.Holder {
       float target = Math.min(step * 4.0F, 1.0F);
       this.postmortem$limbSpeed += (target - this.postmortem$limbSpeed) * 0.4F;
       this.postmortem$limbProgress += this.postmortem$limbSpeed;
-   }
-
-   //? if >=1.21.2 {
-   @Inject(method = "dropEquipment(Lnet/minecraft/server/level/ServerLevel;)V", at = @At("HEAD"), cancellable = true)
-   private void postmortem$captureIntoStatue(ServerLevel world, CallbackInfo ci) {
-   //?} else {
-   /*
-   @Inject(method = "dropEquipment()V", at = @At("HEAD"), cancellable = true)
-   private void postmortem$captureIntoStatue(CallbackInfo ci) {
-      if (!(((Player)(Object)this).level() instanceof ServerLevel world)) {
-         return;
-      }
-   *///?}
-      if (GraveMods.present()) {
-         return;
-      }
-
-      if (PostmortemConfig.get().debug()) {
-         Postmortem.LOGGER.info("[postmortem] death drop intercepted; keepInventory={}",
-            world.getGameRules().get(GameRules.KEEP_INVENTORY));
-      }
-
-      if (world.getGameRules().get(GameRules.KEEP_INVENTORY)) {
-         return;
-      }
-
-      this.destroyVanishingCursedItems();
-
-      if (DeathCapture.capture((Player)(Object)this, world)) {
-         ci.cancel();
-      }
    }
 }
