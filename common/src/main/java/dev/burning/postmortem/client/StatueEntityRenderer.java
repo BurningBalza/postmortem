@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
-import dev.burning.postmortem.entity.MemorialStatueEntity;
 import dev.burning.postmortem.entity.StatueEntity;
 import dev.burning.postmortem.entity.StatuePose;
 import dev.burning.postmortem.entity.StatueVariant;
@@ -325,12 +324,12 @@ public class StatueEntityRenderer<T extends StatueEntity>
    }
 
    private static Identifier skinFor(StatueEntity entity) {
-      if (!(entity instanceof MemorialStatueEntity memorial) || entity.getVariant() != StatueVariant.DEFAULT) {
+      if (entity.getVariant() != StatueVariant.DEFAULT) {
          return null;
       }
 
-      UUID owner = memorial.getSkinOwner();
-      return owner != null ? GreyscaleSkins.get(owner, memorial.getSkinTextures()) : null;
+      UUID owner = entity.getSkinOwner();
+      return owner != null ? GreyscaleSkins.get(owner, entity.getSkinTextures()) : null;
    }
 
    private static void updateArmPoses(StatueEntity entity, State state) {
