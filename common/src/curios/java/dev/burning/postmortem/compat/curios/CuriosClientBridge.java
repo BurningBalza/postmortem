@@ -29,6 +29,13 @@ final class CuriosClientBridge {
       *///?} else {
       ICurioRenderer renderer = CuriosRendererRegistry.getRenderer(stack.getItem()).orElse(null);
       if (renderer == null) {
+         Object relic = RelicsRenderers.find(stack.getItem());
+         if (relic != null) {
+            RelicsRenderers.render(
+               relic, stack, slot, context.matrices(), context.renderer(), context.sink().raw(), context.light(),
+               context.limbAngle(), context.limbDistance(), 1.0F, context.state().ageInTicks, context.state().yRot,
+               context.state().xRot);
+         }
          return;
       }
 

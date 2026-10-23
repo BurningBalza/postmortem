@@ -1,8 +1,10 @@
 package dev.burning.postmortem.entity;
 
+import com.mojang.authlib.GameProfile;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.compat.BackSlots;
 import dev.burning.postmortem.compat.WornItem;
+import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.chat.Component;
@@ -73,6 +75,11 @@ public abstract class StatueEntity extends LivingEntity {
 
    private static final EntityDataAccessor<java.util.List<WornItem>> WORN =
       SynchedEntityData.defineId(StatueEntity.class, WornItem.LIST_SERIALIZER);
+
+   private static final EntityDataAccessor<String> SKIN_OWNER =
+      SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.STRING);
+   private static final EntityDataAccessor<String> SKIN_TEXTURES =
+      SynchedEntityData.defineId(StatueEntity.class, EntityDataSerializers.STRING);
 
    private boolean checkedBackSlots;
 
@@ -149,6 +156,43 @@ public abstract class StatueEntity extends LivingEntity {
       builder.define(SEATED, false);
       builder.define(WAXED, false);
       builder.define(WORN, java.util.List.of());
+      builder.define(SKIN_OWNER, "");
+      builder.define(SKIN_TEXTURES, "");
+   }
+
+   public UUID getSkinOwner() {
+      String owner = this.entityData.get(SKIN_OWNER);
+      if (owner.isEmpty()) {
+         return null;
+      }
+
+      try {
+         return UUID.fromString(owner);
+      } catch (IllegalArgumentException e) {
+         return null;
+      }
+   }
+
+   public String getSkinTextures() {
+      return this.entityData.get(SKIN_TEXTURES);
+   }
+
+   protected void showSkin(UUID owner, String textures) {
+      this.entityData.set(SKIN_OWNER, owner != null ? owner.toString() : "");
+      this.entityData.set(SKIN_TEXTURES, owner != null ? textures : "");
+   }
+
+   public static String texturesOf(GameProfile profile) {
+      //? if >=1.21.9 {
+      /*return profile.properties().get("textures").stream()
+      *///?} else
+      return profile.getProperties().get("textures").stream()
+         .findFirst()
+         //? if >=1.20.2 {
+         /*.map(property -> property.value())
+         *///?} else
+         .map(property -> property.getValue())
+         .orElse("");
    }
 
    public boolean isWaxed() {
