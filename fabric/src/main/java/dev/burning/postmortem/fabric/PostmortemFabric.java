@@ -3,7 +3,6 @@ package dev.burning.postmortem.fabric;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemCommand;
 import dev.burning.postmortem.PostmortemRegistry;
-import dev.burning.postmortem.compat.GraveMods;
 import dev.burning.postmortem.death.DeathCapture;
 import dev.burning.postmortem.entity.StatueEntity;
 import net.fabricmc.api.ModInitializer;
@@ -31,24 +30,12 @@ public final class PostmortemFabric implements ModInitializer {
       //? if >=26.1 {
       CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
          .register(entries -> entries.insertAfter(Items.ARMOR_STAND, PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));
-      CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
-         .register(entries -> {
-            if (!GraveMods.present()) {
-               entries.insertAfter(Items.RECOVERY_COMPASS, PostmortemRegistry.STATUE_COLLECTOR.get());
-            }
-         });
 
       PayloadTypeRegistry.clientboundPlay().register(PostmortemRegistry.OpenPoseScreen.ID, PostmortemRegistry.OpenPoseScreen.CODEC);
       PayloadTypeRegistry.serverboundPlay().register(PostmortemRegistry.SetPose.ID, PostmortemRegistry.SetPose.CODEC);
       //?} else {
       /*ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
          .register(entries -> entries.addAfter(Items.ARMOR_STAND, PostmortemRegistry.COSMETIC_STATUE_ITEM.get()));
-      ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
-         .register(entries -> {
-            if (!GraveMods.present()) {
-               entries.addAfter(Items.RECOVERY_COMPASS, PostmortemRegistry.STATUE_COLLECTOR.get());
-            }
-         });
 
       //? if >=1.20.5 {
       PayloadTypeRegistry.playS2C().register(PostmortemRegistry.OpenPoseScreen.ID, PostmortemRegistry.OpenPoseScreen.CODEC);
