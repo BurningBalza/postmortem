@@ -238,7 +238,6 @@ public abstract class StatueEntity extends LivingEntity {
    }
 
    protected InteractionResult refuseWaxed(Player player) {
-      Postmortem.overlay(player, Component.translatable("message.postmortem.statue_waxed"));
       this.level().playSound(
          null,
          this.getX(),
