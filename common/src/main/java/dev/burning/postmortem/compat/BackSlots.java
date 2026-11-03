@@ -7,7 +7,7 @@ public final class BackSlots {
    }
 
    public static boolean back() {
-      return BackslotCompat.isPresent() || CombatAmenitiesCompat.isPresent();
+      return BackslotCompat.isPresent() || CombatAmenitiesCompat.isPresent() || ArsenalCompat.isPresent();
    }
 
    public static boolean belt() {
