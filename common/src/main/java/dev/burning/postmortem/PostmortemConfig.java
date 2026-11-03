@@ -16,7 +16,6 @@ import dev.burning.postmortem.platform.Platform;
 import net.minecraft.util.Mth;
 
 public record PostmortemConfig(
-   double collectRadius,
    int breakAfterMinutes,
    int placementHorizontalSearch,
    int placementVerticalSearch,
@@ -28,10 +27,6 @@ public record PostmortemConfig(
    boolean greyscaleSkins,
    boolean namedStatueSkins,
    boolean debug) {
-   public static final double DEFAULT_COLLECT_RADIUS = 8.0;
-   public static final double MIN_COLLECT_RADIUS = 1.0;
-   public static final double MAX_COLLECT_RADIUS = 64.0;
-
    public static final int DEFAULT_BREAK_AFTER_MINUTES = 5;
    public static final int NEVER_BREAKABLE = -1;
    public static final int MAX_BREAK_AFTER_MINUTES = 43200;
@@ -53,7 +48,6 @@ public record PostmortemConfig(
    public static final int MAX_STORED_EXPERIENCE_PERCENT = 100;
 
    public static final PostmortemConfig DEFAULT = new PostmortemConfig(
-      DEFAULT_COLLECT_RADIUS,
       DEFAULT_BREAK_AFTER_MINUTES,
       DEFAULT_PLACEMENT_HORIZONTAL_SEARCH,
       DEFAULT_PLACEMENT_VERTICAL_SEARCH,
@@ -66,7 +60,6 @@ public record PostmortemConfig(
       true,
       false);
    public static final Codec<PostmortemConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-      Codec.DOUBLE.optionalFieldOf("collect_radius", DEFAULT_COLLECT_RADIUS).forGetter(PostmortemConfig::collectRadius),
       Codec.INT.optionalFieldOf("break_after_minutes", DEFAULT_BREAK_AFTER_MINUTES).forGetter(PostmortemConfig::breakAfterMinutes),
       Codec.INT.optionalFieldOf("placement_horizontal_search", DEFAULT_PLACEMENT_HORIZONTAL_SEARCH).forGetter(PostmortemConfig::placementHorizontalSearch),
       Codec.INT.optionalFieldOf("placement_vertical_search", DEFAULT_PLACEMENT_VERTICAL_SEARCH).forGetter(PostmortemConfig::placementVerticalSearch),
@@ -81,7 +74,6 @@ public record PostmortemConfig(
    ).apply(instance, PostmortemConfig::new));
 
    private static final List<String> KEYS = List.of(
-      "collect_radius",
       "break_after_minutes",
       "placement_horizontal_search",
       "placement_vertical_search",
@@ -128,15 +120,13 @@ public record PostmortemConfig(
    }
 
    private PostmortemConfig clamped() {
-      double radius = Mth.clamp(this.collectRadius, MIN_COLLECT_RADIUS, MAX_COLLECT_RADIUS);
       int minutes = Mth.clamp(this.breakAfterMinutes, NEVER_BREAKABLE, MAX_BREAK_AFTER_MINUTES);
       int horizontal = Mth.clamp(this.placementHorizontalSearch, 0, MAX_PLACEMENT_HORIZONTAL_SEARCH);
       int vertical = Mth.clamp(this.placementVerticalSearch, 0, MAX_PLACEMENT_VERTICAL_SEARCH);
       int voidSearch = Mth.clamp(this.placementVoidSearch, 0, MAX_PLACEMENT_VOID_SEARCH);
       int voidStep = Mth.clamp(this.placementVoidStep, MIN_PLACEMENT_VOID_STEP, MAX_PLACEMENT_VOID_STEP);
       int experiencePercent = Mth.clamp(this.storedExperiencePercent, VANILLA_EXPERIENCE, MAX_STORED_EXPERIENCE_PERCENT);
-      return radius == this.collectRadius
-            && minutes == this.breakAfterMinutes
+      return minutes == this.breakAfterMinutes
             && horizontal == this.placementHorizontalSearch
             && vertical == this.placementVerticalSearch
             && voidSearch == this.placementVoidSearch
@@ -144,7 +134,7 @@ public record PostmortemConfig(
             && experiencePercent == this.storedExperiencePercent
          ? this
          : new PostmortemConfig(
-            radius, minutes, horizontal, vertical, voidSearch, voidStep, this.storeExperience, experiencePercent,
+            minutes, horizontal, vertical, voidSearch, voidStep, this.storeExperience, experiencePercent,
             this.memorialLocationMessage, this.greyscaleSkins, this.namedStatueSkins, this.debug);
    }
 
@@ -157,7 +147,6 @@ public record PostmortemConfig(
          Files.createDirectories(path.getParent());
 
          JsonObject json = new JsonObject();
-         json.addProperty("collect_radius", config.collectRadius());
          json.addProperty("break_after_minutes", config.breakAfterMinutes());
          json.addProperty("placement_horizontal_search", config.placementHorizontalSearch());
          json.addProperty("placement_vertical_search", config.placementVerticalSearch());

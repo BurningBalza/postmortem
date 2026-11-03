@@ -213,6 +213,12 @@ public class StatueHighlightLayer extends RenderLayer<StatueEntity, StatueEntity
       ModelPart limb = this.limbFor(part);
       if (limb != null) {
          submit(limb, matrices, sink, type, colour);
+         //? if <1.21.2 {
+         ModelPart outer = this.getParentModel().outerLayer(limb);
+         if (outer != null) {
+            submit(outer, matrices, sink, type, colour);
+         }
+         //?}
          return;
       }
 
