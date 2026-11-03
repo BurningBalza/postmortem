@@ -4,7 +4,6 @@ import dev.burning.postmortem.compat.BackSlots;
 import dev.burning.postmortem.entity.CosmeticStatueEntity;
 import dev.burning.postmortem.entity.CosmeticStatueItem;
 import dev.burning.postmortem.entity.MemorialStatueEntity;
-import dev.burning.postmortem.entity.StatueCollectorItem;
 import dev.burning.postmortem.entity.StatueEntity;
 import dev.burning.postmortem.entity.StatuePose;
 import dev.burning.postmortem.platform.Platform;
@@ -49,8 +48,6 @@ public final class PostmortemRegistry {
 
    public static final Supplier<Item> COSMETIC_STATUE_ITEM =
       registerItem("cosmetic_statue", CosmeticStatueItem::new, () -> new Properties().stacksTo(16));
-   public static final Supplier<Item> STATUE_COLLECTOR =
-      registerItem("statue_collector", StatueCollectorItem::new, () -> new Properties().stacksTo(1));
 
    private PostmortemRegistry() {
    }
