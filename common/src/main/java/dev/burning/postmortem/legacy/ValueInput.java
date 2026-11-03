@@ -1,7 +1,7 @@
 package dev.burning.postmortem.legacy;
 
 //? if <1.21.6 {
-/*import com.mojang.serialization.Codec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import java.util.Optional;
 import net.minecraft.core.HolderLookup;
@@ -32,7 +32,7 @@ public final class ValueInput {
    }
 
    //? if >=1.21.5 {
-   public float getFloatOr(String key, float fallback) {
+   /*public float getFloatOr(String key, float fallback) {
       return this.tag.getFloatOr(key, fallback);
    }
 
@@ -47,8 +47,8 @@ public final class ValueInput {
    public boolean getBooleanOr(String key, boolean fallback) {
       return this.tag.getBooleanOr(key, fallback);
    }
-   //?} else {
-   /^public float getFloatOr(String key, float fallback) {
+   *///?} else {
+   public float getFloatOr(String key, float fallback) {
       return this.tag.contains(key) ? this.tag.getFloat(key) : fallback;
    }
 
@@ -63,6 +63,6 @@ public final class ValueInput {
    public boolean getBooleanOr(String key, boolean fallback) {
       return this.tag.contains(key) ? this.tag.getBoolean(key) : fallback;
    }
-   ^///?}
+   //?}
 }
-*///?}
+//?}
