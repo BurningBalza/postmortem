@@ -80,10 +80,6 @@ tasks {
             "java" to requiredJava.majorVersion,
         )
         inputs.properties(props)
-        inputs.file(graveModList)
-
-        // The statue collector is only craftable while no grave mod handles deaths.
-        collectorRecipeConditions(this, "neoforge")
 
         filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
         // Recipe ingredients became plain item ids in 1.21.2.
