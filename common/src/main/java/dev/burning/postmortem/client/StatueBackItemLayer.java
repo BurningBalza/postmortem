@@ -2,6 +2,7 @@ package dev.burning.postmortem.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.burning.postmortem.compat.ArsenalCompat;
 import dev.burning.postmortem.entity.StatuePart;
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -37,10 +38,26 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
    private static final float BANNER_OUT = -0.13F;
    private static final float BANNER_SCALE = 1.4F;
 
+   private static final float ARSENAL_CHESTPLATE_OUT = 0.05F;
+   private static final float ARSENAL_TILT = 6.0F;
+   private static final float ARSENAL_TURN = 180.0F;
+   private static final float ARSENAL_DOWN = 0.3F;
+   private static final float ARSENAL_IN = -0.1F;
+   private static final float ARSENAL_SCALE = 0.85F;
+   private static final float ARSENAL_BIG_DOWN = 0.2F;
+   private static final float ARSENAL_BIG_IN = -0.15F;
+   private static final float ARSENAL_BIG_SCALE = 1.6F;
+   private static final float ARSENAL_SHIELD_DOWN = 0.2F;
+   private static final float ARSENAL_SHIELD_SCALE = 1.8F;
+
    public enum Fit {
       GENERIC(ItemDisplayContext.FIXED),
       TRIDENT(ItemDisplayContext.NONE),
-      BANNER(ItemDisplayContext.FIXED);
+      BANNER(ItemDisplayContext.FIXED),
+      ARSENAL(ItemDisplayContext.FIXED),
+      ARSENAL_BIG(ItemDisplayContext.FIXED),
+      ARSENAL_SHIELD(ItemDisplayContext.FIXED),
+      ARSENAL_BIG_SHIELD(ItemDisplayContext.FIXED);
 
       private final ItemDisplayContext displayContext;
 
@@ -53,6 +70,11 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
       }
 
       public static Fit forItem(ItemStack stack) {
+         if (ArsenalCompat.isPresent()) {
+            boolean big = stack.is(ArsenalCompat.BIG_WEAPONS);
+            boolean shield = stack.is(ArsenalCompat.SHIELDS);
+            return shield ? (big ? ARSENAL_BIG_SHIELD : ARSENAL_SHIELD) : big ? ARSENAL_BIG : ARSENAL;
+         }
          if (stack.getItem() instanceof TridentItem) {
             return TRIDENT;
          }
@@ -159,9 +181,25 @@ public class StatueBackItemLayer extends RenderLayer<StatueEntityRenderer.State,
             matrices.translate(0.0F, DOWN_THE_BACK, OUT_FROM_BACK);
             matrices.scale(SCALE, SCALE, SCALE);
          }
+         case ARSENAL -> arsenal(matrices, state, ARSENAL_DOWN, ARSENAL_IN, ARSENAL_SCALE);
+         case ARSENAL_BIG -> arsenal(matrices, state, ARSENAL_BIG_DOWN, ARSENAL_BIG_IN, ARSENAL_BIG_SCALE);
+         case ARSENAL_SHIELD ->
+            arsenal(matrices, state, ARSENAL_DOWN + ARSENAL_SHIELD_DOWN, ARSENAL_IN, ARSENAL_SHIELD_SCALE);
+         case ARSENAL_BIG_SHIELD ->
+            arsenal(matrices, state, ARSENAL_BIG_DOWN + ARSENAL_SHIELD_DOWN, ARSENAL_BIG_IN, ARSENAL_SHIELD_SCALE);
       }
 
       sink.item(state.backslotItemState, matrices, light, StatueHighlightLayer.overlayFor(state, StatuePart.BACK_ITEM));
       matrices.popPose();
+   }
+
+   private static void arsenal(PoseStack matrices, StatueEntityRenderer.State state, float down, float in, float scale) {
+      if (!state.chestEquipment.isEmpty()) {
+         matrices.translate(0.0F, 0.0F, ARSENAL_CHESTPLATE_OUT);
+      }
+      matrices.mulPose(Axis.XP.rotationDegrees(ARSENAL_TILT));
+      matrices.mulPose(Axis.YP.rotationDegrees(ARSENAL_TURN));
+      matrices.translate(0.0F, down, in);
+      matrices.scale(scale, scale, scale);
    }
 }

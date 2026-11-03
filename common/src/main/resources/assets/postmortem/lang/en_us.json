@@ -1,6 +1,5 @@
 {
 	"item.postmortem.cosmetic_statue": "Statue",
-	"item.postmortem.statue_collector": "Statue Collector",
 
 	"item.postmortem.cosmetic_statue.tooltip": "Right-click it to dress it in armour and held items.",
 	"item.postmortem.cosmetic_statue.tooltip.back": "Right-click from behind to hang something on its back.",
@@ -8,7 +7,6 @@
 	"item.postmortem.cosmetic_statue.tooltip.name": "Right-click with a name tag to name it.",
 	"item.postmortem.cosmetic_statue.tooltip.pose": "Sneak and right-click to pose it.",
 	"item.postmortem.cosmetic_statue.tooltip.wax": "Right-click with honeycomb to seal it.",
-	"item.postmortem.statue_collector.tooltip": "Recalls your remains from %s blocks away.",
 
 	"screen.postmortem.pose": "Pose Statue",
 	"screen.postmortem.pose.editing": "Editing: %s",
@@ -53,7 +51,5 @@
 	"variant.postmortem.screaming": "Screaming",
 
 	"message.postmortem.variant": "Carved a %s face.",
-	"message.postmortem.statue_waxed": "This statue is sealed with wax.",
-	"message.postmortem.no_statue_in_range": "No remains of yours are nearby.",
 	"message.postmortem.memorial_location": "Your remains rest at %s, %s, %s in %s."
 }
