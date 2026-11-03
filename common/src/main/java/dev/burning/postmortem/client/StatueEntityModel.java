@@ -25,8 +25,24 @@ public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State>
    StatueEntityRenderer.State current;
    //?}
 
+   //? if <1.21.2 {
+   /*private final ModelPart jacket;
+   private final ModelPart rightSleeve;
+   private final ModelPart leftSleeve;
+   private final ModelPart rightPants;
+   private final ModelPart leftPants;
+   *///?}
+
    public StatueEntityModel(ModelPart root) {
       super(root);
+      //? if <1.21.2 {
+      /*boolean outer = root.hasChild("jacket");
+      this.jacket = outer ? root.getChild("jacket") : null;
+      this.rightSleeve = outer ? root.getChild("right_sleeve") : null;
+      this.leftSleeve = outer ? root.getChild("left_sleeve") : null;
+      this.rightPants = outer ? root.getChild("right_pants") : null;
+      this.leftPants = outer ? root.getChild("left_pants") : null;
+      *///?}
    }
 
    //? if >=1.21.2 {
@@ -55,17 +71,62 @@ public class StatueEntityModel extends HumanoidModel<StatueEntityRenderer.State>
       this.current = state;
 
       StatuePose pose = state.limbPose;
-      if (pose.isDefault()) {
+      if (!pose.isDefault()) {
+         apply(this.head, pose.get(StatuePart.HEAD));
+         apply(this.body, pose.get(StatuePart.BODY));
+         apply(this.rightArm, pose.get(StatuePart.RIGHT_ARM));
+         apply(this.leftArm, pose.get(StatuePart.LEFT_ARM));
+         apply(this.rightLeg, pose.get(StatuePart.RIGHT_LEG));
+         apply(this.leftLeg, pose.get(StatuePart.LEFT_LEG));
+      }
+      //? if <1.21.2
+      //this.syncOuterLayers();
+   }
+
+   //? if <1.21.2 {
+   /*private void syncOuterLayers() {
+      this.hat.copyFrom(this.head);
+      if (this.jacket == null) {
          return;
       }
 
-      apply(this.head, pose.get(StatuePart.HEAD));
-      apply(this.body, pose.get(StatuePart.BODY));
-      apply(this.rightArm, pose.get(StatuePart.RIGHT_ARM));
-      apply(this.leftArm, pose.get(StatuePart.LEFT_ARM));
-      apply(this.rightLeg, pose.get(StatuePart.RIGHT_LEG));
-      apply(this.leftLeg, pose.get(StatuePart.LEFT_LEG));
+      this.jacket.copyFrom(this.body);
+      this.rightSleeve.copyFrom(this.rightArm);
+      this.leftSleeve.copyFrom(this.leftArm);
+      this.rightPants.copyFrom(this.rightLeg);
+      this.leftPants.copyFrom(this.leftLeg);
    }
+
+   @Override
+   protected Iterable<ModelPart> bodyParts() {
+      if (this.jacket == null) {
+         return super.bodyParts();
+      }
+
+      return com.google.common.collect.Iterables.concat(
+         super.bodyParts(),
+         java.util.List.of(this.jacket, this.rightSleeve, this.leftSleeve, this.rightPants, this.leftPants));
+   }
+
+   public ModelPart outerLayer(ModelPart limb) {
+      if (limb == this.head) {
+         return this.hat;
+      }
+      if (limb == this.body) {
+         return this.jacket;
+      }
+      if (limb == this.rightArm) {
+         return this.rightSleeve;
+      }
+      if (limb == this.leftArm) {
+         return this.leftSleeve;
+      }
+      if (limb == this.rightLeg) {
+         return this.rightPants;
+      }
+      return limb == this.leftLeg ? this.leftPants : null;
+   }
+   *///?}
 
    @Override
    //? if >=1.21.9 {
