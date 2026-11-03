@@ -1,6 +1,5 @@
 # Mods that keep a player's items when they die. With any of these loaded, Postmortem leaves deaths to them: no memorial
-# statues and no statue collector, only cosmetic statues. One mod id per line; the build also uses this list to switch
-# off the statue collector's recipe.
+# statues, only cosmetic statues. One mod id per line.
 coffins
 corpse
 deathchest
