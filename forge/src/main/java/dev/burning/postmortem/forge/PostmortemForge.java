@@ -3,7 +3,6 @@ package dev.burning.postmortem.forge;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemCommand;
 import dev.burning.postmortem.PostmortemRegistry;
-import dev.burning.postmortem.compat.GraveMods;
 import dev.burning.postmortem.death.DeathCapture;
 import dev.burning.postmortem.entity.StatueEntity;
 import dev.burning.postmortem.platform.Platform;
@@ -51,8 +50,6 @@ public final class PostmortemForge {
       CreativeModeTab.TabVisibility visibility = CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS;
       if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
          event.getEntries().putAfter(new ItemStack(Items.ARMOR_STAND), new ItemStack(PostmortemRegistry.COSMETIC_STATUE_ITEM.get()), visibility);
-      } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES && !GraveMods.present()) {
-         event.getEntries().putAfter(new ItemStack(Items.RECOVERY_COMPASS), new ItemStack(PostmortemRegistry.STATUE_COLLECTOR.get()), visibility);
       }
    }
 
