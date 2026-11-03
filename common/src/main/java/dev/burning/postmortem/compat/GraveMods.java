@@ -31,7 +31,7 @@ public final class GraveMods {
       for (String id : read()) {
          if (Platform.INSTANCE.isModLoaded(id)) {
             loaded = id;
-            Postmortem.LOGGER.info("[postmortem] {} handles deaths; memorial statues and the statue collector are off", id);
+            Postmortem.LOGGER.info("[postmortem] {} handles deaths; memorial statues are off", id);
             break;
          }
       }

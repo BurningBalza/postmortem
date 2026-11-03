@@ -3,6 +3,7 @@ package dev.burning.postmortem.death;
 import dev.burning.postmortem.Postmortem;
 import dev.burning.postmortem.PostmortemConfig;
 import dev.burning.postmortem.PostmortemRegistry;
+import dev.burning.postmortem.compat.ArsenalCompat;
 import dev.burning.postmortem.compat.BackslotCompat;
 import dev.burning.postmortem.compat.CarrySlot;
 import dev.burning.postmortem.compat.CombatAmenitiesCompat;
@@ -186,6 +187,11 @@ public final class DeathCapture {
             statue.storeCarried(backslot.copy(), CarrySlot.BACKSLOT);
             BackslotCompat.clear(player);
          }
+      }
+
+      ItemStack arsenal = ArsenalCompat.get(player);
+      if (!arsenal.isEmpty()) {
+         statue.setBackslotStack(arsenal);
       }
 
       if (CombatAmenitiesCompat.isPresent()) {
