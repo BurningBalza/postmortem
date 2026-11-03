@@ -27,7 +27,6 @@ import org.joml.Vector3f;
 
 public class StatuePoseScreen extends Screen {
 
-   private static final int SEND_INTERVAL = 2;
    private static final int MIN_SCREEN_WIDTH = 320;
    private static final int CONTENT_WIDTH = 200;
    private static final int PREVIEW_HEIGHT = 120;
@@ -68,7 +67,6 @@ public class StatuePoseScreen extends Screen {
    private float previewPitch;
    private boolean turnedByHand;
    private boolean dirty;
-   private int ticksSinceSend;
 
    private final AxisSlider[] sliders = new AxisSlider[Axis.values().length];
 
@@ -263,25 +261,15 @@ public class StatuePoseScreen extends Screen {
          || this.minecraft.player == null
          || this.minecraft.player.distanceToSqr(this.statue) > CosmeticStatueEntity.EDIT_RANGE_SQUARED) {
          this.onClose();
-         return;
       }
-
-      if (this.dirty && ++this.ticksSinceSend >= SEND_INTERVAL) {
-         this.send();
-      }
-   }
-
-   private void send() {
-      ClientPlatform.INSTANCE.sendToServer(new PostmortemRegistry.SetPose(this.statue.getId(), this.working));
-      this.dirty = false;
-      this.ticksSinceSend = 0;
    }
 
    @Override
    public void removed() {
       StatueHighlightLayer.clear();
       if (this.dirty) {
-         this.send();
+         ClientPlatform.INSTANCE.sendToServer(new PostmortemRegistry.SetPose(this.statue.getId(), this.working));
+         this.dirty = false;
       }
 
       super.removed();
