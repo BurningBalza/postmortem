@@ -64,6 +64,6 @@ public final class FabricPlatform implements Platform {
 
    @Override
    public Collection<ItemEntity> capturedDrops(Entity entity) {
-      return null;
+      return PuzzlesLibCompat.capturedDrops(entity);
    }
 }
